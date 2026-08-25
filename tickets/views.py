@@ -51,9 +51,9 @@ class TicketViewSet(viewsets.ModelViewSet):
             ticket.status in ['draft', 'rejected_by_executive', 'rejected_by_director']
         )
         is_eo_editable = (
-            role == 'Executive Officer' and 
-            ticket.status == 'pending_executive' and 
-            ticket.branch == user.branch
+            role in ['Executive Officer', 'Branch Executive Officer'] and 
+            ticket.status in ['pending_executive', 'draft'] and 
+            (not user.branch or ticket.branch == user.branch)
         )
 
         if not (is_bm_editable or is_eo_editable or user.is_superuser):
@@ -88,6 +88,28 @@ class TicketViewSet(viewsets.ModelViewSet):
 
         return Response(TicketSerializer(ticket).data)
 
+    @action(detail=True, methods=['post'])
+    def close(self, request, pk=None):
+        """Branch Manager closes a rejected or draft ticket."""
+        ticket = self.get_object()
+        user = request.user
+
+        if ticket.created_by != user and not user.is_superuser:
+            return Response(
+                {'detail': 'Only the creator can close this ticket.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if ticket.status not in ['rejected_by_executive', 'rejected_by_director', 'draft']:
+            return Response(
+                {'detail': f'Cannot close ticket with status "{ticket.status}".'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        ticket.status = 'closed'
+        ticket.save()
+        return Response(TicketSerializer(ticket).data)
+
     @action(detail=True, methods=['post'], url_path='executive-decision')
     def executive_decision(self, request, pk=None):
         """Executive Officer approves or rejects the ticket."""
@@ -95,13 +117,13 @@ class TicketViewSet(viewsets.ModelViewSet):
         user = request.user
         role = user.type.user_type if user.type else None
 
-        if role != 'Executive Officer' and not user.is_superuser:
+        if role not in ['Executive Officer', 'Branch Executive Officer'] and not user.is_superuser:
             return Response(
                 {'detail': 'Only Executive Officers can make this decision.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        if ticket.status != 'pending_executive':
+        if ticket.status not in ['pending_executive', 'draft']:
             return Response(
                 {'detail': 'Ticket is not pending executive review.'},
                 status=status.HTTP_400_BAD_REQUEST

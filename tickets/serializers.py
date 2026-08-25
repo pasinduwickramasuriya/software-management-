@@ -31,7 +31,7 @@ class TicketApprovalSerializer(serializers.ModelSerializer):
 class TicketSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
     branch_name = serializers.CharField(source='branch.branch_name', read_only=True)
-    documents = TicketDocumentSerializer(many=True, read_only=True)
+    documents = TicketDocumentSerializer(many=True, required=False)
     approvals = TicketApprovalSerializer(many=True, read_only=True)
 
     class Meta:
@@ -51,6 +51,24 @@ class TicketSerializer(serializers.ModelSerializer):
             'approvals',
         ]
         read_only_fields = ['ticket_id', 'branch', 'created_by', 'status', 'created_at', 'sent_at']
+
+    def create(self, validated_data):
+        documents_data = validated_data.pop('documents', [])
+        ticket = Ticket.objects.create(**validated_data)
+        for doc_data in documents_data:
+            TicketDocument.objects.create(ticket=ticket, **doc_data)
+        return ticket
+
+    def update(self, instance, validated_data):
+        documents_data = validated_data.pop('documents', None)
+        instance.project_name = validated_data.get('project_name', instance.project_name)
+        instance.requirements = validated_data.get('requirements', instance.requirements)
+        instance.save()
+
+        if documents_data is not None:
+            for doc_data in documents_data:
+                TicketDocument.objects.create(ticket=instance, **doc_data)
+        return instance
 
 
 class DecisionInputSerializer(serializers.Serializer):

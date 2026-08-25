@@ -11,6 +11,7 @@ class Ticket(models.Model):
         ("rejected_by_director", "Rejected by Director"),
         ("approved", "Approved / In Development"),
         ("completed", "Completed"),
+        ("closed", "Closed"),
     ]
 
     ticket_id = models.AutoField(primary_key=True)

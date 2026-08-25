@@ -4,8 +4,14 @@ import LoginPage from './pages/LoginPage';
 import { Building2, User, LogOut, Shield } from 'lucide-react';
 import './App.css';
 
+import BranchManagerDashboard from './components/BranchManagerDashboard';
+import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
+
 function MainLayout() {
   const { user, role, branch, logout, loading } = useAuth();
+
+  const isBranchManager = role && role.toLowerCase().includes('branch manager');
+  const isExecutiveOfficer = role && role.toLowerCase().includes('executive');
 
   if (loading) {
     return (
@@ -48,15 +54,21 @@ function MainLayout() {
 
       {/* Main Content Area */}
       <main style={{ maxWidth: '1200px', margin: '30px auto', padding: '0 20px' }}>
-        <div style={{ backgroundColor: '#ffffff', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <h2>Welcome, {user.username}!</h2>
-          <p style={{ color: '#64748b' }}>
-            You are logged in as <strong>{role}</strong> {branch ? `for ${branch}` : ''}.
-          </p>
-          <div style={{ padding: '16px', backgroundColor: '#eff6ff', borderRadius: '8px', color: '#1e40af', marginTop: '16px' }}>
-            🎉 <strong>Login & Auth System Active!</strong> We are ready to build the specific dashboard view for your role next.
+        {isBranchManager ? (
+          <BranchManagerDashboard />
+        ) : isExecutiveOfficer ? (
+          <ExecutiveOfficerDashboard />
+        ) : (
+          <div style={{ backgroundColor: '#ffffff', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2>Welcome, {user.username}!</h2>
+            <p style={{ color: '#64748b' }}>
+              You are logged in as <strong>{role}</strong> {branch ? `for ${branch}` : ''}.
+            </p>
+            <div style={{ padding: '16px', backgroundColor: '#eff6ff', borderRadius: '8px', color: '#1e40af', marginTop: '16px' }}>
+              🎉 <strong>Logged in as {role}!</strong>
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
