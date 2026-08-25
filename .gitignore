@@ -1,13 +1,40 @@
-# Python
-venv/
-*.pyc
-__pycache__/
-*.sqlite3
-.env
+# # Python
+# venv/
+# *.pyc
+# __pycache__/
+# *.sqlite3
+# .env
 
-# Node / React
+# # Node / React
+# frontend/node_modules/
+# frontend/dist/
+# frontend/.env.local
+# frontend/.env.*.local
+# .DS_Store
+
+
+
+# Environment Variables (Secrets)
+.env
+*.env
+!.env.example
+frontend/.env
+frontend/*.env
+!frontend/.env.example
+
+# Python / Django
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.sqlite3
+db.sqlite3
+
+# Node / React Frontend
+node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.env.local
-frontend/.env.*.local
+
+# macOS system files
 .DS_Store
