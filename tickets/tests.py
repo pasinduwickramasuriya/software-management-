@@ -161,3 +161,87 @@ class TicketWorkflowTests(TestCase):
         self.assertEqual(reject_res.status_code, status.HTTP_200_OK)
         ticket.refresh_from_db()
         self.assertEqual(ticket.status, 'rejected_by_director')
+
+    def test_it_main_developer_and_developer_workflow(self):
+        # Setup roles and users for Main Dev & Developer
+        role_main_dev, _ = UserType.objects.get_or_create(user_type='IT Main Developer')
+        role_dev, _ = UserType.objects.get_or_create(user_type='Developer')
+
+        it_main_dev = User.objects.create_user(
+            username='it_main_dev',
+            email='main_dev@test.local',
+            password='password123',
+            type=role_main_dev,
+            branch=self.branch_it,
+        )
+        developer = User.objects.create_user(
+            username='dev_alice',
+            email='alice@test.local',
+            password='password123',
+            type=role_dev,
+            branch=self.branch_it,
+        )
+
+        # 1. Ticket approved by IT Director
+        ticket = Ticket.objects.create(
+            branch=self.branch_food,
+            created_by=self.bm_food,
+            project_name='Kitchen Order Display',
+            requirements='Realtime order screen.',
+            status='approved',
+        )
+        project = ApprovedProject.objects.create(
+            ticket=ticket,
+            project_name=ticket.project_name,
+            status='Not Started',
+        )
+
+        # 2. IT Main Developer assigns a task to dev_alice
+        self.client.force_authenticate(user=it_main_dev)
+        task_res = self.client.post('/api/projects/tasks/', {
+            'ticket': ticket.ticket_id,
+            'assigned_to': developer.id,
+            'task_title': 'Setup WebSockets for Realtime Orders',
+            'description': 'Implement WebSocket channel layers.',
+        })
+        self.assertEqual(task_res.status_code, status.HTTP_201_CREATED)
+        task_id = task_res.data['task_id']
+
+        # Verify project status automatically changed to 'In Progress'
+        project.refresh_from_db()
+        self.assertEqual(project.status, 'In Progress')
+
+        # 3. Developer logs in, sees assigned task, and marks in progress -> completed
+        self.client.force_authenticate(user=developer)
+        my_tasks_res = self.client.get('/api/projects/tasks/')
+        self.assertEqual(my_tasks_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(my_tasks_res.data), 1)
+        self.assertEqual(my_tasks_res.data[0]['task_id'], task_id)
+
+        # Update status to 'In Progress'
+        in_prog_res = self.client.patch(f'/api/projects/tasks/{task_id}/update-status/', {
+            'status': 'In Progress'
+        })
+        self.assertEqual(in_prog_res.status_code, status.HTTP_200_OK)
+
+        # Mark completed
+        comp_res = self.client.patch(f'/api/projects/tasks/{task_id}/update-status/', {
+            'status': 'Completed'
+        })
+        self.assertEqual(comp_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(comp_res.data['status'], 'Completed')
+
+        # 4. IT Main Developer checks project progress & marks project completed
+        self.client.force_authenticate(user=it_main_dev)
+        proj_detail_res = self.client.get(f'/api/projects/{project.project_id}/')
+        self.assertEqual(proj_detail_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(proj_detail_res.data['progress_percentage'], 100)
+
+        # Mark project complete
+        complete_res = self.client.post(f'/api/projects/{project.project_id}/mark-completed/')
+        self.assertEqual(complete_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(complete_res.data['status'], 'Completed')
+
+        # Verify ticket status is completed
+        ticket.refresh_from_db()
+        self.assertEqual(ticket.status, 'completed')

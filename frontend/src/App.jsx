@@ -7,6 +7,8 @@ import './App.css';
 import BranchManagerDashboard from './components/BranchManagerDashboard';
 import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
 import ITDirectorDashboard from './components/ITDirectorDashboard';
+import ITMainDeveloperDashboard from './components/ITMainDeveloperDashboard';
+import DeveloperDashboard from './components/DeveloperDashboard';
 
 function MainLayout() {
   const { user, role, branch, logout, loading } = useAuth();
@@ -14,6 +16,8 @@ function MainLayout() {
   const isBranchManager = role && role.toLowerCase().includes('branch manager');
   const isExecutiveOfficer = role && role.toLowerCase().includes('executive');
   const isITDirector = role && (role.toLowerCase().includes('director') || role.toLowerCase() === 'it director');
+  const isITMainDev = role && (role.toLowerCase().includes('main developer') || role.toLowerCase().includes('main dev'));
+  const isDeveloper = role && role.toLowerCase() === 'developer';
 
   if (loading) {
     return (
@@ -62,6 +66,10 @@ function MainLayout() {
           <ExecutiveOfficerDashboard />
         ) : isITDirector ? (
           <ITDirectorDashboard />
+        ) : isITMainDev ? (
+          <ITMainDeveloperDashboard />
+        ) : isDeveloper ? (
+          <DeveloperDashboard />
         ) : (
           <div style={{ backgroundColor: '#ffffff', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <h2>Welcome, {user.username}!</h2>

@@ -6,6 +6,8 @@ from tickets.serializers import TicketSerializer
 class TaskSerializer(serializers.ModelSerializer):
     assigned_to_name = serializers.CharField(source='assigned_to.username', read_only=True)
     ticket_name = serializers.CharField(source='ticket.project_name', read_only=True)
+    branch_name = serializers.CharField(source='ticket.branch.branch_name', read_only=True)
+    ticket_requirements = serializers.CharField(source='ticket.requirements', read_only=True)
 
     class Meta:
         model = Task
@@ -13,6 +15,8 @@ class TaskSerializer(serializers.ModelSerializer):
             'task_id',
             'ticket',
             'ticket_name',
+            'branch_name',
+            'ticket_requirements',
             'assigned_to',
             'assigned_to_name',
             'task_title',
@@ -26,6 +30,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class ApprovedProjectSerializer(serializers.ModelSerializer):
     ticket_details = TicketSerializer(source='ticket', read_only=True)
+    branch_name = serializers.CharField(source='ticket.branch.branch_name', read_only=True)
     tasks = TaskSerializer(source='ticket.tasks', many=True, read_only=True)
     total_tasks = serializers.SerializerMethodField()
     completed_tasks = serializers.SerializerMethodField()
@@ -38,6 +43,7 @@ class ApprovedProjectSerializer(serializers.ModelSerializer):
             'ticket',
             'ticket_details',
             'project_name',
+            'branch_name',
             'status',
             'created_at',
             'tasks',
