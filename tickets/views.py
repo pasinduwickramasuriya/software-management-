@@ -2,6 +2,7 @@ from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from .models import Ticket, TicketDocument, TicketApproval
 from .serializers import (
     TicketSerializer,
@@ -32,12 +33,18 @@ class TicketViewSet(viewsets.ModelViewSet):
         return Ticket.objects.filter(status='approved')
 
     def perform_create(self, serializer):
-        # Auto-assign the creator and their branch
+        user = self.request.user
+        branch = user.branch
+        
+        if not branch and not user.is_superuser:
+            raise ValidationError({'branch': 'Your user account is not assigned to any branch.'})
+            
         serializer.save(
-            created_by=self.request.user,
-            branch=self.request.user.branch,
+            created_by=user,
+            branch=branch,
             status='draft'
         )
+
 
     def update(self, request, *args, **kwargs):
         ticket = self.get_object()

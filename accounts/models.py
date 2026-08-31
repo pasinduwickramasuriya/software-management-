@@ -35,4 +35,5 @@ class User(AbstractUser):
     )
 
     def __str__(self):
-        return f"{self.username} ({self.type.user_type})"
+        role = self.type.user_type if self.type else "No Role"
+        return f"{self.username} ({role})"

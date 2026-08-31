@@ -7,7 +7,8 @@ class TicketDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketDocument
         fields = ['document_id', 'ticket', 'file_name', 'file_path', 'uploaded_at']
-        read_only_fields = ['document_id', 'uploaded_at']
+        read_only_fields = ['document_id', 'ticket', 'uploaded_at']
+
 
 
 class TicketApprovalSerializer(serializers.ModelSerializer):
