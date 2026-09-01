@@ -11,6 +11,7 @@ from .serializers import (
     DecisionInputSerializer,
 )
 from projects.models import ApprovedProject
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class TicketViewSet(viewsets.ModelViewSet):
@@ -116,6 +117,31 @@ class TicketViewSet(viewsets.ModelViewSet):
         ticket.status = 'closed'
         ticket.save()
         return Response(TicketSerializer(ticket).data)
+
+    @action(detail=True, methods=['post'], url_path='upload-document',
+            parser_classes=[MultiPartParser, FormParser])
+    def upload_document(self, request, pk=None):
+        """Branch Manager attaches a real file to their ticket."""
+        ticket = self.get_object()
+        user = request.user
+
+        if ticket.created_by != user and not user.is_superuser:
+            return Response(
+                {'detail': 'Only the creator can attach documents to this ticket.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        uploaded_file = request.FILES.get('file')
+        if not uploaded_file:
+            return Response({'detail': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        document = TicketDocument.objects.create(
+            ticket=ticket,
+            file_name=uploaded_file.name,
+            file_path=uploaded_file,
+        )
+
+        return Response(TicketDocumentSerializer(document).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'], url_path='executive-decision')
     def executive_decision(self, request, pk=None):
