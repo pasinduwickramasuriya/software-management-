@@ -28,7 +28,7 @@ class TicketViewSet(viewsets.ModelViewSet):
 
         # Branch Manager & Executive Officer only see tickets for their own branch
         if role in ['Branch Manager', 'Executive Officer', 'Branch Executive Officer'] and user.branch:
-            return Ticket.objects.filter(branch=user.branch)
+            return Ticket.objects.filter(branch=user.branch).order_by('-created_at')
 
         # Developers see approved tickets
         return Ticket.objects.filter(status='approved')
