@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage';
 import { Building2, User, LogOut, Shield } from 'lucide-react';
 import './App.css';
 
-import BranchManagerDashboard from './components/BranchManagerDashboard';
+import BranchManagerLayout from './components/BranchManagerLayout';
 import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
 
 function MainLayout() {
@@ -27,49 +27,55 @@ function MainLayout() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'sans-serif' }}>
-      {/* Top Navbar */}
-      <header style={headerStyles.navbar}>
-        <div style={headerStyles.brand}>
-          <Shield size={24} color="#2563eb" />
-          <span style={headerStyles.brandName}>Software Management System</span>
-        </div>
-
-        <div style={headerStyles.userSection}>
-          <div style={headerStyles.userInfo}>
-            <span style={headerStyles.userName}>{user.username}</span>
-            <div style={headerStyles.badgeRow}>
-              <span style={headerStyles.roleBadge}>{role || 'No Role'}</span>
-              {branch && (
-                <span style={headerStyles.branchBadge}>
-                  <Building2 size={12} style={{ marginRight: 3 }} /> {branch}
-                </span>
-              )}
+      
+      {/* If Branch Manager, render the new layout entirely (it has its own sidebar) */}
+      {isBranchManager ? (
+        <BranchManagerLayout />
+      ) : (
+        <>
+          {/* Top Navbar for other roles */}
+          <header style={headerStyles.navbar}>
+            <div style={headerStyles.brand}>
+              <Shield size={24} color="#2563eb" />
+              <span style={headerStyles.brandName}>Software Management System</span>
             </div>
-          </div>
-          <button onClick={logout} style={headerStyles.logoutBtn}>
-            <LogOut size={16} style={{ marginRight: 6 }} /> Logout
-          </button>
-        </div>
-      </header>
 
-      {/* Main Content Area */}
-      <main style={{ maxWidth: '1200px', margin: '30px auto', padding: '0 20px' }}>
-        {isBranchManager ? (
-          <BranchManagerDashboard />
-        ) : isExecutiveOfficer ? (
-          <ExecutiveOfficerDashboard />
-        ) : (
-          <div style={{ backgroundColor: '#ffffff', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h2>Welcome, {user.username}!</h2>
-            <p style={{ color: '#64748b' }}>
-              You are logged in as <strong>{role}</strong> {branch ? `for ${branch}` : ''}.
-            </p>
-            <div style={{ padding: '16px', backgroundColor: '#eff6ff', borderRadius: '8px', color: '#1e40af', marginTop: '16px' }}>
-              🎉 <strong>Logged in as {role}!</strong>
+            <div style={headerStyles.userSection}>
+              <div style={headerStyles.userInfo}>
+                <span style={headerStyles.userName}>{user.username}</span>
+                <div style={headerStyles.badgeRow}>
+                  <span style={headerStyles.roleBadge}>{role || 'No Role'}</span>
+                  {branch && (
+                    <span style={headerStyles.branchBadge}>
+                      <Building2 size={12} style={{ marginRight: 3 }} /> {branch}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button onClick={logout} style={headerStyles.logoutBtn}>
+                <LogOut size={16} style={{ marginRight: 6 }} /> Logout
+              </button>
             </div>
-          </div>
-        )}
-      </main>
+          </header>
+
+          {/* Main Content Area for other roles */}
+          <main style={{ maxWidth: '1200px', margin: '30px auto', padding: '0 20px' }}>
+            {isExecutiveOfficer ? (
+              <ExecutiveOfficerDashboard />
+            ) : (
+              <div style={{ backgroundColor: '#ffffff', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <h2>Welcome, {user.username}!</h2>
+                <p style={{ color: '#64748b' }}>
+                  You are logged in as <strong>{role}</strong> {branch ? `for ${branch}` : ''}.
+                </p>
+                <div style={{ padding: '16px', backgroundColor: '#eff6ff', borderRadius: '8px', color: '#1e40af', marginTop: '16px' }}>
+                  🎉 <strong>Logged in as {role}!</strong>
+                </div>
+              </div>
+            )}
+          </main>
+        </>
+      )}
     </div>
   );
 }
