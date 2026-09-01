@@ -61,7 +61,7 @@ export default function ExecutiveOfficerDashboard() {
         decision: decisionType,
         remark: remark,
       });
-      alert(`Ticket ${decisionType === 'approved' ? 'Approved' : 'Rejected & sent back to Branch Manager'}!`);
+      alert(`Ticket #${decisionTicket.ticket_id} ${decisionType === 'approved' ? 'Approved & forwarded to the IT Director for authorization' : 'Rejected & sent back to Branch Manager'}!`);
       setDecisionTicket(null);
       setRemark('');
       fetchTickets();
@@ -75,17 +75,21 @@ export default function ExecutiveOfficerDashboard() {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'pending_executive':
-        return <span style={{ ...badgeStyle, bg: '#fef3c7', color: '#b45309' }}><Clock size={12} /> Pending Executive Review</span>;
+        return <span style={{ ...badgeStyle, backgroundColor: '#fef3c7', color: '#b45309' }}><Clock size={12} /> Pending Executive Review</span>;
       case 'rejected_by_executive':
-        return <span style={{ ...badgeStyle, bg: '#fef2f2', color: '#dc2626' }}><AlertCircle size={12} /> Rejected by Executive</span>;
+        return <span style={{ ...badgeStyle, backgroundColor: '#fef2f2', color: '#dc2626' }}><AlertCircle size={12} /> Rejected by Executive</span>;
       case 'pending_director':
-        return <span style={{ ...badgeStyle, bg: '#e0e7ff', color: '#4338ca' }}><Clock size={12} /> Pending Director</span>;
+        return <span style={{ ...badgeStyle, backgroundColor: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' }}><Clock size={12} /> Pending IT Director</span>;
+      case 'rejected_by_director':
+        return <span style={{ ...badgeStyle, backgroundColor: '#fff1f2', color: '#be123c' }}><AlertCircle size={12} /> Rejected by IT Director</span>;
       case 'approved':
-        return <span style={{ ...badgeStyle, bg: '#dcfce7', color: '#15803d' }}><CheckCircle2 size={12} /> Approved</span>;
+        return <span style={{ ...badgeStyle, backgroundColor: '#dcfce7', color: '#15803d' }}><CheckCircle2 size={12} /> Approved / In Development</span>;
+      case 'completed':
+        return <span style={{ ...badgeStyle, backgroundColor: '#f0fdf4', color: '#166534' }}><CheckCircle2 size={12} /> Completed</span>;
       case 'closed':
-        return <span style={{ ...badgeStyle, bg: '#f3f4f6', color: '#6b7280' }}><XCircle size={12} /> Closed</span>;
+        return <span style={{ ...badgeStyle, backgroundColor: '#f3f4f6', color: '#6b7280' }}><XCircle size={12} /> Closed</span>;
       default:
-        return <span style={{ ...badgeStyle, bg: '#f1f5f9', color: '#475569' }}>{status}</span>;
+        return <span style={{ ...badgeStyle, backgroundColor: '#f1f5f9', color: '#475569' }}>{status}</span>;
     }
   };
 

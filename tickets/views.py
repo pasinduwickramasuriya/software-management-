@@ -26,7 +26,7 @@ class TicketViewSet(viewsets.ModelViewSet):
             return Ticket.objects.all()
 
         # Branch Manager & Executive Officer only see tickets for their own branch
-        if role in ['Branch Manager', 'Executive Officer'] and user.branch:
+        if role in ['Branch Manager', 'Executive Officer', 'Branch Executive Officer'] and user.branch:
             return Ticket.objects.filter(branch=user.branch)
 
         # Developers see approved tickets
@@ -127,6 +127,13 @@ class TicketViewSet(viewsets.ModelViewSet):
         if role not in ['Executive Officer', 'Branch Executive Officer'] and not user.is_superuser:
             return Response(
                 {'detail': 'Only Executive Officers can make this decision.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Enforce that Executive Officer can only review tickets of their own branch
+        if user.branch and ticket.branch != user.branch and not user.is_superuser:
+            return Response(
+                {'detail': 'You can only review and approve tickets from your own branch.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
