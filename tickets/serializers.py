@@ -4,10 +4,18 @@ from accounts.serializers import UserSerializer, BranchSerializer
 
 
 class TicketDocumentSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
     class Meta:
         model = TicketDocument
-        fields = ['document_id', 'ticket', 'file_name', 'file_path', 'uploaded_at']
+        fields = ['document_id', 'ticket', 'file_name', 'file_url', 'uploaded_at']
         read_only_fields = ['document_id', 'ticket', 'uploaded_at']
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file_path and request:
+            return request.build_absolute_uri(obj.file_path.url)
+        return None
 
 
 

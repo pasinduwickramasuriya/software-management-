@@ -7,7 +7,7 @@ export default function ViewTicketsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const [editingTicket, setEditingTicket] = useState(null);
   const [viewingTicket, setViewingTicket] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -86,7 +86,7 @@ export default function ViewTicketsPage() {
   const closedCount = tickets.filter(t => t.status.includes('rejected') || t.status === 'closed').length;
 
   const filteredTickets = tickets.filter(t => {
-    const matchesSearch = t.project_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = t.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           `#TK-${t.ticket_id}`.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
     if (activeTab === 'All') return true;
@@ -99,17 +99,14 @@ export default function ViewTicketsPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>All Branch Tickets</h1>
           <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>View, track, and manage all ticket proposals raised by your branch</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', backgroundColor: '#e0f2fe', color: '#0369a1', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 600 }}>
-          <span style={{ backgroundColor: '#0284c7', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>BM</span>
-          Finance Branch
-        </div>
+        
       </div>
 
       {/* Main Content Area */}
@@ -125,7 +122,7 @@ export default function ViewTicketsPage() {
                 if (tab === 'Pending Review') count = ` (${pendingCount})`;
                 if (tab === 'Approved') count = ` (${approvedCount})`;
                 if (tab === 'Closed') count = ` (${closedCount})`;
-                
+
                 return (
                   <button
                     key={tab}
@@ -144,9 +141,9 @@ export default function ViewTicketsPage() {
             </div>
             <div style={{ position: 'relative' }}>
               <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-              <input 
-                type="text" 
-                placeholder="Search by ID or title..." 
+              <input
+                type="text"
+                placeholder="Search by ID or title..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ ...inputStyle, paddingLeft: '36px', width: '250px', borderRadius: '20px', padding: '8px 12px 8px 36px' }}
@@ -272,12 +269,21 @@ export default function ViewTicketsPage() {
                 <div>
                   <strong>Attached Documents:</strong>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                    {viewingTicket.documents.map((doc, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.88rem', color: '#334155' }}>
-                        <FileText size={16} color="#2563eb" />
-                        <span>{doc.file_name}</span>
-                      </div>
-                    ))}
+                    {viewingTicket.documents.map((doc, idx) => {
+                      return (
+                        <a
+                        
+                          key={idx}
+                          href={doc.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.88rem', color: '#2563eb', textDecoration: 'none', fontWeight: 500 }}
+                        >
+                          <FileText size={16} color="#2563eb" />
+                          <span>{doc.file_name}</span>
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               )}
