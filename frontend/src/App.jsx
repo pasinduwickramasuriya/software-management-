@@ -1,14 +1,15 @@
 import React from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
-import { Building2, LogOut, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import './App.css';
 
 import BranchManagerLayout from './components/BranchManagerLayout';
-import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
+import ExecutiveOfficerDashboard from './pages/ExecutiveOfficerDashboard';
 import ITDirectorDashboard from './components/ITDirectorDashboard';
 import ITMainDeveloperDashboard from './components/ITMainDeveloperDashboard';
 import DeveloperDashboard from './components/DeveloperDashboard';
+import ProfileMenu from './components/ProfileMenu';
 
 function MainLayout() {
   const { user, role, branch, logout, loading } = useAuth();
@@ -74,38 +75,15 @@ function MainLayout() {
         </div>
 
         <div style={headerStyles.userSection}>
-          <div style={headerStyles.userInfo}>
-            <span style={headerStyles.userName}>
-              {user.username}
-            </span>
-
-            <div style={headerStyles.badgeRow}>
-              <span style={headerStyles.roleBadge}>
-                {role || 'No Role'}
-              </span>
-
-              {branch && (
-                <span style={headerStyles.branchBadge}>
-                  <Building2
-                    size={12}
-                    style={{ marginRight: 3 }}
-                  />
-                  {branch}
-                </span>
-              )}
+          {!isExecutiveOfficer && (
+            <div style={headerStyles.breadcrumb}>
+              <span style={{ color: '#64748b' }}>Home</span>
+              <span style={{ color: '#cbd5e1' }}>{'>'}</span>
+              <span style={{ color: '#0f172a', fontWeight: 600 }}>Dashboard</span>
             </div>
-          </div>
+          )}
 
-          <button
-            onClick={logout}
-            style={headerStyles.logoutBtn}
-          >
-            <LogOut
-              size={16}
-              style={{ marginRight: 6 }}
-            />
-            Logout
-          </button>
+          <ProfileMenu />
         </div>
       </header>
 
