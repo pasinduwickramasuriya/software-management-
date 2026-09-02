@@ -156,30 +156,6 @@ function MainLayout() {
           </div>
         )}
       </main>
-          {/* Main Content Area */}
-          <main style={{ maxWidth: '1200px', margin: '30px auto', padding: '0 20px' }}>
-            {isExecutiveOfficer ? (
-              <ExecutiveOfficerDashboard />
-            ) : isITDirector ? (
-              <ITDirectorDashboard />
-            ) : isITMainDev ? (
-              <ITMainDeveloperDashboard />
-            ) : isDeveloper ? (
-              <DeveloperDashboard />
-            ) : (
-              <div style={{ backgroundColor: '#ffffff', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                <h2>Welcome, {user.username}!</h2>
-                <p style={{ color: '#64748b' }}>
-                  You are logged in as <strong>{role}</strong> {branch ? `for ${branch}` : ''}.
-                </p>
-                <div style={{ padding: '16px', backgroundColor: '#eff6ff', borderRadius: '8px', color: '#1e40af', marginTop: '16px' }}>
-                  🎉 <strong>Logged in as {role}!</strong>
-                </div>
-              </div>
-            )}
-          </main>
-        </>
-      )}
     </div>
   );
 }

@@ -31,7 +31,9 @@ class TicketDocument(models.Model):
     document_id = models.AutoField(primary_key=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="documents")
     file_name = models.CharField(max_length=150)
-    file_path = models.FileField(upload_to='tickets/')
+    file_type = models.CharField(max_length=100, blank=True, null=True)
+    file_size = models.BigIntegerField(blank=True, null=True)
+    file_data = models.BinaryField(null=True, blank=True)  # Entire file binary data stored directly in MySQL LONGBLOB
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

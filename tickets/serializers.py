@@ -8,14 +8,13 @@ class TicketDocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TicketDocument
-        fields = ['document_id', 'ticket', 'file_name', 'file_url', 'uploaded_at']
-        read_only_fields = ['document_id', 'ticket', 'uploaded_at']
+        fields = ['document_id', 'ticket', 'file_name', 'file_type', 'file_size', 'file_url', 'uploaded_at']
+        read_only_fields = ['document_id', 'ticket', 'file_type', 'file_size', 'uploaded_at']
 
     def get_file_url(self, obj):
         request = self.context.get('request')
-        if obj.file_path and request:
-            return request.build_absolute_uri(obj.file_path.url)
-        return None
+        download_path = f'/api/tickets/documents/{obj.document_id}/download/'
+        return request.build_absolute_uri(download_path) if request else download_path
 
 
 
