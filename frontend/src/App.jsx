@@ -1,18 +1,21 @@
+```jsx
 import React from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
-import { Building2, LogOut, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import './App.css';
 
 import BranchManagerLayout from './components/BranchManagerLayout';
 import ITDirectorLayout from './components/ITDirectorLayout';
 import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
+import ExecutiveOfficerDashboard from './pages/ExecutiveOfficerDashboard';
 import ITDirectorDashboard from './components/ITDirectorDashboard';
 import ITMainDeveloperDashboard from './components/ITMainDeveloperDashboard';
 import DeveloperDashboard from './components/DeveloperDashboard';
+import ProfileMenu from './components/ProfileMenu';
 
 function MainLayout() {
-  const { user, role, branch, logout, loading } = useAuth();
+  const { user, role, branch, loading } = useAuth();
 
   const isBranchManager =
     role && role.toLowerCase().includes('branch manager');
@@ -33,6 +36,7 @@ function MainLayout() {
   const isDeveloper =
     role && role.toLowerCase() === 'developer';
 
+  // Loading state
   if (loading) {
     return (
       <div
@@ -48,6 +52,7 @@ function MainLayout() {
     );
   }
 
+  // User is not logged in
   if (!user) {
     return <LoginPage />;
   }
@@ -74,44 +79,33 @@ function MainLayout() {
       <header style={headerStyles.navbar}>
         <div style={headerStyles.brand}>
           <Shield size={24} color="#2563eb" />
+
           <span style={headerStyles.brandName}>
             Software Management System
           </span>
         </div>
 
         <div style={headerStyles.userSection}>
-          <div style={headerStyles.userInfo}>
-            <span style={headerStyles.userName}>
-              {user.username}
-            </span>
+          {!isExecutiveOfficer && (
+            <div style={headerStyles.breadcrumb}>
+              <span style={{ color: '#64748b' }}>Home</span>
 
-            <div style={headerStyles.badgeRow}>
-              <span style={headerStyles.roleBadge}>
-                {role || 'No Role'}
+              <span style={{ color: '#cbd5e1' }}>
+                {'>'}
               </span>
 
-              {branch && (
-                <span style={headerStyles.branchBadge}>
-                  <Building2
-                    size={12}
-                    style={{ marginRight: 3 }}
-                  />
-                  {branch}
-                </span>
-              )}
+              <span
+                style={{
+                  color: '#0f172a',
+                  fontWeight: 600,
+                }}
+              >
+                Dashboard
+              </span>
             </div>
-          </div>
+          )}
 
-          <button
-            onClick={logout}
-            style={headerStyles.logoutBtn}
-          >
-            <LogOut
-              size={16}
-              style={{ marginRight: 6 }}
-            />
-            Logout
-          </button>
+          <ProfileMenu />
         </div>
       </header>
 
@@ -252,4 +246,12 @@ const headerStyles = {
     display: 'flex',
     alignItems: 'center',
   },
+
+  breadcrumb: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '0.85rem',
+  },
 };
+```
