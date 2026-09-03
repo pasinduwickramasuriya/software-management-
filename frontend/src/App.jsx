@@ -5,6 +5,8 @@ import { Shield } from 'lucide-react';
 import './App.css';
 
 import BranchManagerLayout from './components/BranchManagerLayout';
+import ITDirectorLayout from './components/ITDirectorLayout';
+import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
 import ExecutiveOfficerDashboard from './pages/ExecutiveOfficerDashboard';
 import ITDirectorDashboard from './components/ITDirectorDashboard';
 import ITMainDeveloperDashboard from './components/ITMainDeveloperDashboard';
@@ -57,6 +59,11 @@ function MainLayout() {
   // Branch Manager has its own complete layout
   if (isBranchManager) {
     return <BranchManagerLayout />;
+  }
+
+  // IT Director has its own complete layout
+  if (isITDirector) {
+    return <ITDirectorLayout />;
   }
 
   return (
