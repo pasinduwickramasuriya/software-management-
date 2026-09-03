@@ -23,16 +23,28 @@ class TicketViewSet(viewsets.ModelViewSet):
         user = self.request.user
         role = user.type.user_type if user.type else None
 
-        # Admin, IT Director, IT Main Developer see all tickets
-        if user.is_superuser or role in ['Admin', 'IT Director', 'IT Main Developer']:
-            return Ticket.objects.all()
+        # Superuser and Admin see all tickets
+        if user.is_superuser or role == 'Admin':
+            return Ticket.objects.all().order_by('-created_at')
+
+        # IT Director sees ONLY tickets that have been approved by the Executive Officer
+        if role == 'IT Director':
+            return Ticket.objects.filter(
+                status__in=['pending_director', 'approved', 'rejected_by_director', 'completed']
+            ).order_by('-created_at')
+
+        # IT Main Developer sees approved and completed development tickets
+        if role == 'IT Main Developer':
+            return Ticket.objects.filter(
+                status__in=['approved', 'completed']
+            ).order_by('-created_at')
 
         # Branch Manager & Executive Officer only see tickets for their own branch
         if role in ['Branch Manager', 'Executive Officer', 'Branch Executive Officer'] and user.branch:
             return Ticket.objects.filter(branch=user.branch).order_by('-created_at')
 
         # Developers see approved tickets
-        return Ticket.objects.filter(status='approved')
+        return Ticket.objects.filter(status='approved').order_by('-created_at')
 
     def perform_create(self, serializer):
         user = self.request.user

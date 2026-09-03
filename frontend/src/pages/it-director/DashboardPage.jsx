@@ -76,18 +76,23 @@ export default function DashboardPage() {
     }
   };
 
-  // Counts
-  const pendingDirectorTickets = tickets.filter((t) => t.status === 'pending_director');
-  const pendingCount = pendingDirectorTickets.length;
-  const approvedCount = tickets.filter((t) => t.status === 'approved' || t.status === 'completed').length;
-  const rejectedCount = tickets.filter((t) => t.status === 'rejected_by_director').length;
-  const totalCount = tickets.length;
+  // Only show tickets that have been approved by the Executive Officer
+  const executiveApprovedTickets = tickets.filter((t) =>
+    ['pending_director', 'approved', 'rejected_by_director', 'completed'].includes(t.status)
+  );
 
-  // Extract unique branches
-  const branchList = Array.from(new Set(tickets.map((t) => t.branch_name).filter(Boolean)));
+  // Counts
+  const pendingDirectorTickets = executiveApprovedTickets.filter((t) => t.status === 'pending_director');
+  const pendingCount = pendingDirectorTickets.length;
+  const approvedCount = executiveApprovedTickets.filter((t) => t.status === 'approved' || t.status === 'completed').length;
+  const rejectedCount = executiveApprovedTickets.filter((t) => t.status === 'rejected_by_director').length;
+  const totalCount = executiveApprovedTickets.length;
+
+  // Extract unique branches from executive approved tickets
+  const branchList = Array.from(new Set(executiveApprovedTickets.map((t) => t.branch_name).filter(Boolean)));
 
   // Filter tickets based on active tab, branch, search
-  const filteredTickets = tickets.filter((t) => {
+  const filteredTickets = executiveApprovedTickets.filter((t) => {
     // 1. Tab filter
     if (activeTab === 'pending' && t.status !== 'pending_director') return false;
     if (activeTab === 'approved' && t.status !== 'approved' && t.status !== 'completed') return false;
@@ -203,7 +208,7 @@ export default function DashboardPage() {
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Returned to Branches</span>
         </div>
 
-        {/* Card 4: All Tickets */}
+        {/* Card 4: Executive-Approved Tickets */}
         <div
           onClick={() => setActiveTab('all')}
           style={{
@@ -217,12 +222,12 @@ export default function DashboardPage() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ ...statLabelStyle, color: activeTab === 'all' ? '#0f172a' : '#64748b' }}>
-              All Tickets
+              Executive-Approved
             </span>
             <Building2 size={16} color="#0f172a" />
           </div>
           <span style={{ ...statValueStyle, color: '#0f172a' }}>{totalCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Across all branches</span>
+          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>All forwarded tickets</span>
         </div>
       </div>
 
@@ -237,7 +242,7 @@ export default function DashboardPage() {
                 <ShieldCheck size={22} color="#2563eb" /> IT Authorization & Tickets Console
               </h2>
               <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
-                Manage proposals, endorse IT project allocations, or review historical decisions.
+                Review and decide on software tickets endorsed by Branch Executive Officers.
               </p>
             </div>
 
@@ -291,7 +296,7 @@ export default function DashboardPage() {
               { id: 'pending', label: '⚡ Action Required', count: pendingCount },
               { id: 'approved', label: 'Approved / In Dev', count: approvedCount },
               { id: 'rejected', label: 'Rejected', count: rejectedCount },
-              { id: 'all', label: 'All Tickets', count: totalCount },
+              { id: 'all', label: 'All Executive-Approved', count: totalCount },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
