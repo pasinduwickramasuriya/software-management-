@@ -1,4 +1,3 @@
-```jsx
 import React from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
@@ -8,7 +7,6 @@ import './App.css';
 import BranchManagerLayout from './components/BranchManagerLayout';
 import ITDirectorLayout from './components/ITDirectorLayout';
 import AdminLayout from './components/AdminLayout';
-import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
 import ExecutiveOfficerDashboard from './pages/ExecutiveOfficerDashboard';
 import ITDirectorDashboard from './components/ITDirectorDashboard';
 import ITMainDeveloperDashboard from './components/ITMainDeveloperDashboard';
@@ -146,9 +144,8 @@ function MainLayout() {
             <h2>Welcome, {user.username}!</h2>
 
             <p style={{ color: '#64748b' }}>
-              You are logged in as{' '}
-              <strong>{role}</strong>{' '}
-              {branch ? `for ${branch}` : ''}.
+              You are logged in as <strong>{role}</strong>
+              {branch ? ' for ' + branch : ''}.
             </p>
 
             <div
@@ -263,4 +260,3 @@ const headerStyles = {
     fontSize: '0.85rem',
   },
 };
-```
