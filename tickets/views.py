@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.http import HttpResponse
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -118,10 +119,11 @@ class TicketViewSet(viewsets.ModelViewSet):
         ticket.save()
         return Response(TicketSerializer(ticket).data)
 
+
     @action(detail=True, methods=['post'], url_path='upload-document',
             parser_classes=[MultiPartParser, FormParser])
     def upload_document(self, request, pk=None):
-        """Branch Manager attaches a real file to their ticket."""
+        """Uploads attachment and stores raw bytes directly into MySQL database and file_path."""
         ticket = self.get_object()
         user = request.user
 
@@ -135,13 +137,33 @@ class TicketViewSet(viewsets.ModelViewSet):
         if not uploaded_file:
             return Response({'detail': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Read the whole raw binary file content
+        binary_content = uploaded_file.read()
+
+        # Save the whole file directly ONLY into MySQL database (no file stored on disk)
         document = TicketDocument.objects.create(
             ticket=ticket,
             file_name=uploaded_file.name,
-            file_path=uploaded_file,
+            file_type=uploaded_file.content_type or 'application/octet-stream',
+            file_size=uploaded_file.size,
+            file_data=binary_content,
         )
 
-        return Response(TicketDocumentSerializer(document).data, status=status.HTTP_201_CREATED)
+        return Response(TicketDocumentSerializer(document, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='documents/(?P<doc_id>[^/.]+)/download')
+    def download_document(self, request, doc_id=None):
+        """Downloads/views document directly from MySQL database binary data."""
+        try:
+            doc = TicketDocument.objects.get(document_id=doc_id)
+            content_type = doc.file_type or 'application/octet-stream'
+            if doc.file_data:
+                response = HttpResponse(doc.file_data, content_type=content_type)
+                response['Content-Disposition'] = f'inline; filename="{doc.file_name}"'
+                return response
+            return Response({'detail': 'No file content found in database.'}, status=status.HTTP_404_NOT_FOUND)
+        except TicketDocument.DoesNotExist:
+            return Response({'detail': 'Document not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=True, methods=['post'], url_path='executive-decision')
     def executive_decision(self, request, pk=None):

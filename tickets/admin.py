@@ -23,7 +23,8 @@ class TicketAdmin(admin.ModelAdmin):
 
 @admin.register(TicketDocument)
 class TicketDocumentAdmin(admin.ModelAdmin):
-    list_display = ('document_id', 'ticket', 'file_name', 'uploaded_at')
+    list_display = ('document_id', 'ticket', 'file_name', 'file_type', 'file_size', 'uploaded_at')
+    readonly_fields = ('uploaded_at', 'file_size', 'file_type')
 
 
 @admin.register(TicketApproval)

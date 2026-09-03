@@ -1,3 +1,4 @@
+```jsx
 import React from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
@@ -12,7 +13,7 @@ import DeveloperDashboard from './components/DeveloperDashboard';
 import ProfileMenu from './components/ProfileMenu';
 
 function MainLayout() {
-  const { user, role, branch, logout, loading } = useAuth();
+  const { user, role, branch, loading } = useAuth();
 
   const isBranchManager =
     role && role.toLowerCase().includes('branch manager');
@@ -33,6 +34,7 @@ function MainLayout() {
   const isDeveloper =
     role && role.toLowerCase() === 'developer';
 
+  // Loading state
   if (loading) {
     return (
       <div
@@ -48,6 +50,7 @@ function MainLayout() {
     );
   }
 
+  // User is not logged in
   if (!user) {
     return <LoginPage />;
   }
@@ -69,6 +72,7 @@ function MainLayout() {
       <header style={headerStyles.navbar}>
         <div style={headerStyles.brand}>
           <Shield size={24} color="#2563eb" />
+
           <span style={headerStyles.brandName}>
             Software Management System
           </span>
@@ -78,8 +82,19 @@ function MainLayout() {
           {!isExecutiveOfficer && (
             <div style={headerStyles.breadcrumb}>
               <span style={{ color: '#64748b' }}>Home</span>
-              <span style={{ color: '#cbd5e1' }}>{'>'}</span>
-              <span style={{ color: '#0f172a', fontWeight: 600 }}>Dashboard</span>
+
+              <span style={{ color: '#cbd5e1' }}>
+                {'>'}
+              </span>
+
+              <span
+                style={{
+                  color: '#0f172a',
+                  fontWeight: 600,
+                }}
+              >
+                Dashboard
+              </span>
             </div>
           )}
 
@@ -134,9 +149,9 @@ function MainLayout() {
           </div>
         )}
       </main>
-      </div> 
-    ); 
-  }
+    </div>
+  );
+}
 
 export default function App() {
   return (
@@ -224,4 +239,12 @@ const headerStyles = {
     display: 'flex',
     alignItems: 'center',
   },
+
+  breadcrumb: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '0.85rem',
+  },
 };
+```
