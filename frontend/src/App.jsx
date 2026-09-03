@@ -6,7 +6,7 @@ import './App.css';
 
 import BranchManagerLayout from './components/BranchManagerLayout';
 import ITDirectorLayout from './components/ITDirectorLayout';
-import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
+import AdminLayout from './components/AdminLayout';
 import ExecutiveOfficerDashboard from './pages/ExecutiveOfficerDashboard';
 import ITDirectorDashboard from './components/ITDirectorDashboard';
 import ITMainDeveloperDashboard from './components/ITMainDeveloperDashboard';
@@ -15,6 +15,9 @@ import ProfileMenu from './components/ProfileMenu';
 
 function MainLayout() {
   const { user, role, branch, loading } = useAuth();
+
+  const isAdmin =
+    (role && role.toLowerCase().includes('admin')) || Boolean(user?.is_superuser);
 
   const isBranchManager =
     role && role.toLowerCase().includes('branch manager');
@@ -54,6 +57,11 @@ function MainLayout() {
   // User is not logged in
   if (!user) {
     return <LoginPage />;
+  }
+
+  // Admin has its own complete layout
+  if (isAdmin) {
+    return <AdminLayout />;
   }
 
   // Branch Manager has its own complete layout
@@ -136,9 +144,8 @@ function MainLayout() {
             <h2>Welcome, {user.username}!</h2>
 
             <p style={{ color: '#64748b' }}>
-              You are logged in as{' '}
-              <strong>{role}</strong>{' '}
-              {branch ? `for ${branch}` : ''}.
+              You are logged in as <strong>{role}</strong>
+              {branch ? ' for ' + branch : ''}.
             </p>
 
             <div

@@ -3,8 +3,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
-from .serializers import LoginSerializer, UserSerializer, BranchSerializer
-from .models import User, Branch
+from .serializers import (
+    LoginSerializer,
+    UserSerializer,
+    UserCreateSerializer,
+    BranchSerializer,
+    UserTypeSerializer,
+)
+from .models import User, Branch, UserType
+
+
+def is_admin_user(user):
+    return user.is_superuser or (user.type and user.type.user_type == 'Admin')
 
 
 class LoginView(APIView):
@@ -56,6 +66,15 @@ class BranchListView(APIView):
         branches = Branch.objects.all()
         return Response(BranchSerializer(branches, many=True).data)
 
+    def post(self, request):
+        if not is_admin_user(request.user):
+            return Response({'detail': 'Only administrators can create branches.'}, status=status.HTTP_403_FORBIDDEN)
+        branch_name = request.data.get('branch_name')
+        if not branch_name or not branch_name.strip():
+            return Response({'detail': 'Branch name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        branch = Branch.objects.create(branch_name=branch_name.strip())
+        return Response(BranchSerializer(branch).data, status=status.HTTP_201_CREATED)
+
 
 class DeveloperListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -63,3 +82,62 @@ class DeveloperListView(APIView):
     def get(self, request):
         developers = User.objects.filter(type__user_type='Developer')
         return Response(UserSerializer(developers, many=True).data)
+
+
+class UserTypeListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        roles = UserType.objects.all()
+        return Response(UserTypeSerializer(roles, many=True).data)
+
+
+class UserManagementView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if not is_admin_user(request.user):
+            return Response({'detail': 'Only administrators can view user management.'}, status=status.HTTP_403_FORBIDDEN)
+        users = User.objects.all().order_by('-id')
+        return Response(UserSerializer(users, many=True).data)
+
+    def post(self, request):
+        if not is_admin_user(request.user):
+            return Response({'detail': 'Only administrators can create users.'}, status=status.HTTP_403_FORBIDDEN)
+        serializer = UserCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+
+
+class UserDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, pk):
+        if not is_admin_user(request.user):
+            return Response({'detail': 'Only administrators can delete users.'}, status=status.HTTP_403_FORBIDDEN)
+        if request.user.id == int(pk):
+            return Response({'detail': 'You cannot delete your own account.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(pk=pk)
+            user.delete()
+            return Response({'detail': 'User deleted successfully.'})
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self, request, pk):
+        if not is_admin_user(request.user):
+            return Response({'detail': 'Only administrators can update users.'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            user = User.objects.get(pk=pk)
+            if 'is_active' in request.data:
+                user.is_active = bool(request.data['is_active'])
+            if 'branch' in request.data:
+                user.branch_id = request.data['branch']
+            if 'type_id' in request.data:
+                user.type_id = request.data['type_id']
+            user.save()
+            return Response(UserSerializer(user).data)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
