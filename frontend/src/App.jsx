@@ -6,6 +6,7 @@ import './App.css';
 
 import BranchManagerLayout from './components/BranchManagerLayout';
 import ITDirectorLayout from './components/ITDirectorLayout';
+import AdminLayout from './components/AdminLayout';
 import ExecutiveOfficerDashboard from './components/ExecutiveOfficerDashboard';
 import ITDirectorDashboard from './components/ITDirectorDashboard';
 import ITMainDeveloperDashboard from './components/ITMainDeveloperDashboard';
@@ -13,6 +14,9 @@ import DeveloperDashboard from './components/DeveloperDashboard';
 
 function MainLayout() {
   const { user, role, branch, logout, loading } = useAuth();
+
+  const isAdmin =
+    (role && role.toLowerCase().includes('admin')) || Boolean(user?.is_superuser);
 
   const isBranchManager =
     role && role.toLowerCase().includes('branch manager');
@@ -50,6 +54,11 @@ function MainLayout() {
 
   if (!user) {
     return <LoginPage />;
+  }
+
+  // Admin has its own complete layout
+  if (isAdmin) {
+    return <AdminLayout />;
   }
 
   // Branch Manager has its own complete layout
