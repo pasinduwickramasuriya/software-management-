@@ -6,6 +6,8 @@ import './App.css';
 
 import BranchManagerLayout from './components/BranchManagerLayout';
 import ITDirectorLayout from './components/ITDirectorLayout';
+
+import ExecutiveOfficerLayout from './components/ExecutiveOfficerLayout';
 import AdminLayout from './components/AdminLayout';
 import ExecutiveOfficerDashboard from './pages/ExecutiveOfficerDashboard';
 import ITDirectorDashboard from './components/ITDirectorDashboard';
@@ -69,6 +71,11 @@ function MainLayout() {
     return <BranchManagerLayout />;
   }
 
+  // Executive Officer has its own branch review portal
+  if (isExecutiveOfficer) {
+    return <ExecutiveOfficerLayout />;
+  }
+
   // IT Director has its own complete layout
   if (isITDirector) {
     return <ITDirectorLayout />;
@@ -124,9 +131,7 @@ function MainLayout() {
           padding: '0 20px',
         }}
       >
-        {isExecutiveOfficer ? (
-          <ExecutiveOfficerDashboard />
-        ) : isITDirector ? (
+        {isITDirector ? (
           <ITDirectorDashboard />
         ) : isITMainDev ? (
           <ITMainDeveloperDashboard />

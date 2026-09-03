@@ -65,6 +65,28 @@ export default function ViewTicketsPage() {
     }
   };
 
+  const handleDownloadDocument = async (doc) => {
+  try {
+    const response = await API.get(doc.file_url, {
+      responseType: 'blob',
+    });
+
+    const url = window.URL.createObjectURL(response.data);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = doc.file_name || 'document';
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Failed to download document:', error);
+    alert('Failed to download document.');
+  }
+};
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'draft': return <span style={{ ...badgeStyle, bg: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}>Draft</span>;
@@ -271,17 +293,17 @@ export default function ViewTicketsPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
                     {viewingTicket.documents.map((doc, idx) => {
                       return (
-                        <a
+                        <button
                         
                           key={idx}
-                          href={doc.file_url}
+                          onClick={() => handleDownloadDocument(doc)}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.88rem', color: '#2563eb', textDecoration: 'none', fontWeight: 500 }}
                         >
                           <FileText size={16} color="#2563eb" />
                           <span>{doc.file_name}</span>
-                        </a>
+                        </button>
                       );
                     })}
                   </div>
