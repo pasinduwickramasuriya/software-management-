@@ -40,9 +40,23 @@ class TicketViewSet(viewsets.ModelViewSet):
                 status__in=['approved', 'completed']
             ).order_by('-created_at')
 
-        # Branch Manager & Executive Officer only see tickets for their own branch
-        if role in ['Branch Manager', 'Executive Officer', 'Branch Executive Officer'] and user.branch:
+        # Branch Manager sees all their own branch's tickets, regardless of status
+        if role == 'Branch Manager' and user.branch:
             return Ticket.objects.filter(branch=user.branch).order_by('-created_at')
+
+        # Executive Officer only sees tickets that have been sent for review (not drafts)
+        if role in ['Executive Officer', 'Branch Executive Officer'] and user.branch:
+            return Ticket.objects.filter(
+                branch=user.branch,
+                status__in=[
+                    'pending_executive',
+                    'pending_director',
+                    'rejected_by_executive',
+                    'rejected_by_director',
+                    'approved',
+                    'completed',
+                ]
+            ).order_by('-created_at')
 
         # Developers see approved tickets
         return Ticket.objects.filter(status='approved').order_by('-created_at')
@@ -50,16 +64,15 @@ class TicketViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         branch = user.branch
-        
+
         if not branch and not user.is_superuser:
             raise ValidationError({'branch': 'Your user account is not assigned to any branch.'})
-            
+
         serializer.save(
             created_by=user,
             branch=branch,
             status='draft'
         )
-
 
     def update(self, request, *args, **kwargs):
         ticket = self.get_object()
@@ -68,13 +81,13 @@ class TicketViewSet(viewsets.ModelViewSet):
 
         # Only editable in Draft/Rejected by BM, or in Pending Executive by EO
         is_bm_editable = (
-            role == 'Branch Manager' and 
-            ticket.created_by == user and 
+            role == 'Branch Manager' and
+            ticket.created_by == user and
             ticket.status in ['draft', 'rejected_by_executive', 'rejected_by_director']
         )
         is_eo_editable = (
-            role in ['Executive Officer', 'Branch Executive Officer'] and 
-            ticket.status in ['pending_executive', 'draft'] and 
+            role in ['Executive Officer', 'Branch Executive Officer'] and
+            ticket.status == 'pending_executive' and
             (not user.branch or ticket.branch == user.branch)
         )
 
@@ -131,7 +144,6 @@ class TicketViewSet(viewsets.ModelViewSet):
         ticket.status = 'closed'
         ticket.save()
         return Response(TicketSerializer(ticket).data)
-
 
     @action(detail=True, methods=['post'], url_path='upload-document',
             parser_classes=[MultiPartParser, FormParser])
@@ -198,7 +210,7 @@ class TicketViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        if ticket.status not in ['pending_executive', 'draft']:
+        if ticket.status != 'pending_executive':
             return Response(
                 {'detail': 'Ticket is not pending executive review.'},
                 status=status.HTTP_400_BAD_REQUEST
