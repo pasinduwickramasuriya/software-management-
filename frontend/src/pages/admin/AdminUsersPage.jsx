@@ -11,6 +11,8 @@ import {
   Building2,
   Shield,
   KeyRound,
+  Pencil,
+  Lock,
 } from 'lucide-react';
 
 export default function AdminUsersPage() {
@@ -24,7 +26,7 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState('all');
   const [branchFilter, setBranchFilter] = useState('all');
 
-  // Modal
+  // Create Modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
@@ -34,6 +36,24 @@ export default function AdminUsersPage() {
     branch: '',
   });
   const [submitting, setSubmitting] = useState(false);
+
+  // Edit User Modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editUserData, setEditUserData] = useState({
+    id: null,
+    username: '',
+    email: '',
+    type_id: '',
+    branch: '',
+    is_active: true,
+  });
+
+  // Change Password Modal
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordTargetUser, setPasswordTargetUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
 
   useEffect(() => {
     fetchUsersData();
@@ -57,13 +77,14 @@ export default function AdminUsersPage() {
     }
   };
 
+  // --- CRUD: CREATE ---
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
       await API.post('auth/users/', {
-        username: formData.username,
-        email: formData.email,
+        username: formData.username.trim(),
+        email: formData.email.trim(),
         password: formData.password,
         type_id: formData.type_id ? parseInt(formData.type_id) : null,
         branch: formData.branch ? parseInt(formData.branch) : null,
@@ -80,6 +101,78 @@ export default function AdminUsersPage() {
     }
   };
 
+  // --- CRUD: UPDATE (EDIT USER DETAILS) ---
+  const openEditModal = (u) => {
+    setEditUserData({
+      id: u.id,
+      username: u.username || '',
+      email: u.email || '',
+      type_id: u.type_id || '',
+      branch: u.branch || '',
+      is_active: u.is_active,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const payload = {
+        username: editUserData.username.trim(),
+        email: editUserData.email.trim(),
+        type_id: editUserData.type_id ? parseInt(editUserData.type_id) : null,
+        branch: editUserData.branch ? parseInt(editUserData.branch) : null,
+        is_active: editUserData.is_active,
+      };
+      const res = await API.patch(`auth/users/${editUserData.id}/`, payload);
+      setUsers((prev) => prev.map((u) => (u.id === editUserData.id ? res.data : u)));
+      alert(`User "${res.data.username}" updated successfully!`);
+      setShowEditModal(false);
+    } catch (err) {
+      const detail = err.response?.data?.detail || JSON.stringify(err.response?.data || 'Failed to update user');
+      alert('Error updating user: ' + detail);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // --- CRUD: UPDATE (RESET / CHANGE PASSWORD) ---
+  const openPasswordModal = (u) => {
+    setPasswordTargetUser(u);
+    setNewPassword('');
+    setConfirmPassword('');
+    setShowPasswordModal(true);
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (newPassword.length < 4) {
+      alert('Password must be at least 4 characters long.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      alert('Passwords do not match. Please re-enter.');
+      return;
+    }
+    setPasswordSubmitting(true);
+    try {
+      await API.patch(`auth/users/${passwordTargetUser.id}/`, {
+        password: newPassword,
+      });
+      alert(`Password for "${passwordTargetUser.username}" changed successfully!`);
+      setShowPasswordModal(false);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      const detail = err.response?.data?.detail || JSON.stringify(err.response?.data || 'Failed to change password');
+      alert('Error changing password: ' + detail);
+    } finally {
+      setPasswordSubmitting(false);
+    }
+  };
+
+  // --- CRUD: DELETE ---
   const handleDeleteUser = async (userId, username) => {
     if (!window.confirm(`Are you sure you want to permanently delete user "${username}"?`)) {
       return;
@@ -93,6 +186,7 @@ export default function AdminUsersPage() {
     }
   };
 
+  // --- TOGGLE ACTIVE STATUS ---
   const handleToggleActive = async (userId, currentActive) => {
     try {
       const res = await API.patch(`auth/users/${userId}/`, { is_active: !currentActive });
@@ -129,7 +223,7 @@ export default function AdminUsersPage() {
               <Users size={24} color="#2563eb" /> System User Management
             </h2>
             <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
-              Create, configure, and manage credentials and role permissions for staff members.
+              Create, configure, update user profiles, change passwords, and manage role permissions for staff members.
             </p>
           </div>
 
@@ -277,24 +371,34 @@ export default function AdminUsersPage() {
                       {u.date_joined ? new Date(u.date_joined).toISOString().split('T')[0] : '-'}
                     </td>
                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                      <button
-                        onClick={() => handleDeleteUser(u.id, u.username)}
-                        style={{
-                          backgroundColor: '#ffffff',
-                          color: '#dc2626',
-                          border: '1px solid #fecaca',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          fontSize: '0.78rem',
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                        }}
-                        title="Delete user"
-                      >
-                        <Trash2 size={13} /> Delete
-                      </button>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => openEditModal(u)}
+                          style={actionBtnSecondary}
+                          title="Edit user details"
+                        >
+                          <Pencil size={13} /> Edit
+                        </button>
+
+                        {/* Password Reset Button */}
+                        <button
+                          onClick={() => openPasswordModal(u)}
+                          style={actionBtnKey}
+                          title="Change user password"
+                        >
+                          <KeyRound size={13} /> Password
+                        </button>
+
+                        {/* Delete Button */}
+                        <button
+                          onClick={() => handleDeleteUser(u.id, u.username)}
+                          style={actionBtnDanger}
+                          title="Delete user"
+                        >
+                          <Trash2 size={13} /> Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -304,7 +408,7 @@ export default function AdminUsersPage() {
         )}
       </div>
 
-      {/* CREATE NEW USER MODAL */}
+      {/* 1. CREATE NEW USER MODAL */}
       {showAddModal && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
@@ -397,6 +501,157 @@ export default function AdminUsersPage() {
         </div>
       )}
 
+      {/* 2. EDIT USER MODAL (CRUD UPDATE) */}
+      {showEditModal && (
+        <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Pencil size={18} color="#2563eb" /> Edit User Account (#{editUserData.id})
+              </h3>
+              <button onClick={() => setShowEditModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <XCircle size={20} color="#64748b" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateUser}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={labelStyle}>Username *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editUserData.username}
+                    onChange={(e) => setEditUserData({ ...editUserData, username: e.target.value })}
+                    style={inputStyleFull}
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Email Address *</label>
+                  <input
+                    type="email"
+                    required
+                    value={editUserData.email}
+                    onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
+                    style={inputStyleFull}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>System Role</label>
+                    <select
+                      value={editUserData.type_id || ''}
+                      onChange={(e) => setEditUserData({ ...editUserData, type_id: e.target.value })}
+                      style={selectStyleFull}
+                    >
+                      <option value="">No Role</option>
+                      {roles.map((r) => (
+                        <option key={r.type_id} value={r.type_id}>{r.user_type}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={labelStyle}>Branch Assignment</label>
+                    <select
+                      value={editUserData.branch || ''}
+                      onChange={(e) => setEditUserData({ ...editUserData, branch: e.target.value })}
+                      style={selectStyleFull}
+                    >
+                      <option value="">None (Global / IT Dept)</option>
+                      {branches.map((b) => (
+                        <option key={b.bid} value={b.bid}>{b.branch_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                    <input
+                      type="checkbox"
+                      checked={editUserData.is_active}
+                      onChange={(e) => setEditUserData({ ...editUserData, is_active: e.target.checked })}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    />
+                    Account Active / Enabled
+                  </label>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+                <button type="button" onClick={() => setShowEditModal(false)} style={actionBtnNeutral}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={submitting} style={actionBtnBlue}>
+                  {submitting ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 3. CHANGE / RESET PASSWORD MODAL */}
+      {showPasswordModal && passwordTargetUser && (
+        <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <KeyRound size={18} color="#d97706" /> Reset Password for "{passwordTargetUser.username}"
+              </h3>
+              <button onClick={() => setShowPasswordModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <XCircle size={20} color="#64748b" />
+              </button>
+            </div>
+
+            <p style={{ margin: '0 0 16px', color: '#64748b', fontSize: '0.83rem' }}>
+              Enter a new secure password for <strong>{passwordTargetUser.username}</strong> ({passwordTargetUser.email}).
+            </p>
+
+            <form onSubmit={handleChangePassword}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={labelStyle}>New Password *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Enter new password (min 4 characters)"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    style={inputStyleFull}
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Confirm New Password *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    style={inputStyleFull}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+                <button type="button" onClick={() => setShowPasswordModal(false)} style={actionBtnNeutral}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={passwordSubmitting} style={actionBtnAmber}>
+                  {passwordSubmitting ? 'Updating Password...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
@@ -421,6 +676,61 @@ const actionBtnBlue = {
   fontWeight: 600,
   fontSize: '0.85rem',
   cursor: 'pointer',
+};
+
+const actionBtnAmber = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  backgroundColor: '#d97706',
+  color: '#ffffff',
+  border: '1px solid #d97706',
+  padding: '8px 18px',
+  borderRadius: '8px',
+  fontWeight: 600,
+  fontSize: '0.85rem',
+  cursor: 'pointer',
+};
+
+const actionBtnSecondary = {
+  backgroundColor: '#ffffff',
+  color: '#2563eb',
+  border: '1px solid #bfdbfe',
+  padding: '6px 12px',
+  borderRadius: '6px',
+  fontSize: '0.78rem',
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  fontWeight: 500,
+};
+
+const actionBtnKey = {
+  backgroundColor: '#ffffff',
+  color: '#d97706',
+  border: '1px solid #fed7aa',
+  padding: '6px 12px',
+  borderRadius: '6px',
+  fontSize: '0.78rem',
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  fontWeight: 500,
+};
+
+const actionBtnDanger = {
+  backgroundColor: '#ffffff',
+  color: '#dc2626',
+  border: '1px solid #fecaca',
+  padding: '6px 12px',
+  borderRadius: '6px',
+  fontSize: '0.78rem',
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  fontWeight: 500,
 };
 
 const actionBtnNeutral = {
