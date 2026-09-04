@@ -125,19 +125,96 @@ class UserDetailView(APIView):
         except User.DoesNotExist:
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+    # def patch(self, request, pk):
+    #     if not is_admin_user(request.user):
+    #         return Response({'detail': 'Only administrators can update users.'}, status=status.HTTP_403_FORBIDDEN)
+    #     try:
+    #         user = User.objects.get(pk=pk)
+    #         if 'is_active' in request.data:
+    #             user.is_active = bool(request.data['is_active'])
+    #         if 'branch' in request.data:
+    #             user.branch_id = request.data['branch']
+    #         if 'type_id' in request.data:
+    #             user.type_id = request.data['type_id']
+    #         user.save()
+    #         return Response(UserSerializer(user).data)
+    #     except User.DoesNotExist:
+    #         return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
     def patch(self, request, pk):
         if not is_admin_user(request.user):
             return Response({'detail': 'Only administrators can update users.'}, status=status.HTTP_403_FORBIDDEN)
         try:
             user = User.objects.get(pk=pk)
+
+            # 1. Update Active Status
             if 'is_active' in request.data:
                 user.is_active = bool(request.data['is_active'])
+
+            # 2. Update Username
+            if 'username' in request.data:
+                new_username = str(request.data['username']).strip()
+                if not new_username:
+                    return Response({'detail': 'Username cannot be empty.'}, status=status.HTTP_400_BAD_REQUEST)
+                if User.objects.filter(username=new_username).exclude(pk=user.pk).exists():
+                    return Response({'detail': f'Username "{new_username}" is already in use.'}, status=status.HTTP_400_BAD_REQUEST)
+                user.username = new_username
+
+            # 3. Update Email
+            if 'email' in request.data:
+                new_email = str(request.data['email']).strip()
+                if not new_email:
+                    return Response({'detail': 'Email cannot be empty.'}, status=status.HTTP_400_BAD_REQUEST)
+                if User.objects.filter(email=new_email).exclude(pk=user.pk).exists():
+                    return Response({'detail': f'Email "{new_email}" is already registered to another account.'}, status=status.HTTP_400_BAD_REQUEST)
+                user.email = new_email
+
+            # 4. Update / Reset Password
+            if 'password' in request.data:
+                new_password = str(request.data.get('password', '')).strip()
+                if new_password:
+                    if len(new_password) < 4:
+                        return Response({'detail': 'Password must be at least 4 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+                    user.set_password(new_password)
+
+            # 5. Update Branch
             if 'branch' in request.data:
-                user.branch_id = request.data['branch']
+                branch_val = request.data['branch']
+                user.branch_id = branch_val if branch_val else None
+
+            # 6. Update Role / Type
             if 'type_id' in request.data:
-                user.type_id = request.data['type_id']
+                new_type_id = request.data['type_id']
+                if new_type_id:
+                    new_role = UserType.objects.get(type_id=new_type_id)
+                    
+                    # Prevent assigning IT Director if another user already has it
+                    if new_role.user_type == 'IT Director':
+                        if User.objects.filter(type__user_type='IT Director').exclude(pk=user.pk).exists():
+                            return Response(
+                                {'detail': 'Only ONE IT Director is allowed in the entire system.'},
+                                status=status.HTTP_400_BAD_REQUEST
+                            )
+                        user.branch = None  # IT Director oversees all branches
+
+                    # Prevent assigning IT Main Developer if another user already has it
+                    elif new_role.user_type == 'IT Main Developer':
+                        if User.objects.filter(type__user_type='IT Main Developer').exclude(pk=user.pk).exists():
+                            return Response(
+                                {'detail': 'Only ONE IT Main Developer is allowed in the entire system.'},
+                                status=status.HTTP_400_BAD_REQUEST
+                            )
+                        user.branch = None  # IT Main oversees all branches
+
+                    user.type = new_role
+                else:
+                    user.type = None
+
             user.save()
             return Response(UserSerializer(user).data)
         except User.DoesNotExist:
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-
+        except UserType.DoesNotExist:
+            return Response({'detail': 'Invalid role.'}, status=status.HTTP_400_BAD_REQUEST)

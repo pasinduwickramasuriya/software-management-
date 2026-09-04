@@ -1,4 +1,5 @@
 from django.utils import timezone
+from .emails import send_ticket_approved_to_it_main
 from django.http import HttpResponse
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -271,6 +272,19 @@ class TicketViewSet(viewsets.ModelViewSet):
             remark=remark
         )
 
+        # if decision == 'approved':
+        #     ticket.status = 'approved'
+        #     ticket.save()
+
+        #     # Automatically create ApprovedProject for IT Main Developer
+        #     ApprovedProject.objects.get_or_create(
+        #         ticket=ticket,
+        #         defaults={'project_name': ticket.project_name, 'status': 'Not Started'}
+        #     )
+        # else:
+        #     ticket.status = 'rejected_by_director'
+        #     ticket.save()
+
         if decision == 'approved':
             ticket.status = 'approved'
             ticket.save()
@@ -280,8 +294,12 @@ class TicketViewSet(viewsets.ModelViewSet):
                 ticket=ticket,
                 defaults={'project_name': ticket.project_name, 'status': 'Not Started'}
             )
+
+            # Send email notification to IT Main Developer
+            send_ticket_approved_to_it_main(ticket)
         else:
             ticket.status = 'rejected_by_director'
             ticket.save()
+
 
         return Response(TicketSerializer(ticket).data)
