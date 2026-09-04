@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { User, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function ProfileMenu({ onSettingsClick }) {
+export default function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const { user, role, branch, logout } = useAuth();
@@ -34,12 +34,6 @@ export default function ProfileMenu({ onSettingsClick }) {
             <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>{user?.username}</p>
             <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>{role}</p>
           </div>
-          <button
-            style={dropdownItemStyle}
-            onClick={() => { setOpen(false); onSettingsClick ? onSettingsClick() : alert('Settings coming soon'); }}
-          >
-            <Settings size={16} /> Settings
-          </button>
           <button
             style={{ ...dropdownItemStyle, color: '#dc2626' }}
             onClick={() => { setOpen(false); logout(); }}
