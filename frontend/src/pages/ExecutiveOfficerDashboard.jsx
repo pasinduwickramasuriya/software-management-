@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../services/api';
-import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare } from 'lucide-react';
+import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare, Search } from 'lucide-react';
 
 export default function ExecutiveOfficerDashboard() {
   const [tickets, setTickets] = useState([]);
@@ -15,6 +15,7 @@ export default function ExecutiveOfficerDashboard() {
   const [decisionType, setDecisionType] = useState('approved'); // 'approved' or 'rejected'
   const [remark, setRemark] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchTickets();
@@ -96,13 +97,14 @@ export default function ExecutiveOfficerDashboard() {
   const pendingCount = tickets.filter(t => t.status === 'pending_executive').length;
   const approvedCount = tickets.filter(t => t.status === 'pending_director' || t.status === 'approved').length;
   const rejectedCount = tickets.filter(t => t.status === 'rejected_by_executive').length;
+  const completedCount = tickets.filter(t => t.status === 'completed').length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
       <div>
         <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: 700 }}>
-          🏛️ Branch Executive Officer Dashboard
+          Executive Officer Dashboard
         </h2>
         <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
           Review, edit, approve, or reject software request tickets submitted by your Branch Manager.
@@ -112,28 +114,46 @@ export default function ExecutiveOfficerDashboard() {
       {/* Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
         <div style={statCardStyle}>
-          <span style={{ color: '#b45309', fontSize: '0.85rem' }}>Pending Executive Review</span>
+          <span style={{ color: '#b45309', fontSize: '0.85rem' }}>Pending</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{pendingCount}</span>
         </div>
         <div style={statCardStyle}>
-          <span style={{ color: '#15803d', fontSize: '0.85rem' }}>Approved & Sent to IT</span>
+          <span style={{ color: '#15803d', fontSize: '0.85rem' }}>Approved & Sent</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{approvedCount}</span>
         </div>
         <div style={statCardStyle}>
-          <span style={{ color: '#dc2626', fontSize: '0.85rem' }}>Rejected Back to BM</span>
+          <span style={{ color: '#dc2626', fontSize: '0.85rem' }}>Rejected</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626' }}>{rejectedCount}</span>
+        </div>
+        <div style={statCardStyle}>
+          <span style={{ color: '#166534', fontSize: '0.85rem' }}>Completed</span>
+          <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#166534' }}>{completedCount}</span>
+        </div>
+      </div>
+
+      {/* Search Bar Card */}
+      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+        <div style={{ position: 'relative' }}>
+          <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+          <input
+            type="text"
+            placeholder="Search by project or ticket ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '8px 12px 8px 36px',
+              borderRadius: '20px',
+              border: '1px solid #cbd5e1',
+              fontSize: '0.85rem',
+              width: '260px',
+              outline: 'none',
+            }}
+          />
         </div>
       </div>
 
       {/* Tickets List Table */}
       <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>
-            Branch Tickets for Executive Review
-          </h3>
-          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Total: {tickets.length}</span>
-        </div>
-
         {loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading tickets...</div>
         ) : tickets.length === 0 ? (
@@ -148,11 +168,14 @@ export default function ExecutiveOfficerDashboard() {
                 <th style={{ padding: '12px 16px' }}>Project Name</th>
                 <th style={{ padding: '12px 16px' }}>Created By</th>
                 <th style={{ padding: '12px 16px' }}>Status</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '12px 16px', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {tickets.map((t) => (
+              {tickets.filter(t =>
+                    t.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    `#${t.ticket_id}`.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).map((t) => (
                 <tr key={t.ticket_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: '#3b82f6' }}>#{t.ticket_id}</td>
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: '#1e293b' }}>{t.project_name}</td>
@@ -178,7 +201,7 @@ export default function ExecutiveOfficerDashboard() {
                         </button>
                       )}
 
-                      {/* Approve Button */}
+                      {/* Decide Button (Approve or Reject) */}
                       {(t.status === 'pending_executive' || t.status === 'draft') && (
                         <button
                           onClick={() => {
@@ -186,25 +209,10 @@ export default function ExecutiveOfficerDashboard() {
                             setDecisionType('approved');
                             setRemark('');
                           }}
-                          style={{ ...iconBtnStyle, color: '#16a34a', borderColor: '#bbf7d0', backgroundColor: '#f0fdf4' }}
-                          title="Approve Ticket"
+                          style={{ ...iconBtnStyle, color: '#ffffff', backgroundColor: '#2563eb', borderColor: '#2563eb', fontWeight: 600 }}
+                          title="Approve or Reject Ticket"
                         >
-                          <CheckCircle2 size={16} /> Approve
-                        </button>
-                      )}
-
-                      {/* Reject Button */}
-                      {(t.status === 'pending_executive' || t.status === 'draft') && (
-                        <button
-                          onClick={() => {
-                            setDecisionTicket(t);
-                            setDecisionType('rejected');
-                            setRemark('');
-                          }}
-                          style={{ ...iconBtnStyle, color: '#dc2626', borderColor: '#fecaca', backgroundColor: '#fef2f2' }}
-                          title="Reject Ticket"
-                        >
-                          <XCircle size={16} /> Reject
+                          <CheckCircle2 size={16} /> Decide
                         </button>
                       )}
                     </div>
