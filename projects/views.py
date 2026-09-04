@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from .models import ApprovedProject, Task
 from .serializers import ApprovedProjectSerializer, TaskSerializer
 
+from tickets.emails import send_task_assigned_to_developer
+
+
 
 class ApprovedProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ApprovedProjectSerializer
@@ -51,6 +54,14 @@ class TaskViewSet(viewsets.ModelViewSet):
         # Admin, IT Main Dev, IT Director see all tasks
         return Task.objects.all()
 
+    # def perform_create(self, serializer):
+    #     task = serializer.save()
+    #     # Automatically update project status to 'In Progress' if tasks exist
+    #     project = getattr(task.ticket, 'approved_project', None)
+    #     if project and project.status == 'Not Started':
+    #         project.status = 'In Progress'
+    #         project.save()
+
     def perform_create(self, serializer):
         task = serializer.save()
         # Automatically update project status to 'In Progress' if tasks exist
@@ -58,6 +69,19 @@ class TaskViewSet(viewsets.ModelViewSet):
         if project and project.status == 'Not Started':
             project.status = 'In Progress'
             project.save()
+
+        # Send email notification to the assigned developer
+        send_task_assigned_to_developer(task)
+        
+
+    def perform_update(self, serializer):
+        old_assigned_to = self.get_object().assigned_to
+        task = serializer.save()
+        # If developer changed during edit, send an email to the newly assigned developer
+        if old_assigned_to != task.assigned_to:
+            send_task_assigned_to_developer(task)
+
+
 
     @action(detail=True, methods=['patch'], url_path='update-status')
     def update_status(self, request, pk=None):
