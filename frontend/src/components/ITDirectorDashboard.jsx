@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
 import API from '../services/api';
 import {
   CheckCircle2,
@@ -7,28 +7,42 @@ import {
   FileText,
   Clock,
   AlertCircle,
-  Building2,
-  Filter,
-  CheckCheck,
   ShieldCheck,
   Search,
+  ChevronDown,
 } from 'lucide-react';
+
+const TABS = ['Action Required', 'Approved / In Dev', 'Rejected', 'All Executive-Approved'];
 
 export default function ITDirectorDashboard() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('pending'); // 'pending' or 'all'
-  const [branchFilter, setBranchFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Modals
   const [viewingTicket, setViewingTicket] = useState(null);
-  const [decisionTicket, setDecisionTicket] = useState(null); // ticket being approved/rejected
+  const [decisionTicket, setDecisionTicket] = useState(null);
 
-  // Decision Form State
-  const [decisionType, setDecisionType] = useState('approved'); // 'approved' or 'rejected'
+  // Decision form state
+  const [decisionType, setDecisionType] = useState('approved');
   const [remark, setRemark] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Filters
+  const [activeTab, setActiveTab] = useState('Action Required');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [branchFilter, setBranchFilter] = useState('All Branches');
+  const [branchMenuOpen, setBranchMenuOpen] = useState(false);
+
+  // Sliding tab indicator
+  const tabRefs = useRef({});
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+
+  useLayoutEffect(() => {
+    const node = tabRefs.current[activeTab];
+    if (node) {
+      setIndicatorStyle({ left: node.offsetLeft, width: node.offsetWidth });
+    }
+  }, [activeTab, tickets]);
 
   useEffect(() => {
     fetchTickets();
@@ -49,7 +63,7 @@ export default function ITDirectorDashboard() {
   const handleDecisionSubmit = async (e) => {
     e.preventDefault();
     if (!remark.trim()) {
-      alert('Please enter decision remarks / minutes.');
+      alert('Please enter minute / decision remarks.');
       return;
     }
     setSubmitting(true);
@@ -59,10 +73,10 @@ export default function ITDirectorDashboard() {
         remark: remark,
       });
       alert(
-        `Ticket #${decisionTicket.ticket_id} has been ${
+        `Ticket #${decisionTicket.ticket_id} ${
           decisionType === 'approved'
-            ? 'Authorized & Approved for IT Development'
-            : 'Rejected & returned to Branch'
+            ? 'Approved — moved to IT development'
+            : 'Rejected & sent back to Branch'
         }!`
       );
       setDecisionTicket(null);
@@ -77,28 +91,10 @@ export default function ITDirectorDashboard() {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'draft':
-        return (
-          <span style={{ ...badgeStyle, backgroundColor: '#f1f5f9', color: '#475569' }}>
-            <Clock size={12} /> Draft
-          </span>
-        );
-      case 'pending_executive':
-        return (
-          <span style={{ ...badgeStyle, backgroundColor: '#fef3c7', color: '#b45309' }}>
-            <Clock size={12} /> Pending Executive
-          </span>
-        );
-      case 'rejected_by_executive':
-        return (
-          <span style={{ ...badgeStyle, backgroundColor: '#fef2f2', color: '#dc2626' }}>
-            <AlertCircle size={12} /> Rejected by Exec
-          </span>
-        );
       case 'pending_director':
         return (
-          <span style={{ ...badgeStyle, backgroundColor: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' }}>
-            <Clock size={12} /> Pending Director Review
+          <span style={{ ...badgeStyle, backgroundColor: '#ede9fe', color: '#5b21b6' }}>
+            <Clock size={12} /> Pending Director
           </span>
         );
       case 'rejected_by_director':
@@ -109,14 +105,20 @@ export default function ITDirectorDashboard() {
         );
       case 'approved':
         return (
-          <span style={{ ...badgeStyle, backgroundColor: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0' }}>
+          <span style={{ ...badgeStyle, backgroundColor: '#dcfce7', color: '#15803d' }}>
             <CheckCircle2 size={12} /> Approved / In Dev
           </span>
         );
       case 'completed':
         return (
           <span style={{ ...badgeStyle, backgroundColor: '#f0fdf4', color: '#166534' }}>
-            <CheckCheck size={12} /> Completed
+            <CheckCircle2 size={12} /> Completed
+          </span>
+        );
+      case 'rejected_by_executive':
+        return (
+          <span style={{ ...badgeStyle, backgroundColor: '#fef2f2', color: '#dc2626' }}>
+            <AlertCircle size={12} /> Rejected by Executive
           </span>
         );
       case 'closed':
@@ -126,55 +128,58 @@ export default function ITDirectorDashboard() {
           </span>
         );
       default:
-        return (
-          <span style={{ ...badgeStyle, backgroundColor: '#f1f5f9', color: '#475569' }}>
-            {status}
-          </span>
-        );
+        return <span style={{ ...badgeStyle, backgroundColor: '#f1f5f9', color: '#475569' }}>{status}</span>;
     }
   };
 
-  // Extract unique branches for filter dropdown
-  const branchList = Array.from(new Set(tickets.map((t) => t.branch_name).filter(Boolean)));
+  const getExecutiveReview = (ticket) => {
+    const approval = (ticket.approvals || []).find((a) => a.decision_role === 'executive' || a.decision_as);
+    if (!approval) return null;
+    return approval;
+  };
 
-  // Filtered tickets
+  // Branch list for filter dropdown
+  const branchOptions = useMemo(() => {
+    const names = new Set(tickets.map((t) => t.branch_name).filter(Boolean));
+    return ['All Branches', ...Array.from(names)];
+  }, [tickets]);
+
+  // Counts
+  const actionRequiredCount = tickets.filter((t) => t.status === 'pending_director').length;
+  const approvedCount = tickets.filter((t) => t.status === 'approved' || t.status === 'completed').length;
+  const rejectedCount = tickets.filter((t) => t.status === 'rejected_by_director').length;
+  const allExecutiveApprovedCount = tickets.filter((t) =>
+    ['pending_director', 'approved', 'rejected_by_director', 'completed'].includes(t.status)
+  ).length;
+
   const filteredTickets = tickets.filter((t) => {
-    // Tab filter
-    if (activeTab === 'pending' && t.status !== 'pending_director') {
-      return false;
-    }
-    // Branch filter
-    if (branchFilter !== 'all' && t.branch_name !== branchFilter) {
-      return false;
-    }
-    // Search filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const matchProject = t.project_name?.toLowerCase().includes(q);
-      const matchBranch = t.branch_name?.toLowerCase().includes(q);
-      const matchId = t.ticket_id?.toString().includes(q);
-      const matchCreator = t.created_by_name?.toLowerCase().includes(q);
-      if (!matchProject && !matchBranch && !matchId && !matchCreator) {
-        return false;
-      }
-    }
+    const matchesSearch =
+      t.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      `#${t.ticket_id}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.branch_name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (branchFilter !== 'All Branches' && t.branch_name !== branchFilter) return false;
+
+    if (activeTab === 'Action Required') return t.status === 'pending_director';
+    if (activeTab === 'Approved / In Dev') return t.status === 'approved' || t.status === 'completed';
+    if (activeTab === 'Rejected') return t.status === 'rejected_by_director';
+    if (activeTab === 'All Executive-Approved')
+      return ['pending_director', 'approved', 'rejected_by_director', 'completed'].includes(t.status);
     return true;
   });
 
-  const pendingDirectorCount = tickets.filter((t) => t.status === 'pending_director').length;
-  const approvedCount = tickets.filter((t) => t.status === 'approved' || t.status === 'completed').length;
-  const rejectedCount = tickets.filter((t) => t.status === 'rejected_by_director').length;
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Header Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <ShieldCheck size={22} color="#0f172a" />
         <div>
-          <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <ShieldCheck size={28} color="#4338ca" /> IT Director Authorization Dashboard
+          <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.4rem', fontWeight: 700 }}>
+            IT Authorization &amp; Tickets Console
           </h2>
           <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-            Review and authorize software request tickets forwarded by Branch Executive Officers across all branches.
+            Review and decide on software tickets endorsed by Branch Executive Officers.
           </p>
         </div>
       </div>
@@ -182,395 +187,271 @@ export default function ITDirectorDashboard() {
       {/* Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
         <div
-          onClick={() => setActiveTab('pending')}
+          onClick={() => setActiveTab('Action Required')}
           style={{
             ...statCardStyle,
-            borderLeft: '4px solid #4338ca',
             cursor: 'pointer',
-            backgroundColor: activeTab === 'pending' ? '#f5f3ff' : '#ffffff',
+            borderColor: activeTab === 'Action Required' ? '#6366f1' : '#e2e8f0',
+            borderWidth: activeTab === 'Action Required' ? '2px' : '1px',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#4338ca', fontSize: '0.85rem', fontWeight: 600 }}>Awaiting IT Authorization</span>
-            <Clock size={18} color="#4338ca" />
+          <div style={statCardTopRow}>
+            <span style={{ color: '#4338ca', fontSize: '0.85rem', fontWeight: 600 }}>Action Required</span>
+            <Clock size={16} color="#4338ca" />
           </div>
-          <span style={{ fontSize: '2rem', fontWeight: 700, color: '#4338ca' }}>{pendingDirectorCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Approved by branch executives</span>
+          <span style={{ fontSize: '1.9rem', fontWeight: 700, color: '#1e1b4b' }}>{actionRequiredCount}</span>
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Awaiting Director Decision</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('all')}
-          style={{
-            ...statCardStyle,
-            borderLeft: '4px solid #16a34a',
-            cursor: 'pointer',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#16a34a', fontSize: '0.85rem', fontWeight: 600 }}>Approved / In Development</span>
-            <CheckCircle2 size={18} color="#16a34a" />
+        <div style={statCardStyle}>
+          <div style={statCardTopRow}>
+            <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Approved Projects</span>
+            <CheckCircle2 size={16} color="#16a34a" />
           </div>
-          <span style={{ fontSize: '2rem', fontWeight: 700, color: '#16a34a' }}>{approvedCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Under IT Development</span>
+          <span style={{ fontSize: '1.9rem', fontWeight: 700, color: '#14532d' }}>{approvedCount}</span>
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>In IT Development</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('all')}
-          style={{
-            ...statCardStyle,
-            borderLeft: '4px solid #dc2626',
-            cursor: 'pointer',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 600 }}>Rejected by Director</span>
-            <AlertCircle size={18} color="#dc2626" />
+        <div style={statCardStyle}>
+          <div style={statCardTopRow}>
+            <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 600 }}>Rejected</span>
+            <AlertCircle size={16} color="#dc2626" />
           </div>
-          <span style={{ fontSize: '2rem', fontWeight: 700, color: '#dc2626' }}>{rejectedCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Returned to branches</span>
+          <span style={{ fontSize: '1.9rem', fontWeight: 700, color: '#7f1d1d' }}>{rejectedCount}</span>
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Returned to Branches</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('all')}
-          style={{
-            ...statCardStyle,
-            borderLeft: '4px solid #64748b',
-            cursor: 'pointer',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#475569', fontSize: '0.85rem', fontWeight: 600 }}>Total All Tickets</span>
-            <Building2 size={18} color="#64748b" />
+        <div style={statCardStyle}>
+          <div style={statCardTopRow}>
+            <span style={{ color: '#334155', fontSize: '0.85rem', fontWeight: 600 }}>Executive-Approved</span>
+            <FileText size={16} color="#475569" />
           </div>
-          <span style={{ fontSize: '2rem', fontWeight: 700, color: '#0f172a' }}>{tickets.length}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Across all organizational branches</span>
+          <span style={{ fontSize: '1.9rem', fontWeight: 700, color: '#0f172a' }}>{allExecutiveApprovedCount}</span>
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>All forwarded tickets</span>
         </div>
       </div>
 
-      {/* Main Panel */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-        {/* Navigation Tabs & Filters Bar */}
+      {/* Filters Bar */}
+      <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'visible' }}>
         <div
           style={{
-            padding: '16px 20px',
-            borderBottom: '1px solid #e2e8f0',
-            backgroundColor: '#f8fafc',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: '12px',
+            padding: '16px 16px 0 16px',
           }}
         >
-          {/* Tabs */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => setActiveTab('pending')}
+          <div style={pillTabsContainerStyle}>
+            <div
               style={{
-                ...tabBtnStyle,
-                backgroundColor: activeTab === 'pending' ? '#4338ca' : '#ffffff',
-                color: activeTab === 'pending' ? '#ffffff' : '#475569',
-                borderColor: activeTab === 'pending' ? '#4338ca' : '#cbd5e1',
+                ...slidingIndicatorStyle,
+                left: `${indicatorStyle.left}px`,
+                width: `${indicatorStyle.width}px`,
               }}
-            >
-              ⚡ Pending Review ({pendingDirectorCount})
-            </button>
-            <button
-              onClick={() => setActiveTab('all')}
-              style={{
-                ...tabBtnStyle,
-                backgroundColor: activeTab === 'all' ? '#4338ca' : '#ffffff',
-                color: activeTab === 'all' ? '#ffffff' : '#475569',
-                borderColor: activeTab === 'all' ? '#4338ca' : '#cbd5e1',
-              }}
-            >
-              📑 All Tickets ({tickets.length})
-            </button>
+            />
+            {TABS.map((tab) => {
+              let count = 0;
+              if (tab === 'Action Required') count = actionRequiredCount;
+              if (tab === 'Approved / In Dev') count = approvedCount;
+              if (tab === 'Rejected') count = rejectedCount;
+              if (tab === 'All Executive-Approved') count = allExecutiveApprovedCount;
+
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  ref={(el) => (tabRefs.current[tab] = el)}
+                  onClick={() => setActiveTab(tab)}
+                  style={isActive ? pillTabActiveStyle : pillTabStyle}
+                >
+                  {tab === 'Action Required' && isActive && <span style={{ fontSize: '0.85rem' }}>⚡</span>}
+                  {tab} ({count})
+                </button>
+              );
+            })}
           </div>
 
-          {/* Filters & Search */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            {/* Search Box */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: '10px' }} />
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div style={{ position: 'relative' }}>
+              <Search
+                size={16}
+                color="#94a3b8"
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}
+              />
               <input
                 type="text"
-                placeholder="Search ticket, branch, project..."
+                placeholder="Search project, ticket, branch"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
-                  ...inputStyle,
-                  width: '220px',
-                  paddingLeft: '32px',
-                  paddingTop: '6px',
-                  paddingBottom: '6px',
+                  padding: '9px 12px 9px 36px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
                   fontSize: '0.85rem',
+                  width: '260px',
+                  outline: 'none',
                 }}
               />
             </div>
 
-            {/* Branch Filter */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Filter size={14} color="#64748b" />
-              <select
-                value={branchFilter}
-                onChange={(e) => setBranchFilter(e.target.value)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  backgroundColor: '#ffffff',
-                  fontSize: '0.85rem',
-                  color: '#334155',
-                  outline: 'none',
-                }}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setBranchMenuOpen((v) => !v)}
+                style={branchDropdownBtnStyle}
               >
-                <option value="all">All Branches</option>
-                {branchList.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
+                {branchFilter}
+                <ChevronDown size={14} />
+              </button>
+              {branchMenuOpen && (
+                <div style={branchDropdownMenuStyle}>
+                  {branchOptions.map((b) => (
+                    <div
+                      key={b}
+                      onClick={() => {
+                        setBranchFilter(b);
+                        setBranchMenuOpen(false);
+                      }}
+                      style={{
+                        ...branchDropdownItemStyle,
+                        backgroundColor: branchFilter === b ? '#f1f5f9' : 'transparent',
+                        fontWeight: branchFilter === b ? 600 : 500,
+                      }}
+                    >
+                      {b}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Tickets Table */}
-        {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading tickets...</div>
-        ) : filteredTickets.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
-            {activeTab === 'pending'
-              ? '🎉 No tickets currently pending IT Director authorization!'
-              : 'No tickets matched your filter criteria.'}
-          </div>
-        ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f8fafc', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ padding: '12px 16px' }}>ID</th>
-                <th style={{ padding: '12px 16px' }}>Branch</th>
-                <th style={{ padding: '12px 16px' }}>Project Name</th>
-                <th style={{ padding: '12px 16px' }}>Requester</th>
-                <th style={{ padding: '12px 16px' }}>Exec Review Minute</th>
-                <th style={{ padding: '12px 16px' }}>Status</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTickets.map((t) => {
-                // Find executive approval minute if present
-                const execApproval = t.approvals?.find(
-                  (a) => a.decision_as === 'Executive Officer' || a.decision_as === 'executive_officer'
-                );
-
-                return (
-                  <tr key={t.ticket_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '12px 16px', fontWeight: 600, color: '#3b82f6' }}>#{t.ticket_id}</td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span
-                        style={{
-                          backgroundColor: '#f1f5f9',
-                          color: '#334155',
-                          padding: '3px 8px',
-                          borderRadius: '6px',
-                          fontSize: '0.8rem',
-                          fontWeight: 500,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                        }}
-                      >
-                        <Building2 size={12} /> {t.branch_name || 'Organization'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 16px', fontWeight: 600, color: '#1e293b' }}>{t.project_name}</td>
-                    <td style={{ padding: '12px 16px', color: '#64748b' }}>{t.created_by_name}</td>
-                    <td style={{ padding: '12px 16px', maxWidth: '220px' }}>
-                      {execApproval ? (
-                        <div style={{ fontSize: '0.82rem', color: '#15803d', display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontWeight: 600 }}>✅ Approved by {execApproval.reviewer_name}</span>
-                          <span
-                            style={{
-                              color: '#64748b',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            "{execApproval.remark}"
-                          </span>
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>None yet</span>
-                      )}
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>{getStatusBadge(t.status)}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                        {/* View Details */}
-                        <button onClick={() => setViewingTicket(t)} style={iconBtnStyle} title="View Details">
-                          <Eye size={15} /> View
-                        </button>
-
-                        {/* Review / Authorize Button for Pending Director */}
-                        {t.status === 'pending_director' && (
-                          <button
-                            onClick={() => {
-                              setDecisionTicket(t);
-                              setDecisionType('approved');
-                              setRemark('');
-                            }}
-                            style={{
-                              ...iconBtnStyle,
-                              backgroundColor: '#4338ca',
-                              color: '#ffffff',
-                              borderColor: '#4338ca',
-                              fontWeight: 600,
-                            }}
-                            title="Authorize or Reject Ticket"
-                          >
-                            <ShieldCheck size={15} /> Decide
-                          </button>
+        <div style={{ marginTop: '16px' }}>
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading tickets...</div>
+          ) : filteredTickets.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+              {tickets.length === 0
+                ? 'No executive-approved tickets awaiting director review yet.'
+                : 'No tickets match the selected filter or search.'}
+            </div>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
+              <thead>
+                <tr style={{ color: '#94a3b8', borderBottom: '1px solid #e2e8f0' }}>
+                  <th style={thStyle}>Ticket ID</th>
+                  <th style={thStyle}>Branch</th>
+                  <th style={thStyle}>Project Name</th>
+                  <th style={thStyle}>Requester</th>
+                  <th style={thStyle}>Executive Review</th>
+                  <th style={thStyle}>Status</th>
+                  <th style={{ ...thStyle, textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTickets.map((t) => {
+                  const review = getExecutiveReview(t);
+                  return (
+                    <tr key={t.ticket_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ ...tdStyle, fontWeight: 700, color: '#2563eb' }}>#{t.ticket_id}</td>
+                      <td style={tdStyle}>
+                        <span style={branchPillStyle}>{t.branch_name || '—'}</span>
+                      </td>
+                      <td style={{ ...tdStyle, fontWeight: 600, color: '#1e293b' }}>{t.project_name}</td>
+                      <td style={{ ...tdStyle, color: '#64748b' }}>{t.created_by_name}</td>
+                      <td style={tdStyle}>
+                        {review ? (
+                          <div>
+                            <div style={{ color: '#16a34a', fontWeight: 600, fontSize: '0.82rem' }}>
+                              ✓ {review.decision_as || 'Executive'}
+                            </div>
+                            {review.remark && (
+                              <div style={{ color: '#94a3b8', fontSize: '0.78rem', fontStyle: 'italic' }}>
+                                "{review.remark}"
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ color: '#cbd5e1' }}>—</span>
                         )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+                      </td>
+                      <td style={tdStyle}>{getStatusBadge(t.status)}</td>
+                      <td style={{ ...tdStyle, textAlign: 'right' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                          {t.status === 'pending_director' && (
+                            <button
+                              onClick={() => {
+                                setDecisionTicket(t);
+                                setDecisionType('approved');
+                                setRemark('');
+                              }}
+                              style={decideBtnStyle}
+                            >
+                              Decide
+                            </button>
+                          )}
+                          <button onClick={() => setViewingTicket(t)} style={viewLinkStyle}>
+                            View Details
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
-      {/* IT DIRECTOR DECISION MODAL */}
+      {/* DECISION MODAL */}
       {decisionTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                borderBottom: '1px solid #e2e8f0',
-                paddingBottom: '12px',
-              }}
-            >
-              <div>
-                <h3 style={{ margin: 0, color: '#0f172a' }}>
-                  IT Director Review: Ticket #{decisionTicket.ticket_id}
-                </h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                  Branch: <strong>{decisionTicket.branch_name}</strong> | Project:{' '}
-                  <strong>{decisionTicket.project_name}</strong>
-                </span>
-              </div>
-              <button
-                onClick={() => setDecisionTicket(null)}
-                style={{ border: 'none', background: 'none', cursor: 'pointer' }}
-              >
-                <XCircle size={20} color="#64748b" />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0 }}>Director Authorization for Ticket #{decisionTicket.ticket_id}</h3>
+              <button onClick={() => setDecisionTicket(null)} style={closeBtnStyle}>
+                <XCircle size={20} />
               </button>
             </div>
 
-            {/* Show Executive Officer Note */}
-            {decisionTicket.approvals && decisionTicket.approvals.length > 0 && (
-              <div
-                style={{
-                  backgroundColor: '#f0fdf4',
-                  border: '1px solid #bbf7d0',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  marginBottom: '16px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#166534', fontWeight: 600, fontSize: '0.88rem' }}>
-                  <CheckCircle2 size={16} /> Branch Executive Approval Minute:
-                </div>
-                <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: '#1e293b' }}>
-                  "{decisionTicket.approvals[decisionTicket.approvals.length - 1].remark}"
-                </p>
-                <span style={{ fontSize: '0.75rem', color: '#15803d' }}>
-                  Reviewed by {decisionTicket.approvals[decisionTicket.approvals.length - 1].reviewer_name} (Executive Officer)
-                </span>
-              </div>
-            )}
-
             <form onSubmit={handleDecisionSubmit}>
-              {/* Radio options */}
               <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Director Decision</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' }}>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      border: decisionType === 'approved' ? '2px solid #16a34a' : '1px solid #e2e8f0',
-                      backgroundColor: decisionType === 'approved' ? '#f0fdf4' : '#ffffff',
-                      fontWeight: 600,
-                      color: '#166534',
-                    }}
-                  >
+                <label style={labelStyle}>Decision Choice</label>
+                <div style={{ display: 'flex', gap: '16px', marginTop: '6px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600, color: '#16a34a' }}>
                     <input
                       type="radio"
-                      name="director_decision"
+                      name="director-decision"
                       value="approved"
                       checked={decisionType === 'approved'}
                       onChange={() => setDecisionType('approved')}
                     />
-                    <div>
-                      <div>✅ Authorize & Approve Project for Development</div>
-                      <div style={{ fontSize: '0.78rem', color: '#15803d', fontWeight: 400 }}>
-                        Transitions ticket to Approved and automatically creates an Approved Project for IT development team.
-                      </div>
-                    </div>
+                    ✅ Authorize (Move to IT Development)
                   </label>
-
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      border: decisionType === 'rejected' ? '2px solid #dc2626' : '1px solid #e2e8f0',
-                      backgroundColor: decisionType === 'rejected' ? '#fef2f2' : '#ffffff',
-                      fontWeight: 600,
-                      color: '#991b1b',
-                    }}
-                  >
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600, color: '#dc2626' }}>
                     <input
                       type="radio"
-                      name="director_decision"
+                      name="director-decision"
                       value="rejected"
                       checked={decisionType === 'rejected'}
                       onChange={() => setDecisionType('rejected')}
                     />
-                    <div>
-                      <div>❌ Reject Software Proposal</div>
-                      <div style={{ fontSize: '0.78rem', color: '#b91c1c', fontWeight: 400 }}>
-                        Returns ticket to the Branch Manager with rejection reasons and minutes.
-                      </div>
-                    </div>
+                    ❌ Reject (Send back to Branch)
                   </label>
                 </div>
               </div>
 
-              {/* Remarks Textarea */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={labelStyle}>Director Remarks & Instructions (Required)</label>
+                <label style={labelStyle}>Minutes / Review Remarks (Required)</label>
                 <textarea
                   placeholder={
                     decisionType === 'approved'
-                      ? 'Enter technical directives, architectural notes, or scope approval remarks...'
-                      : 'State technical reasons or constraints for rejection...'
+                      ? 'Enter authorization remarks or notes...'
+                      : 'Enter reason for rejection so the branch can review...'
                   }
                   value={remark}
                   onChange={(e) => setRemark(e.target.value)}
@@ -580,7 +461,6 @@ export default function ITDirectorDashboard() {
                 />
               </div>
 
-              {/* Action Buttons */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                 <button type="button" onClick={() => setDecisionTicket(null)} style={secondaryBtnStyle}>
                   Cancel
@@ -588,16 +468,9 @@ export default function ITDirectorDashboard() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  style={{
-                    ...primaryBtnStyle,
-                    backgroundColor: decisionType === 'approved' ? '#16a34a' : '#dc2626',
-                  }}
+                  style={{ ...primaryBtnStyle, backgroundColor: decisionType === 'approved' ? '#16a34a' : '#dc2626' }}
                 >
-                  {submitting
-                    ? 'Submitting...'
-                    : decisionType === 'approved'
-                    ? 'Confirm Director Authorization'
-                    : 'Confirm Rejection'}
+                  {submitting ? 'Submitting...' : decisionType === 'approved' ? 'Confirm Authorization' : 'Confirm Rejection'}
                 </button>
               </div>
             </form>
@@ -605,69 +478,49 @@ export default function ITDirectorDashboard() {
         </div>
       )}
 
-      {/* VIEW TICKET DETAILS & AUDIT TRAIL MODAL */}
+      {/* VIEW TICKET DETAILS MODAL */}
       {viewingTicket && (
         <div style={modalOverlayStyle}>
-          <div style={{ ...modalContentStyle, maxWidth: '650px' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                borderBottom: '1px solid #e2e8f0',
-                paddingBottom: '12px',
-              }}
-            >
-              <div>
-                <h3 style={{ margin: 0 }}>Ticket #{viewingTicket.ticket_id} Details</h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                  Branch: <strong>{viewingTicket.branch_name}</strong> | Requester:{' '}
-                  <strong>{viewingTicket.created_by_name}</strong>
-                </span>
-              </div>
-              <button
-                onClick={() => setViewingTicket(null)}
-                style={{ border: 'none', background: 'none', cursor: 'pointer' }}
-              >
-                <XCircle size={20} color="#64748b" />
+          <div style={modalContentStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0 }}>Ticket #{viewingTicket.ticket_id} Details</h3>
+              <button onClick={() => setViewingTicket(null)} style={closeBtnStyle}>
+                <XCircle size={20} />
               </button>
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '70vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <strong>Branch:</strong>
+                <p style={{ margin: '4px 0' }}>{viewingTicket.branch_name || '—'}</p>
+              </div>
               <div>
                 <strong>Project Name:</strong>
                 <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
                   {viewingTicket.project_name}
                 </p>
               </div>
-
               <div>
-                <strong>Current Status:</strong>
+                <strong>Status:</strong>
                 <div style={{ marginTop: '4px' }}>{getStatusBadge(viewingTicket.status)}</div>
               </div>
-
               <div>
-                <strong>Requirements & Specifications:</strong>
+                <strong>Requirements:</strong>
                 <p
                   style={{
                     margin: '4px 0',
                     background: '#f8fafc',
                     padding: '12px',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     border: '1px solid #e2e8f0',
                     whiteSpace: 'pre-wrap',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.5,
                   }}
                 >
                   {viewingTicket.requirements}
                 </p>
               </div>
-
               {viewingTicket.documents && viewingTicket.documents.length > 0 && (
                 <div>
-                  <strong>Attached Specification Documents:</strong>
+                  <strong>Attached Documents:</strong>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
                     {viewingTicket.documents.map((doc, idx) => (
                       <div
@@ -690,56 +543,29 @@ export default function ITDirectorDashboard() {
                   </div>
                 </div>
               )}
-
-              {/* Full Audit Review Trail */}
-              <div>
-                <strong>Decision & Review History:</strong>
-                {viewingTicket.approvals && viewingTicket.approvals.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
-                    {viewingTicket.approvals.map((app, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          background: app.decision === 'approved' ? '#f0fdf4' : '#fef2f2',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '1px solid #e2e8f0',
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span
-                            style={{
-                              fontWeight: 600,
-                              color: app.decision === 'approved' ? '#16a34a' : '#dc2626',
-                              fontSize: '0.9rem',
-                            }}
-                          >
-                            {app.decision_as === 'Executive Officer' || app.decision_as === 'executive_officer'
-                              ? '🏛️ Branch Executive Officer'
-                              : '💻 IT Director'}{' '}
-                            ({app.decision === 'approved' ? 'Approved' : 'Rejected'})
-                          </span>
-                          <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                            {new Date(app.decision_at).toLocaleString()}
-                          </span>
-                        </div>
-                        <p style={{ margin: '6px 0 2px', fontSize: '0.9rem', color: '#1e293b' }}>
-                          "{app.remark || 'No remark provided'}"
-                        </p>
-                        <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                          Reviewer: <strong>{app.reviewer_name}</strong>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ margin: '4px 0', fontSize: '0.85rem', color: '#94a3b8' }}>
-                    No review minutes recorded yet.
-                  </p>
-                )}
-              </div>
+              {viewingTicket.approvals && viewingTicket.approvals.length > 0 && (
+                <div>
+                  <strong>Review Minutes &amp; Remarks:</strong>
+                  {viewingTicket.approvals.map((app, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: app.decision === 'approved' ? '#f0fdf4' : '#fef2f2',
+                        padding: '10px',
+                        borderRadius: '6px',
+                        marginTop: '6px',
+                        border: '1px solid #e2e8f0',
+                      }}
+                    >
+                      <span style={{ fontWeight: 600, color: app.decision === 'approved' ? '#16a34a' : '#dc2626' }}>
+                        {app.decision_as} ({app.decision})
+                      </span>
+                      <p style={{ margin: '4px 0 0', fontSize: '0.9rem' }}>{app.remark || 'No remark provided'}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
               <button onClick={() => setViewingTicket(null)} style={secondaryBtnStyle}>
                 Close View
@@ -752,7 +578,7 @@ export default function ITDirectorDashboard() {
   );
 }
 
-// Inline Styles
+// Styles
 const primaryBtnStyle = {
   backgroundColor: '#2563eb',
   color: '#fff',
@@ -775,28 +601,31 @@ const secondaryBtnStyle = {
   cursor: 'pointer',
 };
 
-const iconBtnStyle = {
-  backgroundColor: '#ffffff',
-  color: '#475569',
-  border: '1px solid #cbd5e1',
-  padding: '6px 12px',
+const decideBtnStyle = {
+  backgroundColor: '#2563eb',
+  color: '#fff',
+  border: 'none',
+  padding: '7px 16px',
   borderRadius: '6px',
-  fontWeight: 500,
+  fontWeight: 600,
   fontSize: '0.82rem',
   cursor: 'pointer',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '4px',
 };
 
-const tabBtnStyle = {
-  padding: '6px 14px',
-  borderRadius: '8px',
-  border: '1px solid #cbd5e1',
-  fontSize: '0.85rem',
-  fontWeight: 600,
+const viewLinkStyle = {
+  backgroundColor: 'transparent',
+  color: '#475569',
+  border: 'none',
+  padding: '7px 4px',
+  fontSize: '0.82rem',
+  fontWeight: 500,
   cursor: 'pointer',
-  transition: 'all 0.2s',
+};
+
+const closeBtnStyle = {
+  border: 'none',
+  background: 'none',
+  cursor: 'pointer',
 };
 
 const statCardStyle = {
@@ -809,14 +638,30 @@ const statCardStyle = {
   gap: '4px',
 };
 
+const statCardTopRow = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+};
+
 const badgeStyle = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: '4px',
   padding: '4px 10px',
   borderRadius: '12px',
-  fontSize: '0.78rem',
+  fontSize: '0.76rem',
   fontWeight: 600,
+};
+
+const branchPillStyle = {
+  display: 'inline-block',
+  padding: '3px 10px',
+  borderRadius: '6px',
+  backgroundColor: '#f1f5f9',
+  color: '#475569',
+  fontSize: '0.78rem',
+  fontWeight: 500,
 };
 
 const modalOverlayStyle = {
@@ -856,4 +701,89 @@ const inputStyle = {
   border: '1px solid #cbd5e1',
   fontSize: '0.9rem',
   boxSizing: 'border-box',
+};
+
+const thStyle = {
+  padding: '10px 16px',
+  fontSize: '0.72rem',
+  fontWeight: 700,
+  letterSpacing: '0.03em',
+  textTransform: 'uppercase',
+};
+
+const tdStyle = {
+  padding: '14px 16px',
+};
+
+const pillTabsContainerStyle = {
+  position: 'relative',
+  display: 'inline-flex',
+  gap: '4px',
+};
+
+const slidingIndicatorStyle = {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  borderRadius: '8px',
+  backgroundColor: '#eef2ff',
+  transition: 'left 0.25s ease, width 0.25s ease',
+};
+
+const pillTabStyle = {
+  position: 'relative',
+  zIndex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  background: 'none',
+  border: 'none',
+  padding: '10px 14px',
+  borderRadius: '8px',
+  fontSize: '0.85rem',
+  fontWeight: 500,
+  color: '#64748b',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
+  transition: 'color 0.2s ease',
+};
+
+const pillTabActiveStyle = {
+  ...pillTabStyle,
+  color: '#4338ca',
+  fontWeight: 600,
+};
+
+const branchDropdownBtnStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  padding: '9px 14px',
+  borderRadius: '8px',
+  border: '1px solid #cbd5e1',
+  backgroundColor: '#fff',
+  fontSize: '0.85rem',
+  fontWeight: 500,
+  color: '#334155',
+  cursor: 'pointer',
+};
+
+const branchDropdownMenuStyle = {
+  position: 'absolute',
+  top: 'calc(100% + 6px)',
+  right: 0,
+  backgroundColor: '#fff',
+  border: '1px solid #e2e8f0',
+  borderRadius: '8px',
+  boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+  minWidth: '180px',
+  zIndex: 10,
+  overflow: 'hidden',
+};
+
+const branchDropdownItemStyle = {
+  padding: '9px 14px',
+  fontSize: '0.85rem',
+  color: '#334155',
+  cursor: 'pointer',
 };
