@@ -6,7 +6,7 @@ import './App.css';
 
 import RoleMainLayout from './components/MainLayout';
 import ExecutiveOfficerDashboard from './pages/ExecutiveOfficerDashboard';
-import ITDirectorDashboard from './components/ITDirectorDashboard';
+import ITDirectorDashboard from './pages/it-director/DashboardPage';
 import ITMainDeveloperDashboard from './components/ITMainDeveloperDashboard';
 import DeveloperDashboard from './components/DeveloperDashboard';
 import ProfileMenu from './components/ProfileMenu';

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import API from '../services/api';
-import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare } from 'lucide-react';
+import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare, Search, Download } from 'lucide-react';
+
+const TABS = ['All', 'Pending Review', 'Approved & Sent', 'Rejected', 'Completed'];
 
 export default function ExecutiveOfficerDashboard() {
   const [tickets, setTickets] = useState([]);
@@ -15,6 +17,19 @@ export default function ExecutiveOfficerDashboard() {
   const [decisionType, setDecisionType] = useState('approved'); // 'approved' or 'rejected'
   const [remark, setRemark] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Sliding tab indicator
+  const tabRefs = useRef({});
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+
+  useLayoutEffect(() => {
+    const node = tabRefs.current[activeTab];
+    if (node) {
+      setIndicatorStyle({ left: node.offsetLeft, width: node.offsetWidth });
+    }
+  }, [activeTab, tickets]);
 
   useEffect(() => {
     fetchTickets();
@@ -72,6 +87,30 @@ export default function ExecutiveOfficerDashboard() {
     }
   };
 
+  const handleDownloadDocument = async (doc) => {
+    try {
+      const downloadPath = doc.document_id
+        ? `tickets/documents/${doc.document_id}/download/`
+        : doc.file_url.replace(/^.*\/api\//, '');
+
+      const response = await API.get(downloadPath, {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.file_name || 'document';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download document:', error);
+      alert('Failed to download document: ' + (error.response?.data?.detail || error.message || 'Unknown error'));
+    }
+  };
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'pending_executive':
@@ -93,16 +132,31 @@ export default function ExecutiveOfficerDashboard() {
     }
   };
 
+  // Tabs & Stats counts
+  const totalCount = tickets.length;
   const pendingCount = tickets.filter(t => t.status === 'pending_executive').length;
   const approvedCount = tickets.filter(t => t.status === 'pending_director' || t.status === 'approved').length;
-  const rejectedCount = tickets.filter(t => t.status === 'rejected_by_executive').length;
+  const rejectedCount = tickets.filter(t => t.status.includes('rejected')).length;
+  const completedCount = tickets.filter(t => t.status === 'completed' || t.status === 'closed').length;
+
+  const filteredTickets = tickets.filter(t => {
+    const matchesSearch = t.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          `#${t.ticket_id}`.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+    if (activeTab === 'All') return true;
+    if (activeTab === 'Pending Review') return t.status === 'pending_executive';
+    if (activeTab === 'Approved & Sent') return t.status === 'pending_director' || t.status === 'approved';
+    if (activeTab === 'Rejected') return t.status.includes('rejected');
+    if (activeTab === 'Completed') return t.status === 'completed' || t.status === 'closed';
+    return true;
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
       <div>
         <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: 700 }}>
-          🏛️ Branch Executive Officer Dashboard
+          Executive Officer Dashboard
         </h2>
         <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
           Review, edit, approve, or reject software request tickets submitted by your Branch Manager.
@@ -111,34 +165,125 @@ export default function ExecutiveOfficerDashboard() {
 
       {/* Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div style={statCardStyle}>
-          <span style={{ color: '#b45309', fontSize: '0.85rem' }}>Pending Executive Review</span>
+        <div
+          onClick={() => setActiveTab('Pending Review')}
+          style={{
+            ...statCardStyle,
+            cursor: 'pointer',
+            borderColor: activeTab === 'Pending Review' ? '#f59e0b' : '#e2e8f0',
+            backgroundColor: activeTab === 'Pending Review' ? '#fffbeb' : '#ffffff',
+            transition: 'all 0.2s ease',
+          }}
+          title="Click to filter by Pending Review"
+        >
+          <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Pending Review</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{pendingCount}</span>
         </div>
-        <div style={statCardStyle}>
-          <span style={{ color: '#15803d', fontSize: '0.85rem' }}>Approved & Sent to IT</span>
+        <div
+          onClick={() => setActiveTab('Approved & Sent')}
+          style={{
+            ...statCardStyle,
+            cursor: 'pointer',
+            borderColor: activeTab === 'Approved & Sent' ? '#22c55e' : '#e2e8f0',
+            backgroundColor: activeTab === 'Approved & Sent' ? '#f0fdf4' : '#ffffff',
+            transition: 'all 0.2s ease',
+          }}
+          title="Click to filter by Approved & Sent"
+        >
+          <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Approved & Sent</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{approvedCount}</span>
         </div>
-        <div style={statCardStyle}>
-          <span style={{ color: '#dc2626', fontSize: '0.85rem' }}>Rejected Back to BM</span>
+        <div
+          onClick={() => setActiveTab('Rejected')}
+          style={{
+            ...statCardStyle,
+            cursor: 'pointer',
+            borderColor: activeTab === 'Rejected' ? '#ef4444' : '#e2e8f0',
+            backgroundColor: activeTab === 'Rejected' ? '#fef2f2' : '#ffffff',
+            transition: 'all 0.2s ease',
+          }}
+          title="Click to filter by Rejected"
+        >
+          <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 600 }}>Rejected</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626' }}>{rejectedCount}</span>
+        </div>
+        <div
+          onClick={() => setActiveTab('Completed')}
+          style={{
+            ...statCardStyle,
+            cursor: 'pointer',
+            borderColor: activeTab === 'Completed' ? '#16a34a' : '#e2e8f0',
+            backgroundColor: activeTab === 'Completed' ? '#f0fdf4' : '#ffffff',
+            transition: 'all 0.2s ease',
+          }}
+          title="Click to filter by Completed"
+        >
+          <span style={{ color: '#166534', fontSize: '0.85rem', fontWeight: 600 }}>Completed</span>
+          <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#166534' }}>{completedCount}</span>
+        </div>
+      </div>
+
+      {/* Filters Bar: Sliding Tabs & Search */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '24px' }}>
+        <div style={pillTabsContainerStyle}>
+          {/* Sliding indicator */}
+          <div
+            style={{
+              ...slidingIndicatorStyle,
+              left: `${indicatorStyle.left}px`,
+              width: `${indicatorStyle.width}px`,
+            }}
+          />
+          {TABS.map(tab => {
+            let count = 0;
+            if (tab === 'All') count = totalCount;
+            if (tab === 'Pending Review') count = pendingCount;
+            if (tab === 'Approved & Sent') count = approvedCount;
+            if (tab === 'Rejected') count = rejectedCount;
+            if (tab === 'Completed') count = completedCount;
+
+            const isActive = activeTab === tab;
+
+            return (
+              <button
+                key={tab}
+                ref={(el) => (tabRefs.current[tab] = el)}
+                onClick={() => setActiveTab(tab)}
+                style={isActive ? pillTabActiveStyle : pillTabStyle}
+              >
+                {tab}
+                <span style={isActive ? pillBadgeActiveStyle : pillBadgeStyle}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ position: 'relative' }}>
+          <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+          <input
+            type="text"
+            placeholder="Search by project or ticket ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '8px 12px 8px 36px',
+              borderRadius: '20px',
+              border: '1px solid #cbd5e1',
+              fontSize: '0.85rem',
+              width: '260px',
+              outline: 'none',
+            }}
+          />
         </div>
       </div>
 
       {/* Tickets List Table */}
       <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>
-            Branch Tickets for Executive Review
-          </h3>
-          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Total: {tickets.length}</span>
-        </div>
-
         {loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading tickets...</div>
-        ) : tickets.length === 0 ? (
+        ) : filteredTickets.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
-            No tickets submitted for review in your branch yet.
+            {tickets.length === 0 ? 'No tickets submitted for review in your branch yet.' : 'No tickets match the selected filter or search.'}
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
@@ -148,11 +293,11 @@ export default function ExecutiveOfficerDashboard() {
                 <th style={{ padding: '12px 16px' }}>Project Name</th>
                 <th style={{ padding: '12px 16px' }}>Created By</th>
                 <th style={{ padding: '12px 16px' }}>Status</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '12px 16px', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {tickets.map((t) => (
+              {filteredTickets.map((t) => (
                 <tr key={t.ticket_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: '#3b82f6' }}>#{t.ticket_id}</td>
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: '#1e293b' }}>{t.project_name}</td>
@@ -178,7 +323,7 @@ export default function ExecutiveOfficerDashboard() {
                         </button>
                       )}
 
-                      {/* Approve Button */}
+                      {/* Decide Button (Approve or Reject) */}
                       {(t.status === 'pending_executive' || t.status === 'draft') && (
                         <button
                           onClick={() => {
@@ -186,25 +331,10 @@ export default function ExecutiveOfficerDashboard() {
                             setDecisionType('approved');
                             setRemark('');
                           }}
-                          style={{ ...iconBtnStyle, color: '#16a34a', borderColor: '#bbf7d0', backgroundColor: '#f0fdf4' }}
-                          title="Approve Ticket"
+                          style={{ ...iconBtnStyle, color: '#ffffff', backgroundColor: '#2563eb', borderColor: '#2563eb', fontWeight: 600 }}
+                          title="Approve or Reject Ticket"
                         >
-                          <CheckCircle2 size={16} /> Approve
-                        </button>
-                      )}
-
-                      {/* Reject Button */}
-                      {(t.status === 'pending_executive' || t.status === 'draft') && (
-                        <button
-                          onClick={() => {
-                            setDecisionTicket(t);
-                            setDecisionType('rejected');
-                            setRemark('');
-                          }}
-                          style={{ ...iconBtnStyle, color: '#dc2626', borderColor: '#fecaca', backgroundColor: '#fef2f2' }}
-                          title="Reject Ticket"
-                        >
-                          <XCircle size={16} /> Reject
+                          <CheckCircle2 size={16} /> Decide
                         </button>
                       )}
                     </div>
@@ -350,9 +480,40 @@ export default function ExecutiveOfficerDashboard() {
                   <strong>Attached Documents:</strong>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
                     {viewingTicket.documents.map((doc, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.88rem', color: '#334155' }}>
-                        <FileText size={16} color="#2563eb" />
-                        <span>{doc.file_name}</span>
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 12px',
+                          background: '#f1f5f9',
+                          borderRadius: '6px',
+                          fontSize: '0.88rem',
+                          color: '#334155',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <FileText size={16} color="#2563eb" />
+                          <span>{doc.file_name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadDocument(doc)}
+                          style={{
+                            border: 'none',
+                            background: 'none',
+                            cursor: 'pointer',
+                            color: '#2563eb',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.78rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <Download size={14} /> Download
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -476,4 +637,65 @@ const inputStyle = {
   border: '1px solid #cbd5e1',
   fontSize: '0.9rem',
   boxSizing: 'border-box',
+};
+
+const pillTabsContainerStyle = {
+  position: 'relative',
+  display: 'inline-flex',
+  gap: '4px',
+  backgroundColor: '#f1f5f9',
+  border: '1px solid #e2e8f0',
+  borderRadius: '20px',
+  padding: '4px',
+};
+
+const slidingIndicatorStyle = {
+  position: 'absolute',
+  top: '4px',
+  bottom: '4px',
+  borderRadius: '16px',
+  backgroundColor: '#ffffff',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  transition: 'left 0.25s ease, width 0.25s ease',
+};
+
+const pillTabStyle = {
+  position: 'relative',
+  zIndex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  background: 'none',
+  border: 'none',
+  padding: '8px 16px',
+  borderRadius: '16px',
+  fontSize: '0.85rem',
+  fontWeight: 500,
+  color: '#64748b',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
+  transition: 'color 0.2s ease',
+};
+
+const pillTabActiveStyle = {
+  ...pillTabStyle,
+  color: '#0f172a',
+  fontWeight: 600,
+};
+
+const pillBadgeStyle = {
+  backgroundColor: '#e2e8f0',
+  color: '#475569',
+  fontSize: '0.72rem',
+  fontWeight: 700,
+  padding: '2px 8px',
+  borderRadius: '999px',
+  minWidth: '18px',
+  textAlign: 'center',
+};
+
+const pillBadgeActiveStyle = {
+  ...pillBadgeStyle,
+  backgroundColor: '#dbeafe',
+  color: '#1d4ed8',
 };
