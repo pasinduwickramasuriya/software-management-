@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import API from '../services/api';
-import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare, Search } from 'lucide-react';
+import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare, Search, Download } from 'lucide-react';
 
 const TABS = ['All', 'Pending Review', 'Approved & Sent', 'Rejected', 'Completed'];
 
@@ -84,6 +84,30 @@ export default function ExecutiveOfficerDashboard() {
       alert('Decision submission failed: ' + (err.response?.data?.detail || 'Unknown error'));
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDownloadDocument = async (doc) => {
+    try {
+      const downloadPath = doc.document_id
+        ? `tickets/documents/${doc.document_id}/download/`
+        : doc.file_url.replace(/^.*\/api\//, '');
+
+      const response = await API.get(downloadPath, {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.file_name || 'document';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download document:', error);
+      alert('Failed to download document: ' + (error.response?.data?.detail || error.message || 'Unknown error'));
     }
   };
 
@@ -456,9 +480,40 @@ export default function ExecutiveOfficerDashboard() {
                   <strong>Attached Documents:</strong>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
                     {viewingTicket.documents.map((doc, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.88rem', color: '#334155' }}>
-                        <FileText size={16} color="#2563eb" />
-                        <span>{doc.file_name}</span>
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 12px',
+                          background: '#f1f5f9',
+                          borderRadius: '6px',
+                          fontSize: '0.88rem',
+                          color: '#334155',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <FileText size={16} color="#2563eb" />
+                          <span>{doc.file_name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadDocument(doc)}
+                          style={{
+                            border: 'none',
+                            background: 'none',
+                            cursor: 'pointer',
+                            color: '#2563eb',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.78rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <Download size={14} /> Download
+                        </button>
                       </div>
                     ))}
                   </div>
