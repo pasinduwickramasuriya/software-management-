@@ -72,10 +72,9 @@ export default function DashboardPage() {
         remark: remark,
       });
       alert(
-        `Ticket #TK-${decisionTicket.ticket_id} ${
-          decisionType === 'approved'
-            ? 'Approved & moved to IT development'
-            : 'Rejected & sent back to Branch'
+        `Ticket #TK-${decisionTicket.ticket_id} ${decisionType === 'approved'
+          ? 'Approved & moved to IT development'
+          : 'Rejected & sent back to Branch'
         }!`
       );
       setDecisionTicket(null);
