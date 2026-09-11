@@ -187,6 +187,9 @@ export default function MainLayout() {
           padding: '14px 32px',
           backgroundColor: '#ffffff',
           borderBottom: '1px solid #e2e8f0',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
         }}
       >
         {/* Logo / Brand */}

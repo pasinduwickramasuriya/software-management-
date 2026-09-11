@@ -5,6 +5,7 @@ import { Eye, Edit3, Send, XCircle } from 'lucide-react';
 export default function DashboardPage({ setActivePage }) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState(null); // 'pending' | 'approved' | 'rejected' | null (= total)
 
   useEffect(() => {
     fetchTickets();
@@ -22,13 +23,36 @@ export default function DashboardPage({ setActivePage }) {
     }
   };
 
+  // Filter predicates — shared by the stat cards and the table below
+  const filters = {
+    pending: (t) => t.status === 'pending_executive' || t.status === 'pending_director',
+    approved: (t) => t.status === 'approved',
+    rejected: (t) => t.status.includes('rejected') || t.status === 'closed',
+  };
+
   // Stats Logic
   const totalCount = tickets.length;
-  const pendingCount = tickets.filter(t => t.status === 'pending_executive' || t.status === 'pending_director').length;
-  const approvedCount = tickets.filter(t => t.status === 'approved').length;
-  const rejectedClosedCount = tickets.filter(t => t.status.includes('rejected') || t.status === 'closed').length;
+  const pendingCount = tickets.filter(filters.pending).length;
+  const approvedCount = tickets.filter(filters.approved).length;
+  const rejectedClosedCount = tickets.filter(filters.rejected).length;
 
-  const recentTickets = tickets.slice(0, 5); // Show top 5
+  // Toggle: clicking the active card clears the filter, clicking another switches it
+  const handleCardClick = (key) => {
+    setActiveFilter((prev) => (prev === key ? null : key));
+  };
+
+  const visibleTickets = activeFilter ? tickets.filter(filters[activeFilter]) : tickets;
+  const recentTickets = visibleTickets.slice(0, 5); // Show top 5 of the current filter
+
+  // Pass the active filter along when navigating to the full View Tickets page,
+  // so the selection carries over instead of resetting.
+  const goToView = () => {
+    if (setActivePage.length > 1) {
+      setActivePage('view', activeFilter);
+    } else {
+      setActivePage('view');
+    }
+  };
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -43,40 +67,69 @@ export default function DashboardPage({ setActivePage }) {
     }
   };
 
+  // Card definitions: filterKey null = "Total" (acts as the "clear filter" card)
+  const cardDefs = [
+    { filterKey: null, label: 'Total Created', value: totalCount, accent: '#94a3b8', textColor: '#0f172a', tint: '#f8fafc', tooltip: 'Show all tickets' },
+    { filterKey: 'pending', label: 'Pending Review', value: pendingCount, accent: '#f59e0b', textColor: '#d97706', tint: '#fffbeb', tooltip: 'Click to filter by Pending Review' },
+    { filterKey: 'approved', label: 'Accepted / Active', value: approvedCount, accent: '#16a34a', textColor: '#16a34a', tint: '#f0fdf4', tooltip: 'Click to filter by Accepted / Active' },
+    { filterKey: 'rejected', label: 'Rejected / Closed', value: rejectedClosedCount, accent: '#dc2626', textColor: '#dc2626', tint: '#fef2f2', tooltip: 'Click to filter by Rejected / Closed' },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      
-      {/* Stats */}
 
+      {/* Stats — click a card to filter the table below; click again to clear */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-        <div style={newStatCardStyle}>
-          <span style={statLabelStyle}>Total Created</span>
-          <span style={{ ...statValueStyle, color: '#0f172a' }}>{totalCount}</span>
-        </div>
-        <div style={newStatCardStyle}>
-          <span style={statLabelStyle}>Pending Review</span>
-          <span style={{ ...statValueStyle, color: '#d97706' }}>{pendingCount}</span>
-        </div>
-        <div style={newStatCardStyle}>
-          <span style={statLabelStyle}>Accepted / Active</span>
-          <span style={{ ...statValueStyle, color: '#16a34a' }}>{approvedCount}</span>
-        </div>
-        <div style={newStatCardStyle}>
-          <span style={statLabelStyle}>Rejected / Closed</span>
-          <span style={{ ...statValueStyle, color: '#dc2626' }}>{rejectedClosedCount}</span>
-        </div>
+        {cardDefs.map(({ filterKey, label, value, accent, textColor, tint, tooltip }) => {
+          const isActive = activeFilter === filterKey && filterKey !== null;
+          return (
+            <button
+              key={label}
+              type="button"
+              onClick={() => handleCardClick(filterKey)}
+              title={tooltip}
+              aria-pressed={isActive}
+              style={{
+                ...newStatCardStyle,
+                borderLeft: `4px solid ${accent}`,
+                backgroundColor: isActive ? tint : '#ffffff',
+                boxShadow: isActive ? `0 0 0 2px ${accent}33` : 'none',
+                cursor: 'pointer',
+                textAlign: 'left',
+                font: 'inherit',
+              }}
+            >
+              <span style={statLabelStyle}>{label}</span>
+              <span style={{ ...statValueStyle, color: textColor }}>{value}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Main Content Area */}
       <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>Recent Tickets</h2>
-          <button 
-            onClick={() => setActivePage('view')} 
-            style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}
-          >
-            View All →
-          </button>
+          <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
+            {activeFilter
+              ? `${cardDefs.find((c) => c.filterKey === activeFilter)?.label} Tickets`
+              : 'Recent Tickets'}
+          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {activeFilter && (
+              <button
+                onClick={() => setActiveFilter(null)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem' }}
+              >
+                Clear filter ✕
+              </button>
+            )}
+            <button
+              onClick={goToView}
+              style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}
+            >
+              View All →
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -103,14 +156,14 @@ export default function DashboardPage({ setActivePage }) {
                     </td>
                     <td style={{ padding: '16px 24px' }}>{getStatusBadge(t.status)}</td>
                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                      <button onClick={() => setActivePage('view')} style={actionBtnNeutral}>Go to View</button>
+                      <button onClick={goToView} style={actionBtnNeutral}>Go to View</button>
                     </td>
                   </tr>
                 ))}
                 {recentTickets.length === 0 && (
                   <tr>
                     <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-                      No tickets created yet.
+                      {activeFilter ? 'No tickets match this filter.' : 'No tickets created yet.'}
                     </td>
                   </tr>
                 )}
@@ -132,6 +185,7 @@ const newStatCardStyle = {
   display: 'flex',
   flexDirection: 'column',
   gap: '8px',
+  transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
 };
 const statLabelStyle = { color: '#64748b', fontSize: '0.85rem', fontWeight: 500 };
 const statValueStyle = { fontSize: '2rem', fontWeight: 700, lineHeight: 1 };

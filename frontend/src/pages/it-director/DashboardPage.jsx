@@ -240,64 +240,24 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary Cards — read-only stats; the pill tabs below are the only filter control */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div
-          onClick={() => setActiveTab('Action Required')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Action Required' ? '#f59e0b' : '#e2e8f0',
-            backgroundColor: activeTab === 'Action Required' ? '#fffbeb' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Action Required"
-        >
+        <div style={{ ...statCardStyle, borderLeft: '4px solid #f59e0b' }}>
           <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Action Required</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{actionRequiredCount}</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('Approved / In Dev')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Approved / In Dev' ? '#22c55e' : '#e2e8f0',
-            backgroundColor: activeTab === 'Approved / In Dev' ? '#f0fdf4' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Approved / In Dev"
-        >
+        <div style={{ ...statCardStyle, borderLeft: '4px solid #22c55e' }}>
           <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Approved / In Dev</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{approvedCount}</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('Rejected')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Rejected' ? '#ef4444' : '#e2e8f0',
-            backgroundColor: activeTab === 'Rejected' ? '#fef2f2' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Rejected"
-        >
+        <div style={{ ...statCardStyle, borderLeft: '4px solid #ef4444' }}>
           <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 600 }}>Rejected</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626' }}>{rejectedCount}</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('All')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'All' ? '#3b82f6' : '#e2e8f0',
-            backgroundColor: activeTab === 'All' ? '#eff6ff' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by All Forwarded"
-        >
+        <div style={{ ...statCardStyle, borderLeft: '4px solid #3b82f6' }}>
           <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>All Forwarded</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{totalCount}</span>
         </div>
@@ -415,17 +375,20 @@ export default function DashboardPage() {
                     </td>
                     <td style={{ padding: '12px 16px', fontWeight: 600, color: '#1e293b' }}>{t.project_name}</td>
                     <td style={{ padding: '12px 16px', color: '#64748b' }}>{t.created_by_name}</td>
-                    <td style={{ padding: '12px 16px' }}>
-                      {review ? (
-                        <div>
-                          <div style={{ color: '#16a34a', fontWeight: 600, fontSize: '0.82rem' }}>
-                            ✓ {review.decision_as || 'Executive'}
-                          </div>
-                          {review.remark && (
-                            <div style={{ color: '#64748b', fontSize: '0.78rem', fontStyle: 'italic' }}>
-                              "{review.remark}"
-                            </div>
-                          )}
+                    <td style={{ padding: '12px 16px', maxWidth: '200px' }}>
+                      {review && review.remark ? (
+                        <div
+                          title={review.remark}
+                          style={{
+                            color: '#64748b',
+                            fontSize: '0.82rem',
+                            fontStyle: 'italic',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          "{review.remark}"
                         </div>
                       ) : (
                         <span style={{ color: '#cbd5e1' }}>—</span>

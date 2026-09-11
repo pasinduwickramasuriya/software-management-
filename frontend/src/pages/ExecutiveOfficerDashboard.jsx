@@ -184,6 +184,14 @@ export default function ExecutiveOfficerDashboard() {
     return pages;
   };
 
+  // Card definitions for the filter-friendly summary cards
+  const cardDefs = [
+    { tab: 'Pending Review', label: 'Pending Review', value: pendingCount, accent: '#f59e0b', textColor: '#b45309', tint: '#fffbeb' },
+    { tab: 'Approved & Sent', label: 'Approved & Sent', value: approvedCount, accent: '#22c55e', textColor: '#15803d', tint: '#f0fdf4' },
+    { tab: 'Rejected', label: 'Rejected', value: rejectedCount, accent: '#ef4444', textColor: '#dc2626', tint: '#fef2f2' },
+    { tab: 'Completed', label: 'Completed', value: completedCount, accent: '#16a34a', textColor: '#166534', tint: '#f0fdf4' },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
@@ -196,64 +204,33 @@ export default function ExecutiveOfficerDashboard() {
         </p>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary Cards — click a card to filter the table below via the same tab state */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div
-          onClick={() => setActiveTab('Pending Review')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Pending Review' ? '#f59e0b' : '#e2e8f0',
-            backgroundColor: activeTab === 'Pending Review' ? '#fffbeb' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Pending Review"
-        >
-          <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Pending Review</span>
-          <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{pendingCount}</span>
-        </div>
-        <div
-          onClick={() => setActiveTab('Approved & Sent')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Approved & Sent' ? '#22c55e' : '#e2e8f0',
-            backgroundColor: activeTab === 'Approved & Sent' ? '#f0fdf4' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Approved & Sent"
-        >
-          <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Approved & Sent</span>
-          <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{approvedCount}</span>
-        </div>
-        <div
-          onClick={() => setActiveTab('Rejected')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Rejected' ? '#ef4444' : '#e2e8f0',
-            backgroundColor: activeTab === 'Rejected' ? '#fef2f2' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Rejected"
-        >
-          <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 600 }}>Rejected</span>
-          <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626' }}>{rejectedCount}</span>
-        </div>
-        <div
-          onClick={() => setActiveTab('Completed')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Completed' ? '#16a34a' : '#e2e8f0',
-            backgroundColor: activeTab === 'Completed' ? '#f0fdf4' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Completed"
-        >
-          <span style={{ color: '#166534', fontSize: '0.85rem', fontWeight: 600 }}>Completed</span>
-          <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#166534' }}>{completedCount}</span>
-        </div>
+        {cardDefs.map(({ tab, label, value, accent, textColor, tint }) => {
+          const isActive = activeTab === tab;
+          return (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(isActive ? 'All' : tab)}
+              title={`Click to filter by ${label}`}
+              aria-pressed={isActive}
+              style={{
+                ...statCardStyle,
+                borderLeft: `4px solid ${accent}`,
+                backgroundColor: isActive ? tint : '#ffffff',
+                boxShadow: isActive ? `0 0 0 2px ${accent}33` : 'none',
+                cursor: 'pointer',
+                textAlign: 'left',
+                font: 'inherit',
+                transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
+              }}
+            >
+              <span style={{ color: textColor, fontSize: '0.85rem', fontWeight: 600 }}>{label}</span>
+              <span style={{ fontSize: '1.8rem', fontWeight: 700, color: textColor }}>{value}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Filters Bar: Sliding Tabs & Search */}
