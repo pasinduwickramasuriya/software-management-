@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import API from '../services/api';
-import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare, Search, Download } from 'lucide-react';
+import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare, Search, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const TABS = ['All', 'Pending Review', 'Approved & Sent', 'Rejected', 'Completed'];
 
@@ -19,6 +19,15 @@ export default function ExecutiveOfficerDashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Reset to page 1 when filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery]);
 
   // Sliding tab indicator
   const tabRefs = useRef({});
@@ -150,6 +159,30 @@ export default function ExecutiveOfficerDashboard() {
     if (activeTab === 'Completed') return t.status === 'completed' || t.status === 'closed';
     return true;
   });
+
+  // Pagination slicing & calculations
+  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredTickets.length);
+  const currentTickets = filteredTickets.slice(startIndex, startIndex + itemsPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 4) {
+        pages.push(1, 2, 3, 4, 5, '...', totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    return pages;
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -297,7 +330,7 @@ export default function ExecutiveOfficerDashboard() {
               </tr>
             </thead>
             <tbody>
-              {filteredTickets.map((t) => (
+              {currentTickets.map((t) => (
                 <tr key={t.ticket_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: '#3b82f6' }}>#{t.ticket_id}</td>
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: '#1e293b' }}>{t.project_name}</td>
@@ -343,6 +376,83 @@ export default function ExecutiveOfficerDashboard() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* Pagination Footer */}
+        {!loading && filteredTickets.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+              padding: '12px 20px',
+              borderTop: '1px solid #e2e8f0',
+              backgroundColor: '#ffffff',
+            }}
+          >
+            {/* Left Info */}
+            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+              Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
+              <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
+              <strong style={{ color: '#0f172a' }}>{filteredTickets.length}</strong> tickets
+            </div>
+
+            {/* Right Page Navigation */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                style={{
+                  ...paginationBtnStyle,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === 1 ? 0.45 : 1,
+                }}
+              >
+                <ChevronLeft size={16} /> Prev
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {getPageNumbers().map((page, idx) => {
+                  if (page === '...') {
+                    return (
+                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                        ...
+                      </span>
+                    );
+                  }
+                  const isCurrent = currentPage === page;
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      style={{
+                        ...paginationPageNumStyle,
+                        backgroundColor: isCurrent ? '#2563eb' : '#ffffff',
+                        color: isCurrent ? '#ffffff' : '#475569',
+                        borderColor: isCurrent ? '#2563eb' : '#e2e8f0',
+                      }}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                style={{
+                  ...paginationBtnStyle,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === totalPages ? 0.45 : 1,
+                }}
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -698,4 +808,33 @@ const pillBadgeActiveStyle = {
   ...pillBadgeStyle,
   backgroundColor: '#dbeafe',
   color: '#1d4ed8',
+};
+
+const paginationBtnStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  padding: '6px 12px',
+  borderRadius: '6px',
+  border: '1px solid #cbd5e1',
+  backgroundColor: '#ffffff',
+  color: '#334155',
+  fontSize: '0.82rem',
+  fontWeight: 500,
+  transition: 'all 0.15s ease',
+};
+
+const paginationPageNumStyle = {
+  minWidth: '32px',
+  height: '32px',
+  padding: '0 6px',
+  borderRadius: '6px',
+  border: '1px solid #e2e8f0',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'all 0.15s ease',
 };
