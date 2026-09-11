@@ -12,6 +12,7 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 const TABS = ['All', 'Action Required', 'Approved / In Dev', 'Rejected'];
@@ -231,14 +232,21 @@ export default function DashboardPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
-      <div>
-        <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: 700 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <ShieldCheck size={24} color="#2563EB" />
+        </div>
+        <div>
+        <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
           IT Director Dashboard
-        </h2>
+        </h1>
         <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
           Authorize, review, and manage branch software request tickets forwarded by Executive Officers.
-        </p>
-      </div>
+         </p>
+        </div>
+        </div>
+        </div>
 
       {/* Summary Cards — read-only stats; the pill tabs below are the only filter control */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
