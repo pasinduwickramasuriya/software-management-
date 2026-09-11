@@ -6,6 +6,8 @@ import {
   CheckCircle2,
   Clock,
   User,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 export default function AdminProjectsPage() {
@@ -13,9 +15,17 @@ export default function AdminProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -56,6 +66,28 @@ export default function AdminProjectsPage() {
     p.project_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.ticket?.project_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination slicing & calculations
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredProjects.length);
+  const currentProjects = filteredProjects.slice(startIndex, startIndex + itemsPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else if (currentPage <= 4) {
+      pages.push(1, 2, 3, 4, 5, '...', totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+    return pages;
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -116,7 +148,7 @@ export default function AdminProjectsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredProjects.map((p) => (
+                {currentProjects.map((p) => (
                   <tr key={p.project_id} style={{ borderBottom: '1px solid #f8fafc' }}>
                     <td style={{ padding: '16px 24px', fontWeight: 600, color: '#16a34a' }}>#PRJ-{p.project_id}</td>
                     <td style={{ padding: '16px 24px', color: '#3b82f6', fontWeight: 600 }}>
@@ -146,6 +178,80 @@ export default function AdminProjectsPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Footer */}
+            {filteredProjects.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                  padding: '16px 24px',
+                  borderTop: '1px solid #f1f5f9',
+                }}
+              >
+                <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                  Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
+                  <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
+                  <strong style={{ color: '#0f172a' }}>{filteredProjects.length}</strong> projects
+                </span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      ...paginationBtnStyle,
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      opacity: currentPage === 1 ? 0.45 : 1,
+                    }}
+                  >
+                    <ChevronLeft size={16} /> Prev
+                  </button>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {getPageNumbers().map((page, idx) => {
+                      if (page === '...') {
+                        return (
+                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                            ...
+                          </span>
+                        );
+                      }
+                      const isCurrent = currentPage === page;
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          style={{
+                            ...paginationPageNumStyle,
+                            backgroundColor: isCurrent ? '#2563eb' : '#ffffff',
+                            color: isCurrent ? '#ffffff' : '#475569',
+                            borderColor: isCurrent ? '#2563eb' : '#e2e8f0',
+                          }}
+                        >
+                          {page}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      ...paginationBtnStyle,
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      opacity: currentPage === totalPages ? 0.45 : 1,
+                    }}
+                  >
+                    Next <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -183,4 +289,33 @@ const inputStyleFull = {
   boxSizing: 'border-box',
   outline: 'none',
   fontFamily: 'inherit',
+};
+
+const paginationBtnStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  padding: '6px 12px',
+  borderRadius: '6px',
+  border: '1px solid #cbd5e1',
+  backgroundColor: '#ffffff',
+  color: '#334155',
+  fontSize: '0.82rem',
+  fontWeight: 500,
+  transition: 'all 0.15s ease',
+};
+
+const paginationPageNumStyle = {
+  minWidth: '32px',
+  height: '32px',
+  padding: '0 6px',
+  borderRadius: '6px',
+  border: '1px solid #e2e8f0',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'all 0.15s ease',
 };
