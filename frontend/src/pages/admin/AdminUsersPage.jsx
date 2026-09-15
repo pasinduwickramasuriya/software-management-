@@ -87,17 +87,32 @@ export default function AdminUsersPage() {
     }
   };
 
+  // --- HELPER: Determine if a given type_id corresponds to a role that doesn't need a branch ---
+  // Branch assignment is not applicable for Developer, Admin, or Director accounts (they're
+  // global/IT or org-wide), so the branch field is hidden and forced to null for these roles.
+  const isBranchExemptRole = (typeId) => {
+    if (!typeId) return false;
+    const role = roles.find((r) => String(r.type_id) === String(typeId));
+    const roleName = role?.user_type?.toLowerCase() || '';
+    return (
+      roleName.includes('developer') ||
+      roleName.includes('admin') ||
+      roleName.includes('director')
+    );
+  };
+
   // --- CRUD: CREATE ---
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const devRole = isBranchExemptRole(formData.type_id);
       await API.post('auth/users/', {
         username: formData.username.trim(),
         email: formData.email.trim(),
         password: formData.password,
         type_id: formData.type_id ? parseInt(formData.type_id) : null,
-        branch: formData.branch ? parseInt(formData.branch) : null,
+        branch: devRole ? null : (formData.branch ? parseInt(formData.branch) : null),
       });
       alert(`User account "${formData.username}" created successfully!`);
       setShowAddModal(false);
@@ -128,11 +143,12 @@ export default function AdminUsersPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const devRole = isBranchExemptRole(editUserData.type_id);
       const payload = {
         username: editUserData.username.trim(),
         email: editUserData.email.trim(),
         type_id: editUserData.type_id ? parseInt(editUserData.type_id) : null,
-        branch: editUserData.branch ? parseInt(editUserData.branch) : null,
+        branch: devRole ? null : (editUserData.branch ? parseInt(editUserData.branch) : null),
         is_active: editUserData.is_active,
       };
       const res = await API.patch(`auth/users/${editUserData.id}/`, payload);
@@ -246,7 +262,7 @@ export default function AdminUsersPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      
+
       {/* Top Header Card with Actions & Filters */}
       <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', padding: '20px 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -563,12 +579,25 @@ export default function AdminUsersPage() {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: isBranchExemptRole(formData.type_id) ? '1fr' : '1fr 1fr',
+                    gap: '12px',
+                  }}
+                >
                   <div>
                     <label style={labelStyle}>System Role</label>
                     <select
                       value={formData.type_id}
-                      onChange={(e) => setFormData({ ...formData, type_id: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          type_id: e.target.value,
+                          // Developer accounts are global/IT — clear any branch selection
+                          branch: isBranchExemptRole(e.target.value) ? '' : formData.branch,
+                        })
+                      }
                       style={selectStyleFull}
                     >
                       <option value="">Select Role...</option>
@@ -578,19 +607,22 @@ export default function AdminUsersPage() {
                     </select>
                   </div>
 
-                  <div>
-                    <label style={labelStyle}>Branch Assignment</label>
-                    <select
-                      value={formData.branch}
-                      onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-                      style={selectStyleFull}
-                    >
-                      <option value="">None (Global / IT Dept)</option>
-                      {branches.map((b) => (
-                        <option key={b.bid} value={b.bid}>{b.branch_name}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Branch Assignment: hidden entirely for Developer role */}
+                  {!isBranchExemptRole(formData.type_id) && (
+                    <div>
+                      <label style={labelStyle}>Branch Assignment</label>
+                      <select
+                        value={formData.branch}
+                        onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+                        style={selectStyleFull}
+                      >
+                        <option value="">None (Global / IT Dept)</option>
+                        {branches.map((b) => (
+                          <option key={b.bid} value={b.bid}>{b.branch_name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -644,12 +676,25 @@ export default function AdminUsersPage() {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: isBranchExemptRole(editUserData.type_id) ? '1fr' : '1fr 1fr',
+                    gap: '12px',
+                  }}
+                >
                   <div>
                     <label style={labelStyle}>System Role</label>
                     <select
                       value={editUserData.type_id || ''}
-                      onChange={(e) => setEditUserData({ ...editUserData, type_id: e.target.value })}
+                      onChange={(e) =>
+                        setEditUserData({
+                          ...editUserData,
+                          type_id: e.target.value,
+                          // Developer accounts are global/IT — clear any branch selection
+                          branch: isBranchExemptRole(e.target.value) ? '' : editUserData.branch,
+                        })
+                      }
                       style={selectStyleFull}
                     >
                       <option value="">No Role</option>
@@ -659,19 +704,22 @@ export default function AdminUsersPage() {
                     </select>
                   </div>
 
-                  <div>
-                    <label style={labelStyle}>Branch Assignment</label>
-                    <select
-                      value={editUserData.branch || ''}
-                      onChange={(e) => setEditUserData({ ...editUserData, branch: e.target.value })}
-                      style={selectStyleFull}
-                    >
-                      <option value="">None (Global / IT Dept)</option>
-                      {branches.map((b) => (
-                        <option key={b.bid} value={b.bid}>{b.branch_name}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Branch Assignment: hidden entirely for Developer role */}
+                  {!isBranchExemptRole(editUserData.type_id) && (
+                    <div>
+                      <label style={labelStyle}>Branch Assignment</label>
+                      <select
+                        value={editUserData.branch || ''}
+                        onChange={(e) => setEditUserData({ ...editUserData, branch: e.target.value })}
+                        style={selectStyleFull}
+                      >
+                        <option value="">None (Global / IT Dept)</option>
+                        {branches.map((b) => (
+                          <option key={b.bid} value={b.bid}>{b.branch_name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
 
                 <div>
