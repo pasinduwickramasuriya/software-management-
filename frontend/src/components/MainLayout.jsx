@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { Shield, ExternalLink } from 'lucide-react';
 import ProfileMenu from './ProfileMenu';
 import { useAuth } from '../context/AuthContext';
+import './MainLayout.css';
 
 // Branch Manager pages
 import BMDashboardPage from '../pages/branch-manager/DashboardPage';
@@ -154,6 +155,48 @@ export default function MainLayout() {
   const config = ROLE_CONFIG[roleKey];
 
   const [activePage, setActivePage] = useState(config?.default);
+  const [indicatorStyle, setIndicatorStyle] = useState({
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0,
+    opacity: 0,
+  });
+  const [isReady, setIsReady] = useState(false);
+  const navRef = useRef(null);
+  const buttonRefs = useRef({});
+
+  useEffect(() => {
+    if (config?.default && (!activePage || !config.items.some((i) => i.key === activePage))) {
+      setActivePage(config.default);
+    }
+  }, [config, activePage]);
+
+  useLayoutEffect(() => {
+    const updateIndicator = () => {
+      const activeEl = buttonRefs.current[activePage];
+      if (activeEl && navRef.current) {
+        setIndicatorStyle({
+          left: activeEl.offsetLeft,
+          top: activeEl.offsetTop,
+          width: activeEl.offsetWidth,
+          height: activeEl.offsetHeight,
+          opacity: 1,
+        });
+      }
+    };
+
+    updateIndicator();
+    const frameId = requestAnimationFrame(() => {
+      setIsReady(true);
+    });
+
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.removeEventListener('resize', updateIndicator);
+    };
+  }, [activePage, config?.items]);
 
   if (!config) {
     return (
@@ -246,16 +289,19 @@ export default function MainLayout() {
             gap: '20px',
           }}
         >
-          <nav
-            style={{
-              display: 'flex',
-              gap: '4px',
-              backgroundColor: '#f1f5f9',
-              border: '1px solid #e2e8f0',
-              borderRadius: '20px',
-              padding: '4px',
-            }}
-          >
+          <nav ref={navRef} className="nav-pill-group">
+            {/* Smooth sliding active indicator */}
+            <div
+              className={`nav-pill-indicator ${isReady ? 'animated' : ''}`}
+              style={{
+                left: `${indicatorStyle.left}px`,
+                top: `${indicatorStyle.top}px`,
+                width: `${indicatorStyle.width}px`,
+                height: `${indicatorStyle.height}px`,
+                opacity: indicatorStyle.opacity,
+              }}
+            />
+
             {config.items.map((item) => {
               // External link - Django Admin
               if (item.external) {
@@ -265,30 +311,24 @@ export default function MainLayout() {
                     href={item.external}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{
-                      ...pillStyle,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      textDecoration: 'none',
-                    }}
+                    className="nav-pill-external"
                   >
                     {item.label}
-                    <ExternalLink size={12} />
+                    <ExternalLink size={12} className="external-icon" />
                   </a>
                 );
               }
 
               // Normal navigation button
+              const isActive = activePage === item.key;
               return (
                 <button
                   key={item.key}
+                  ref={(el) => {
+                    buttonRefs.current[item.key] = el;
+                  }}
                   onClick={() => setActivePage(item.key)}
-                  style={
-                    activePage === item.key
-                      ? activePillStyle
-                      : pillStyle
-                  }
+                  className={`nav-pill-btn ${isActive ? 'active' : ''}`}
                 >
                   {item.label}
                 </button>
@@ -317,25 +357,4 @@ export default function MainLayout() {
       </main>
     </div>
   );
-}
-
-// Navigation pill style
-const pillStyle = {
-  padding: '8px 18px',
-  borderRadius: '16px',
-  border: 'none',
-  background: 'none',
-  color: '#64748b',
-  fontSize: '0.8rem',
-  fontWeight: 600,
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  whiteSpace: 'nowrap',
-};
-
-// Active navigation pill style
-const activePillStyle = {
-  ...pillStyle,
-  backgroundColor: '#2563eb',
-  color: '#ffffff',
-};
+}
