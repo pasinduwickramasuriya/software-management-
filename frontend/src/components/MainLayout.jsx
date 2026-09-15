@@ -1,5 +1,6 @@
-import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
+import React, { useRef, useLayoutEffect, useEffect, useState } from 'react';
 import { Shield, ExternalLink } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ProfileMenu from './ProfileMenu';
 import { useAuth } from '../context/AuthContext';
 import './MainLayout.css';
@@ -37,9 +38,11 @@ function resolveRoleKey(role) {
   if (r.includes('branch manager')) return 'branch_manager';
   if (r.includes('executive')) return 'executive_officer';
   if (r.includes('director')) return 'it_director';
+
   if (r.includes('main developer') || r.includes('main dev')) {
     return 'it_main_developer';
   }
+
   if (r === 'developer') return 'developer';
 
   return null;
@@ -47,52 +50,62 @@ function resolveRoleKey(role) {
 
 const ROLE_CONFIG = {
   branch_manager: {
+    basePath: '/branch-manager',
     default: 'dashboard',
     items: [
       {
         key: 'dashboard',
         label: 'Dashboard',
+        path: 'dashboard',
         component: BMDashboardPage,
       },
       {
         key: 'create',
         label: 'Create Ticket',
+        path: 'create-ticket',
         component: BMCreateTicketPage,
       },
       {
         key: 'view',
         label: 'View Tickets',
+        path: 'tickets',
         component: BMViewTicketsPage,
       },
     ],
   },
 
   admin: {
+    basePath: '/admin',
     default: 'dashboard',
     items: [
       {
         key: 'dashboard',
         label: 'Dashboard',
+        path: 'dashboard',
         component: AdminDashboard,
       },
       {
         key: 'users',
         label: 'Users',
+        path: 'users',
         component: AdminUsersPage,
       },
       {
         key: 'branches',
         label: 'Branches',
+        path: 'branches',
         component: AdminBranchesPage,
       },
       {
         key: 'tickets',
         label: 'Tickets',
+        path: 'tickets',
         component: AdminTicketsPage,
       },
       {
         key: 'projects',
         label: 'Projects',
+        path: 'projects',
         component: AdminProjectsPage,
       },
       {
@@ -104,44 +117,52 @@ const ROLE_CONFIG = {
   },
 
   it_director: {
+    basePath: '/it-director',
     default: 'dashboard',
     items: [
       {
         key: 'dashboard',
         label: 'Dashboard',
+        path: 'dashboard',
         component: ITDirectorDashboard,
       },
     ],
   },
 
   executive_officer: {
+    basePath: '/executive',
     default: 'dashboard',
     items: [
       {
         key: 'dashboard',
         label: 'Dashboard',
+        path: 'dashboard',
         component: ExecutiveOfficerDashboard,
       },
     ],
   },
 
   it_main_developer: {
+    basePath: '/it-main-developer',
     default: 'dashboard',
     items: [
       {
         key: 'dashboard',
         label: 'Dashboard',
+        path: 'dashboard',
         component: ITMainDeveloperDashboard,
       },
     ],
   },
 
   developer: {
+    basePath: '/developer',
     default: 'dashboard',
     items: [
       {
         key: 'dashboard',
         label: 'Dashboard',
+        path: 'dashboard',
         component: DeveloperDashboard,
       },
     ],
@@ -151,10 +172,12 @@ const ROLE_CONFIG = {
 export default function MainLayout() {
   const { role } = useAuth();
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const roleKey = resolveRoleKey(role);
   const config = ROLE_CONFIG[roleKey];
 
-  const [activePage, setActivePage] = useState(config?.default);
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
     top: 0,
@@ -162,19 +185,52 @@ export default function MainLayout() {
     height: 0,
     opacity: 0,
   });
+
   const [isReady, setIsReady] = useState(false);
+
   const navRef = useRef(null);
   const buttonRefs = useRef({});
 
-  useEffect(() => {
-    if (config?.default && (!activePage || !config.items.some((i) => i.key === activePage))) {
-      setActivePage(config.default);
-    }
-  }, [config, activePage]);
+  /*
+   * Find the current page from the URL.
+   */
+  const activeItem =
+    config?.items.find(
+      (item) =>
+        !item.external &&
+        location.pathname === `${config.basePath}/${item.path}`
+    ) ||
+    config?.items.find((item) => !item.external && item.key === config.default);
 
+  const activePage = activeItem?.key;
+
+  /*
+   * If the user enters the role URL without a page,
+   * send them to the dashboard.
+   */
+  useEffect(() => {
+    if (!config) return;
+
+    const validPath = config.items.some(
+      (item) =>
+        item.external ||
+        location.pathname === `${config.basePath}/${item.path}`
+    );
+
+    if (!validPath) {
+      navigate(`${config.basePath}/${config.default}`, {
+        replace: true,
+      });
+    }
+  }, [config, location.pathname, navigate]);
+
+  /*
+   * Update the sliding navigation indicator.
+   */
   useLayoutEffect(() => {
     const updateIndicator = () => {
       const activeEl = buttonRefs.current[activePage];
+
       if (activeEl && navRef.current) {
         setIndicatorStyle({
           left: activeEl.offsetLeft,
@@ -187,11 +243,13 @@ export default function MainLayout() {
     };
 
     updateIndicator();
+
     const frameId = requestAnimationFrame(() => {
       setIsReady(true);
     });
 
     window.addEventListener('resize', updateIndicator);
+
     return () => {
       cancelAnimationFrame(frameId);
       window.removeEventListener('resize', updateIndicator);
@@ -206,12 +264,11 @@ export default function MainLayout() {
     );
   }
 
-  const pageItems = config.items.filter((i) => !i.external);
+  const ActiveComponent = activeItem?.component;
 
-  const activeItem =
-    pageItems.find((i) => i.key === activePage) || pageItems[0];
-
-  const ActiveComponent = activeItem.component;
+  if (!ActiveComponent) {
+    return null;
+  }
 
   return (
     <div
@@ -314,21 +371,28 @@ export default function MainLayout() {
                     className="nav-pill-external"
                   >
                     {item.label}
-                    <ExternalLink size={12} className="external-icon" />
+                    <ExternalLink
+                      size={12}
+                      className="external-icon"
+                    />
                   </a>
                 );
               }
 
-              // Normal navigation button
               const isActive = activePage === item.key;
+
               return (
                 <button
                   key={item.key}
                   ref={(el) => {
                     buttonRefs.current[item.key] = el;
                   }}
-                  onClick={() => setActivePage(item.key)}
-                  className={`nav-pill-btn ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    navigate(`${config.basePath}/${item.path}`);
+                  }}
+                  className={`nav-pill-btn ${
+                    isActive ? 'active' : ''
+                  }`}
                 >
                   {item.label}
                 </button>
@@ -352,9 +416,19 @@ export default function MainLayout() {
             margin: '0 auto',
           }}
         >
-          <ActiveComponent setActivePage={setActivePage} />
+          <ActiveComponent
+            setActivePage={(pageKey) => {
+              const item = config.items.find(
+                (item) => item.key === pageKey
+              );
+
+              if (item && !item.external) {
+                navigate(`${config.basePath}/${item.path}`);
+              }
+            }}
+          />
         </div>
       </main>
     </div>
   );
-}
+}
