@@ -10,6 +10,9 @@ import {
   Search,
   Download,
   Filter,
+  ChevronLeft,
+  ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 const TABS = ['All', 'Action Required', 'Approved / In Dev', 'Rejected'];
@@ -32,6 +35,10 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [branchFilter, setBranchFilter] = useState('All Branches');
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // Sliding tab indicator
   const tabRefs = useRef({});
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
@@ -46,6 +53,10 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchTickets();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery, branchFilter]);
 
   const fetchTickets = async () => {
     setLoading(true);
@@ -72,10 +83,9 @@ export default function DashboardPage() {
         remark: remark,
       });
       alert(
-        `Ticket #TK-${decisionTicket.ticket_id} ${
-          decisionType === 'approved'
-            ? 'Approved & moved to IT development'
-            : 'Rejected & sent back to Branch'
+        `Ticket #TK-${decisionTicket.ticket_id} ${decisionType === 'approved'
+          ? 'Approved & moved to IT development'
+          : 'Rejected & sent back to Branch'
         }!`
       );
       setDecisionTicket(null);
@@ -197,76 +207,65 @@ export default function DashboardPage() {
     return true;
   });
 
+  // Pagination slicing & calculations
+  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredTickets.length);
+  const currentTickets = filteredTickets.slice(startIndex, startIndex + itemsPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else if (currentPage <= 4) {
+      pages.push(1, 2, 3, 4, 5, '...', totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+    return pages;
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
-      <div>
-        <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: 700 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <ShieldCheck size={24} color="#2563EB" />
+        </div>
+        <div>
+        <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
           IT Director Dashboard
-        </h2>
+        </h1>
         <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
           Authorize, review, and manage branch software request tickets forwarded by Executive Officers.
-        </p>
-      </div>
+         </p>
+        </div>
+        </div>
+        </div>
 
-      {/* Summary Cards */}
+      {/* Summary Cards — read-only stats; the pill tabs below are the only filter control */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div
-          onClick={() => setActiveTab('Action Required')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Action Required' ? '#f59e0b' : '#e2e8f0',
-            backgroundColor: activeTab === 'Action Required' ? '#fffbeb' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Action Required"
-        >
+        <div style={{ ...statCardStyle, borderLeft: '4px solid #f59e0b' }}>
           <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Action Required</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{actionRequiredCount}</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('Approved / In Dev')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Approved / In Dev' ? '#22c55e' : '#e2e8f0',
-            backgroundColor: activeTab === 'Approved / In Dev' ? '#f0fdf4' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Approved / In Dev"
-        >
+        <div style={{ ...statCardStyle, borderLeft: '4px solid #22c55e' }}>
           <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Approved / In Dev</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{approvedCount}</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('Rejected')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'Rejected' ? '#ef4444' : '#e2e8f0',
-            backgroundColor: activeTab === 'Rejected' ? '#fef2f2' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by Rejected"
-        >
+        <div style={{ ...statCardStyle, borderLeft: '4px solid #ef4444' }}>
           <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 600 }}>Rejected</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626' }}>{rejectedCount}</span>
         </div>
 
-        <div
-          onClick={() => setActiveTab('All')}
-          style={{
-            ...statCardStyle,
-            cursor: 'pointer',
-            borderColor: activeTab === 'All' ? '#3b82f6' : '#e2e8f0',
-            backgroundColor: activeTab === 'All' ? '#eff6ff' : '#ffffff',
-            transition: 'all 0.2s ease',
-          }}
-          title="Click to filter by All Forwarded"
-        >
+        <div style={{ ...statCardStyle, borderLeft: '4px solid #3b82f6' }}>
           <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>All Forwarded</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{totalCount}</span>
         </div>
@@ -374,7 +373,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredTickets.map((t) => {
+              {currentTickets.map((t) => {
                 const review = getExecutiveReview(t);
                 return (
                   <tr key={t.ticket_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
@@ -384,17 +383,20 @@ export default function DashboardPage() {
                     </td>
                     <td style={{ padding: '12px 16px', fontWeight: 600, color: '#1e293b' }}>{t.project_name}</td>
                     <td style={{ padding: '12px 16px', color: '#64748b' }}>{t.created_by_name}</td>
-                    <td style={{ padding: '12px 16px' }}>
-                      {review ? (
-                        <div>
-                          <div style={{ color: '#16a34a', fontWeight: 600, fontSize: '0.82rem' }}>
-                            ✓ {review.decision_as || 'Executive'}
-                          </div>
-                          {review.remark && (
-                            <div style={{ color: '#64748b', fontSize: '0.78rem', fontStyle: 'italic' }}>
-                              "{review.remark}"
-                            </div>
-                          )}
+                    <td style={{ padding: '12px 16px', maxWidth: '200px' }}>
+                      {review && review.remark ? (
+                        <div
+                          title={review.remark}
+                          style={{
+                            color: '#64748b',
+                            fontSize: '0.82rem',
+                            fontStyle: 'italic',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          "{review.remark}"
                         </div>
                       ) : (
                         <span style={{ color: '#cbd5e1' }}>—</span>
@@ -432,6 +434,81 @@ export default function DashboardPage() {
               })}
             </tbody>
           </table>
+        )}
+
+        {/* Pagination Footer */}
+        {!loading && filteredTickets.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+              padding: '12px 20px',
+              borderTop: '1px solid #e2e8f0',
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+              Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
+              <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
+              <strong style={{ color: '#0f172a' }}>{filteredTickets.length}</strong> tickets
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                style={{
+                  ...paginationBtnStyle,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === 1 ? 0.45 : 1,
+                }}
+              >
+                <ChevronLeft size={16} /> Prev
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {getPageNumbers().map((page, idx) => {
+                  if (page === '...') {
+                    return (
+                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                        ...
+                      </span>
+                    );
+                  }
+                  const isCurrent = currentPage === page;
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      style={{
+                        ...paginationPageNumStyle,
+                        backgroundColor: isCurrent ? '#2563eb' : '#ffffff',
+                        color: isCurrent ? '#ffffff' : '#475569',
+                        borderColor: isCurrent ? '#2563eb' : '#e2e8f0',
+                      }}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                style={{
+                  ...paginationBtnStyle,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === totalPages ? 0.45 : 1,
+                }}
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -804,4 +881,33 @@ const pillBadgeActiveStyle = {
   ...pillBadgeStyle,
   backgroundColor: '#dbeafe',
   color: '#1d4ed8',
+};
+
+const paginationBtnStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  padding: '6px 12px',
+  borderRadius: '6px',
+  border: '1px solid #cbd5e1',
+  backgroundColor: '#ffffff',
+  color: '#334155',
+  fontSize: '0.82rem',
+  fontWeight: 500,
+  transition: 'all 0.15s ease',
+};
+
+const paginationPageNumStyle = {
+  minWidth: '32px',
+  height: '32px',
+  padding: '0 6px',
+  borderRadius: '6px',
+  border: '1px solid #e2e8f0',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'all 0.15s ease',
 };

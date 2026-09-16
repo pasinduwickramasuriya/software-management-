@@ -104,14 +104,21 @@ export default function DeveloperDashboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
-      <div>
-        <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Briefcase size={28} color="#2563eb" /> Developer Workspace
-        </h2>
-        <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-          Track and execute development tasks assigned to you by the IT Main Developer.
-        </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Briefcase size={24} color="#2563EB" />
       </div>
+          <div>
+      <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
+        Developer Workspace
+      </h1>
+      <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+        Track and execute development tasks assigned to you by the IT Main Developer.
+      </p>
+    </div>
+  </div>
+</div>
 
       {/* Summary Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>

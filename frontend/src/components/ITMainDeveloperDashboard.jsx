@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 import API from '../services/api';
 import {
   Code,
@@ -16,14 +16,47 @@ import {
   Trash2,
   Layers,
   XCircle,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
+
+const formatProjectRef = (id) => { const year = new Date().getFullYear(); return `PS-${year}-${String(id).padStart(4, '0')}`; };
+
+const TABS = ['All Projects', 'Not Started', 'In Progress', 'Completed'];
 
 export default function ITMainDeveloperDashboard() {
   const [projects, setProjects] = useState([]);
   const [developers, setDevelopers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('All Projects');
   const [searchQuery, setSearchQuery] = useState('');
+  const [branchFilter, setBranchFilter] = useState('All Branches');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  // Reset to page 1 when any filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, branchFilter, searchQuery]);
+
+  // Sliding tab indicator for smooth transition
+  const tabRefs = useRef({});
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+
+  useLayoutEffect(() => {
+    const updateIndicator = () => {
+      const node = tabRefs.current[statusFilter];
+      if (node) {
+        setIndicatorStyle({ left: node.offsetLeft, width: node.offsetWidth });
+      }
+    };
+    updateIndicator();
+    window.addEventListener('resize', updateIndicator);
+    return () => window.removeEventListener('resize', updateIndicator);
+  }, [statusFilter, projects]);
 
   // Modals
   const [assigningProject, setAssigningProject] = useState(null);
@@ -156,21 +189,55 @@ export default function ITMainDeveloperDashboard() {
     }
   };
 
+  // Branch list for filter dropdown
+  const branchOptions = useMemo(() => {
+    const names = new Set(projects.map((p) => p.branch_name).filter(Boolean));
+    return ['All Branches', ...Array.from(names)];
+  }, [projects]);
+
   const filteredProjects = projects.filter((p) => {
-    if (statusFilter !== 'all' && p.status !== statusFilter) {
+    if (statusFilter !== 'All Projects' && p.status !== statusFilter) {
+      return false;
+    }
+    if (branchFilter !== 'All Branches' && p.branch_name !== branchFilter) {
       return false;
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchName = p.project_name?.toLowerCase().includes(q);
-      const matchBranch = p.branch_name?.toLowerCase().includes(q);
+      const matchBranch = (p.branch_name || '').toLowerCase().includes(q);
       const matchId = p.project_id?.toString().includes(q);
-      if (!matchName && !matchBranch && !matchId) {
+      const matchRef = formatProjectRef(p.project_id).toLowerCase().includes(q);
+      if (!matchName && !matchBranch && !matchId && !matchRef) {
         return false;
       }
     }
     return true;
   });
+
+  // Pagination slicing & calculations
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredProjects.length);
+  const currentProjects = filteredProjects.slice(startIndex, startIndex + itemsPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 4) {
+        pages.push(1, 2, 3, 4, 5, '...', totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    return pages;
+  };
 
   const notStartedCount = projects.filter((p) => p.status === 'Not Started').length;
   const inProgressCount = projects.filter((p) => p.status === 'In Progress').length;
@@ -181,36 +248,59 @@ export default function ITMainDeveloperDashboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
-      <div>
-        <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Layers size={28} color="#2563eb" /> IT Main Developer Project & Task Management
-        </h2>
-        <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-          Assign tickets and tasks to developers, supervise progress, and close completed software projects.
-        </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Layers size={24} color="#2563EB" />
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
+              Project & Task Management
+            </h1>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+              Assign work, track progress, and ship completed projects.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #3b82f6' }}>
+        <div
+          onClick={() => setStatusFilter('All Projects')}
+          style={{ ...statCardStyle, borderLeft: '4px solid #3b82f6', cursor: 'pointer' }}
+          title="Click to filter by All Projects"
+        >
           <span style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 600 }}>Total Projects</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0f172a' }}>{projects.length}</span>
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Authorized by IT Director</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #f59e0b' }}>
+        <div
+          onClick={() => setStatusFilter('Not Started')}
+          style={{ ...statCardStyle, borderLeft: '4px solid #f59e0b', cursor: 'pointer' }}
+          title="Click to filter by Not Started"
+        >
           <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Not Started</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{notStartedCount}</span>
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Awaiting task assignments</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #2563eb' }}>
+        <div
+          onClick={() => setStatusFilter('In Progress')}
+          style={{ ...statCardStyle, borderLeft: '4px solid #2563eb', cursor: 'pointer' }}
+          title="Click to filter by In Progress"
+        >
           <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{inProgressCount}</span>
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Under active development</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #16a34a' }}>
+        <div
+          onClick={() => setStatusFilter('Completed')}
+          style={{ ...statCardStyle, borderLeft: '4px solid #16a34a', cursor: 'pointer' }}
+          title="Click to filter by Completed Projects"
+        >
           <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Completed Projects</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{completedCount}</span>
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Closed & delivered</span>
@@ -225,58 +315,138 @@ export default function ITMainDeveloperDashboard() {
         </div>
       </div>
 
-      {/* Projects Table Card */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-        {/* Filter bar */}
+      {/* Filters Bar */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
+        {/* Status Tabs Group */}
         <div
           style={{
-            padding: '16px 20px',
-            borderBottom: '1px solid #e2e8f0',
-            backgroundColor: '#f8fafc',
-            display: 'flex',
-            justifyContent: 'space-between',
+            position: 'relative',
+            display: 'inline-flex',
             alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '12px',
+            backgroundColor: '#eef2f6',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '4px',
+            gap: '4px',
           }}
         >
-          {/* Status Tabs */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {['all', 'Not Started', 'In Progress', 'Completed'].map((st) => (
+          {/* Smooth sliding blue background pill */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '4px',
+              bottom: '4px',
+              borderRadius: '7px',
+              backgroundColor: '#2563eb',
+              boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
+              transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              left: `${indicatorStyle.left}px`,
+              width: `${indicatorStyle.width}px`,
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+          {TABS.map((tab) => {
+            const isActive = statusFilter === tab;
+            return (
               <button
-                key={st}
-                onClick={() => setStatusFilter(st)}
+                key={tab}
+                ref={(el) => (tabRefs.current[tab] = el)}
+                onClick={() => setStatusFilter(tab)}
                 style={{
-                  ...tabBtnStyle,
-                  backgroundColor: statusFilter === st ? '#2563eb' : '#ffffff',
-                  color: statusFilter === st ? '#ffffff' : '#475569',
-                  borderColor: statusFilter === st ? '#2563eb' : '#cbd5e1',
+                  position: 'relative',
+                  zIndex: 1,
+                  padding: '7px 16px',
+                  borderRadius: '7px',
+                  border: 'none',
+                  fontSize: '0.85rem',
+                  fontWeight: isActive ? 600 : 500,
+                  cursor: 'pointer',
+                  backgroundColor: 'transparent',
+                  color: isActive ? '#ffffff' : '#475569',
+                  transition: 'color 0.2s ease',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                {st === 'all' ? 'All Projects' : st}
+                {tab}
               </button>
-            ))}
+            );
+          })}
+        </div>
+
+        {/* Right Controls: Branch Filter & Search */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Branch Filter Box */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <select
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                MozAppearance: 'none',
+                padding: '8px 36px 8px 14px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.85rem',
+                backgroundColor: '#ffffff',
+                color: '#334155',
+                outline: 'none',
+                cursor: 'pointer',
+                height: '38px',
+                minWidth: '150px',
+              }}
+            >
+              {branchOptions.map((b) => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+            <ChevronDown
+              size={16}
+              color="#64748b"
+              style={{ position: 'absolute', right: '12px', pointerEvents: 'none' }}
+            />
           </div>
 
-          {/* Search box */}
+          {/* Search Box */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: '10px' }} />
+            <Search
+              size={15}
+              color="#94a3b8"
+              style={{ position: 'absolute', left: '12px', pointerEvents: 'none' }}
+            />
             <input
               type="text"
-              placeholder="Search project name, branch..."
+              placeholder="Search project name, branch"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
-                ...inputStyle,
-                width: '240px',
-                paddingLeft: '32px',
-                paddingTop: '6px',
-                paddingBottom: '6px',
+                padding: '8px 12px 8px 34px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
                 fontSize: '0.85rem',
+                width: '240px',
+                outline: 'none',
+                backgroundColor: '#ffffff',
+                color: '#334155',
+                height: '38px',
+                boxSizing: 'border-box',
               }}
             />
           </div>
         </div>
+      </div>
+
+      {/* Projects Table Card */}
+      <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
 
         {/* Project List */}
         {loading ? (
@@ -294,14 +464,14 @@ export default function ITMainDeveloperDashboard() {
                 <th style={{ padding: '12px 16px' }}>Project Name</th>
                 <th style={{ padding: '12px 16px' }}>Task Progress</th>
                 <th style={{ padding: '12px 16px' }}>Status</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '12px 16px', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredProjects.map((p) => (
+              {currentProjects.map((p) => (
                 <tr key={p.project_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: '#3b82f6' }}>
-                    #{p.project_id} (Ticket #{p.ticket})
+                    {formatProjectRef(p.project_id)}
                   </td>
                   <td style={{ padding: '12px 16px' }}>
                     <span
@@ -348,7 +518,7 @@ export default function ITMainDeveloperDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'wrap' }}>
                       {/* View Specs */}
                       <button onClick={() => setViewingProject(p)} style={iconBtnStyle} title="View Specs">
-                        <Eye size={14} /> Specs
+                        <Eye size={14} /> View
                       </button>
 
                       {/* Manage / View Tasks */}
@@ -397,6 +567,85 @@ export default function ITMainDeveloperDashboard() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* Pagination Footer */}
+        {!loading && filteredProjects.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+              padding: '12px 20px',
+              borderTop: '1px solid #e2e8f0',
+              backgroundColor: '#ffffff',
+            }}
+          >
+            {/* Left Info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.85rem', color: '#64748b', flexWrap: 'wrap' }}>
+              <span>
+                Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
+                <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
+                <strong style={{ color: '#0f172a' }}>{filteredProjects.length}</strong> projects
+              </span>
+            </div>
+
+            {/* Right Page Navigation */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                style={{
+                  ...paginationBtnStyle,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === 1 ? 0.45 : 1,
+                }}
+              >
+                <ChevronLeft size={16} /> Prev
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {getPageNumbers().map((page, idx) => {
+                  if (page === '...') {
+                    return (
+                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                        ...
+                      </span>
+                    );
+                  }
+                  const isCurrent = currentPage === page;
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      style={{
+                        ...paginationPageNumStyle,
+                        backgroundColor: isCurrent ? '#2563eb' : '#ffffff',
+                        color: isCurrent ? '#ffffff' : '#475569',
+                        borderColor: isCurrent ? '#2563eb' : '#e2e8f0',
+                      }}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                style={{
+                  ...paginationBtnStyle,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === totalPages ? 0.45 : 1,
+                }}
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -770,4 +1019,33 @@ const inputStyle = {
   border: '1px solid #cbd5e1',
   fontSize: '0.9rem',
   boxSizing: 'border-box',
+};
+
+const paginationBtnStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  padding: '6px 12px',
+  borderRadius: '6px',
+  border: '1px solid #cbd5e1',
+  backgroundColor: '#ffffff',
+  color: '#334155',
+  fontSize: '0.82rem',
+  fontWeight: 500,
+  transition: 'all 0.15s ease',
+};
+
+const paginationPageNumStyle = {
+  minWidth: '32px',
+  height: '32px',
+  padding: '0 6px',
+  borderRadius: '6px',
+  border: '1px solid #e2e8f0',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'all 0.15s ease',
 };
