@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import API from '../../services/api';
 import { Search, XCircle, FileText, Ticket, ChevronLeft, ChevronRight } from 'lucide-react';
+import RichTextEditor from '../../components/RichTextEditor';
 
 const TABS = ['All', 'Drafts', 'Pending Review', 'Approved', 'Completed', 'Closed'];
 
@@ -11,6 +12,7 @@ export default function ViewTicketsPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [editingTicket, setEditingTicket] = useState(null);
+  const isEditRequirementsEmpty = !editingTicket?.requirements || editingTicket.requirements.replace(/<[^>]*>/g, '').trim() === '';
   const [viewingTicket, setViewingTicket] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -387,11 +389,14 @@ export default function ViewTicketsPage() {
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <label style={labelStyle}>Requirements</label>
-                <textarea value={editingTicket.requirements} onChange={(e) => setEditingTicket({ ...editingTicket, requirements: e.target.value })} required rows={5} style={inputStyleFull} />
+                <RichTextEditor
+                  value={editingTicket.requirements}
+                  onChange={(html) => setEditingTicket({ ...editingTicket, requirements: html })}
+                />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                 <button type="button" onClick={() => setEditingTicket(null)} style={actionBtnNeutral}>Cancel</button>
-                <button type="submit" disabled={submitting} style={actionBtnBlue}>
+                <button type="submit" disabled={submitting || isEditRequirementsEmpty} style={actionBtnBlue}>
                   {submitting ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
@@ -419,9 +424,10 @@ export default function ViewTicketsPage() {
               </div>
               <div>
                 <strong>Requirements:</strong>
-                <p style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap', fontSize: '0.9rem' }}>
-                  {viewingTicket.requirements}
-                </p>
+                <div
+                  style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.9rem' }}
+                  dangerouslySetInnerHTML={{ __html: viewingTicket.requirements }}
+                />
               </div>
               {viewingTicket.documents && viewingTicket.documents.length > 0 && (
                 <div>

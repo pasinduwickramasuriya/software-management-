@@ -612,21 +612,19 @@ export default function DashboardPage() {
               </div>
               <div>
                 <strong>Requirements:</strong>
-                <p
+                <div
                   style={{
                     margin: '4px 0',
                     background: '#f8fafc',
                     padding: '12px',
                     borderRadius: '6px',
                     border: '1px solid #e2e8f0',
-                    whiteSpace: 'pre-wrap',
                     color: '#334155',
                     fontSize: '0.9rem',
                     lineHeight: 1.5,
                   }}
-                >
-                  {viewingTicket.requirements}
-                </p>
+                  dangerouslySetInnerHTML={{ __html: viewingTicket.requirements }}
+                />
               </div>
               {viewingTicket.documents && viewingTicket.documents.length > 0 && (
                 <div>

@@ -9,13 +9,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      await login(username, password);
+      await login(username, password, rememberMe);
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
     } finally {
@@ -91,7 +92,12 @@ export default function LoginPage() {
 
               <div style={styles.rowBetween}>
                 <label style={styles.checkboxRow}>
-                  <input type="checkbox" style={styles.checkbox} defaultChecked />
+                  <input
+                  type="checkbox"
+                  style={styles.checkbox}
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  />
                   Keep me signed in
                 </label>
               </div>

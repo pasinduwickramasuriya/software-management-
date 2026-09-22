@@ -360,9 +360,10 @@ export default function AdminTicketsPage() {
 
               <div>
                 <strong>Requirements:</strong>
-                <p style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap', fontSize: '0.9rem' }}>
-                  {viewingTicket.requirements}
-                </p>
+                <div
+                  style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.9rem' }}
+                  dangerouslySetInnerHTML={{ __html: viewingTicket.requirements }}
+                />
               </div>
 
               {viewingTicket.documents && viewingTicket.documents.length > 0 && (

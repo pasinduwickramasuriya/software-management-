@@ -407,19 +407,17 @@ export default function DeveloperDashboard() {
               {viewingTask.ticket_requirements && (
                 <div>
                   <strong>Overall Project Requirements:</strong>
-                  <p
+                  <div
                     style={{
                       margin: '4px 0',
                       background: '#f1f5f9',
                       padding: '12px',
                       borderRadius: '8px',
                       fontSize: '0.88rem',
-                      whiteSpace: 'pre-wrap',
                       color: '#334155',
                     }}
-                  >
-                    {viewingTask.ticket_requirements}
-                  </p>
+                    dangerouslySetInnerHTML={{ __html: viewingTask.ticket_requirements }}
+                  />
                 </div>
               )}
             </div>

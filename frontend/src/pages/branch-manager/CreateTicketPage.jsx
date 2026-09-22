@@ -1,55 +1,59 @@
 import React, { useState, useRef } from 'react';
 import API from '../../services/api';
 import { UploadCloud } from 'lucide-react';
+import RichTextEditor from "../../components/RichTextEditor"; 
 
 export default function CreateTicketPage({ setActivePage }) {
   const [projectName, setProjectName] = useState('');
   const [requirements, setRequirements] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
-const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Strip HTML tags to check if the editor is "really" empty (e.g. just "<p></p>")
+  const isRequirementsEmpty = !requirements || requirements.replace(/<[^>]*>/g, '').trim() === '';
+
   const handleCreateTicket = async (isSend = false) => {
-  setSubmitting(true);
-  try {
-    // 1. Create the ticket first (no documents in this call anymore)
-    const res = await API.post('tickets/', {
-      project_name: projectName,
-      requirements: requirements,
-    });
-
-    const ticketId = res.data.ticket_id;
-
-    // 2. Upload each real file to the new ticket
-    for (const file of selectedFiles) {
-      const formData = new FormData();
-      formData.append('file', file);
-      await API.post(`tickets/${ticketId}/upload-document/`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+    setSubmitting(true);
+    try {
+      // 1. Create the ticket first (no documents in this call anymore)
+      const res = await API.post('tickets/', {
+        project_name: projectName,
+        requirements: requirements, // now stores HTML from the rich text editor
       });
-    }
 
-    if (isSend) {
-      await API.post(`tickets/${ticketId}/send/`);
-    }
+      const ticketId = res.data.ticket_id;
 
-    alert(isSend ? 'Ticket created and sent to executive!' : 'Ticket draft saved successfully!');
-    setActivePage('view');
-  } catch (err) {
-    const data = err.response?.data;
-    let msg = 'Unknown error';
-    if (typeof data === 'string') msg = data;
-    else if (data?.detail) msg = data.detail;
-    else if (data && typeof data === 'object') {
-      msg = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join('\n');
-    }
-    alert('Failed to create ticket:\n' + msg);
-  } finally {
-    setSubmitting(false);
-  }
-};
+      // 2. Upload each real file to the new ticket
+      for (const file of selectedFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        await API.post(`tickets/${ticketId}/upload-document/`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
 
-    const handleFileSelect = (e) => {
+      if (isSend) {
+        await API.post(`tickets/${ticketId}/send/`);
+      }
+
+      alert(isSend ? 'Ticket created and sent to executive!' : 'Ticket draft saved successfully!');
+      setActivePage('view');
+    } catch (err) {
+      const data = err.response?.data;
+      let msg = 'Unknown error';
+      if (typeof data === 'string') msg = data;
+      else if (data?.detail) msg = data.detail;
+      else if (data && typeof data === 'object') {
+        msg = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join('\n');
+      }
+      alert('Failed to create ticket:\n' + msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles((prev) => [...prev, ...files]);
   };
@@ -66,19 +70,18 @@ const fileInputRef = useRef(null);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      
+
       <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>Create New Proposal Ticket</h1>
             <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>Fill out project details to initiate executive review workflow</p>
           </div>
-          
         </div>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
-            <label style={labelStyle}>Project Name <span style={{color: '#dc2626'}}>*</span></label>
+            <label style={labelStyle}>Project Name <span style={{ color: '#dc2626' }}>*</span></label>
             <input
               type="text"
               placeholder="e.g. Core Banking Automated Reconciliation Module"
@@ -87,15 +90,13 @@ const fileInputRef = useRef(null);
               style={inputStyle}
             />
           </div>
-          
+
           <div>
-            <label style={labelStyle}>Project Requirements & Description <span style={{color: '#dc2626'}}>*</span></label>
-            <textarea
-              placeholder="1. Automated daily transaction matching...&#10;2. Generate discrepancy logs...&#10;3. Export monthly summaries..."
+            <label style={labelStyle}>Project Requirements & Description <span style={{ color: '#dc2626' }}>*</span></label>
+            <RichTextEditor
               value={requirements}
-              onChange={(e) => setRequirements(e.target.value)}
-              rows={8}
-              style={{ ...inputStyle, resize: 'vertical' }}
+              onChange={setRequirements}
+              placeholder="Enter project requirements and description here..."
             />
           </div>
 
@@ -136,10 +137,10 @@ const fileInputRef = useRef(null);
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '16px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
             <button type="button" onClick={() => setActivePage('dashboard')} style={actionBtnNeutral}>Cancel</button>
-            <button type="button" onClick={() => handleCreateTicket(false)} disabled={submitting || !projectName || !requirements} style={{ ...actionBtnOutline, color: '#2563eb', borderColor: '#2563eb' }}>
+            <button type="button" onClick={() => handleCreateTicket(false)} disabled={submitting || !projectName || isRequirementsEmpty} style={{ ...actionBtnOutline, color: '#2563eb', borderColor: '#2563eb' }}>
               Save as Draft
             </button>
-            <button type="button" onClick={() => handleCreateTicket(true)} disabled={submitting || !projectName || !requirements} style={actionBtnBlue}>
+            <button type="button" onClick={() => handleCreateTicket(true)} disabled={submitting || !projectName || isRequirementsEmpty} style={actionBtnBlue}>
               {submitting ? 'Sending...' : 'Send to Executive →'}
             </button>
           </div>

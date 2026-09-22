@@ -861,19 +861,17 @@ export default function ITMainDeveloperDashboard() {
 
               <div>
                 <strong>Ticket Requirements:</strong>
-                <p
+                <div
                   style={{
                     margin: '4px 0',
                     background: '#f8fafc',
                     padding: '12px',
                     borderRadius: '8px',
                     border: '1px solid #e2e8f0',
-                    whiteSpace: 'pre-wrap',
                     fontSize: '0.9rem',
                   }}
-                >
-                  {viewingProject.ticket_details?.requirements || 'No description provided'}
-                </p>
+                  dangerouslySetInnerHTML={{ __html: viewingProject.ticket_details?.requirements || 'No description provided' }}
+                />
               </div>
 
               {viewingProject.ticket_details?.documents && viewingProject.ticket_details.documents.length > 0 && (

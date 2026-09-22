@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import API from '../services/api';
 import { CheckCircle2, XCircle, Edit3, Eye, FileText, Clock, AlertCircle, MessageSquare, Search, Download, ChevronLeft, ChevronRight,CheckCheck } from 'lucide-react';
+import RichTextEditor from '../components/RichTextEditor';
 
 const TABS = ['All', 'Pending Review', 'Approved & Sent', 'Rejected', 'Completed'];
 
@@ -11,6 +12,7 @@ export default function ExecutiveOfficerDashboard() {
   // Modals
   const [viewingTicket, setViewingTicket] = useState(null);
   const [editingTicket, setEditingTicket] = useState(null);
+  const isEditRequirementsEmpty = !editingTicket?.requirements || editingTicket.requirements.replace(/<[^>]*>/g, '').trim() === '';
   const [decisionTicket, setDecisionTicket] = useState(null); // ticket being approved/rejected
 
   // Decision Form State
@@ -527,17 +529,14 @@ export default function ExecutiveOfficerDashboard() {
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <label style={labelStyle}>Requirements & Specs</label>
-                <textarea
+                <RichTextEditor
                   value={editingTicket.requirements}
-                  onChange={(e) => setEditingTicket({ ...editingTicket, requirements: e.target.value })}
-                  required
-                  rows={5}
-                  style={inputStyle}
+                  onChange={(html) => setEditingTicket({ ...editingTicket, requirements: html })}
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                 <button type="button" onClick={() => setEditingTicket(null)} style={secondaryBtnStyle}>Cancel</button>
-                <button type="submit" disabled={submitting} style={primaryBtnStyle}>
+                <button type="submit" disabled={submitting || isEditRequirementsEmpty} style={primaryBtnStyle}>
                   {submitting ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
@@ -565,9 +564,10 @@ export default function ExecutiveOfficerDashboard() {
               </div>
               <div>
                 <strong>Requirements:</strong>
-                <p style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap' }}>
-                  {viewingTicket.requirements}
-                </p>
+                <div
+                  style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}
+                  dangerouslySetInnerHTML={{ __html: viewingTicket.requirements }}
+                />
               </div>
               {viewingTicket.documents && viewingTicket.documents.length > 0 && (
                 <div>
