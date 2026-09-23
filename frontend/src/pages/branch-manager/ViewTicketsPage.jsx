@@ -411,11 +411,11 @@ export default function ViewTicketsPage() {
       {viewingTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={stickyModalHeaderStyle}>
               <h3 style={{ margin: 0 }}>Ticket #TK-{viewingTicket.ticket_id} Details</h3>
               <button onClick={() => setViewingTicket(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><XCircle size={20} /></button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <strong>Project Name:</strong>
                 <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>{viewingTicket.project_name}</p>
@@ -485,9 +485,9 @@ export default function ViewTicketsPage() {
                   </div>
                 </div>
               )}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button onClick={() => setViewingTicket(null)} style={actionBtnNeutral}>Close View</button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button onClick={() => setViewingTicket(null)} style={actionBtnNeutral}>Close View</button>
+              </div>
             </div>
           </div>
         </div>
@@ -569,8 +569,19 @@ const actionBtnDangerOutline = { backgroundColor: '#ffffff', color: '#dc2626', b
 const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
 
 const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
-const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '550px', padding: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' };
-
+const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '550px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' };
+const stickyModalHeaderStyle = {
+  position: 'sticky',
+  top: 0,
+  backgroundColor: '#ffffff',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '24px 24px 12px',
+  marginBottom: '16px',
+  borderBottom: '1px solid #f1f5f9',
+  zIndex: 2,
+};
 const paginationBtnStyle = {
   display: 'inline-flex',
   alignItems: 'center',

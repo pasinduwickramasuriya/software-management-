@@ -589,13 +589,13 @@ export default function DashboardPage() {
       {viewingTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={stickyModalHeaderStyle}>
               <h3 style={{ margin: 0, color: '#0f172a', fontSize: '1.2rem' }}>Ticket #TK-{viewingTicket.ticket_id} Details</h3>
               <button onClick={() => setViewingTicket(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <XCircle size={20} color="#64748b" />
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <strong>Branch:</strong>
                 <p style={{ margin: '4px 0', color: '#334155' }}>{viewingTicket.branch_name || '—'}</p>
@@ -697,11 +697,11 @@ export default function DashboardPage() {
                   </div>
                 </div>
               )}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button onClick={() => setViewingTicket(null)} style={secondaryBtnStyle}>
-                Close View
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button onClick={() => setViewingTicket(null)} style={secondaryBtnStyle}>
+                  Close View
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -799,8 +799,19 @@ const modalContentStyle = {
   maxWidth: '550px',
   maxHeight: '90vh',
   overflowY: 'auto',
-  padding: '24px',
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+};
+
+const stickyModalHeaderStyle = {
+  position: 'sticky',
+  top: 0,
+  backgroundColor: '#ffffff',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '24px 24px 12px',
+  marginBottom: '16px',
+  zIndex: 2,
 };
 
 const labelStyle = {

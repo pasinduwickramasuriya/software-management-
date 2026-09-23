@@ -122,25 +122,25 @@ export default function DeveloperDashboard() {
 
       {/* Summary Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #3b82f6' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #3b82f6' }}>
           <span style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 600 }}>Total Assigned Tasks</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0f172a' }}>{tasks.length}</span>
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Assigned to your queue</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #f59e0b' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #f59e0b' }}>
           <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Not Started</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{notStartedCount}</span>
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Ready to be picked up</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #2563eb' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #2563eb' }}>
           <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{inProgressCount}</span>
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Currently working on</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #16a34a' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #16a34a' }}>
           <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Completed</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{completedCount}</span>
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Delivered & tested</span>
@@ -349,16 +349,7 @@ export default function DeveloperDashboard() {
       {viewingTask && (
         <div style={modalOverlayStyle}>
           <div style={{ ...modalContentStyle, maxWidth: '600px' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                borderBottom: '1px solid #e2e8f0',
-                paddingBottom: '12px',
-              }}
-            >
+            <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0 }}>Task #{viewingTask.task_id} Details</h3>
                 <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
@@ -373,7 +364,7 @@ export default function DeveloperDashboard() {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <strong>Task Title:</strong>
                 <p style={{ margin: '4px 0', fontSize: '1.05rem', color: '#0f172a', fontWeight: 600 }}>
@@ -420,12 +411,11 @@ export default function DeveloperDashboard() {
                   />
                 </div>
               )}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button onClick={() => setViewingTask(null)} style={secondaryBtnStyle}>
-                Close
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button onClick={() => setViewingTask(null)} style={secondaryBtnStyle}>
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -519,8 +509,22 @@ const modalContentStyle = {
   borderRadius: '12px',
   width: '100%',
   maxWidth: '550px',
-  padding: '24px',
+  maxHeight: '90vh',
+  overflowY: 'auto',
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+};
+
+const stickyModalHeaderStyle = {
+  position: 'sticky',
+  top: 0,
+  backgroundColor: '#ffffff',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '24px 24px 12px',
+  marginBottom: '16px',
+  borderBottom: '1px solid #e2e8f0',
+  zIndex: 2,
 };
 
 const labelStyle = {

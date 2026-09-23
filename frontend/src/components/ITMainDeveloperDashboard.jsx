@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Download,
 } from 'lucide-react';
 
 const formatProjectRef = (id) => { const year = new Date().getFullYear(); return `PS-${year}-${String(id).padStart(4, '0')}`; };
@@ -140,6 +141,26 @@ export default function ITMainDeveloperDashboard() {
       }
     } catch (err) {
       alert('Failed to delete task: ' + (err.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
+
+    const handleDownloadDocument = async (doc) => {
+    try {
+      const response = await API.get(doc.file_url, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.file_name || 'document';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download document:', error);
+      alert('Failed to download document.');
     }
   };
 
@@ -268,7 +289,7 @@ export default function ITMainDeveloperDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
         <div
           onClick={() => setStatusFilter('All Projects')}
-          style={{ ...statCardStyle, borderLeft: '4px solid #3b82f6', cursor: 'pointer' }}
+          style={{ ...statCardStyle, border: '1px solid #3b82f6', cursor: 'pointer' }}
           title="Click to filter by All Projects"
         >
           <span style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 600 }}>Total Projects</span>
@@ -278,7 +299,7 @@ export default function ITMainDeveloperDashboard() {
 
         <div
           onClick={() => setStatusFilter('Not Started')}
-          style={{ ...statCardStyle, borderLeft: '4px solid #f59e0b', cursor: 'pointer' }}
+          style={{ ...statCardStyle, border: '1px solid #f59e0b', cursor: 'pointer' }}
           title="Click to filter by Not Started"
         >
           <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Not Started</span>
@@ -288,7 +309,7 @@ export default function ITMainDeveloperDashboard() {
 
         <div
           onClick={() => setStatusFilter('In Progress')}
-          style={{ ...statCardStyle, borderLeft: '4px solid #2563eb', cursor: 'pointer' }}
+          style={{ ...statCardStyle, border: '1px solid #2563eb', cursor: 'pointer' }}
           title="Click to filter by In Progress"
         >
           <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</span>
@@ -298,7 +319,7 @@ export default function ITMainDeveloperDashboard() {
 
         <div
           onClick={() => setStatusFilter('Completed')}
-          style={{ ...statCardStyle, borderLeft: '4px solid #16a34a', cursor: 'pointer' }}
+          style={{ ...statCardStyle, border: '1px solid #16a34a', cursor: 'pointer' }}
           title="Click to filter by Completed Projects"
         >
           <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Completed Projects</span>
@@ -306,7 +327,7 @@ export default function ITMainDeveloperDashboard() {
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Closed & delivered</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #8b5cf6' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #8b5cf6' }}>
           <span style={{ color: '#6d28d9', fontSize: '0.85rem', fontWeight: 600 }}>Overall Tasks</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6d28d9' }}>
             {completedTasks} / {totalTasks}
@@ -827,16 +848,7 @@ export default function ITMainDeveloperDashboard() {
       {viewingProject && (
         <div style={modalOverlayStyle}>
           <div style={{ ...modalContentStyle, maxWidth: '600px' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                borderBottom: '1px solid #e2e8f0',
-                paddingBottom: '12px',
-              }}
-            >
+            <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0 }}>Project #{viewingProject.project_id} Specifications</h3>
                 <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
@@ -851,7 +863,7 @@ export default function ITMainDeveloperDashboard() {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <strong>Project Name:</strong>
                 <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
@@ -884,6 +896,7 @@ export default function ITMainDeveloperDashboard() {
                         style={{
                           display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'space-between',
                           gap: '8px',
                           padding: '8px 12px',
                           background: '#f1f5f9',
@@ -892,19 +905,37 @@ export default function ITMainDeveloperDashboard() {
                           color: '#334155',
                         }}
                       >
-                        <FileText size={16} color="#2563eb" />
-                        <span>{doc.file_name}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <FileText size={16} color="#2563eb" />
+                          <span>{doc.file_name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadDocument(doc)}
+                          style={{
+                            border: 'none',
+                            background: 'none',
+                            cursor: 'pointer',
+                            color: '#2563eb',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.78rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <Download size={14} /> Download
+                        </button>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button onClick={() => setViewingProject(null)} style={secondaryBtnStyle}>
-                Close View
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button onClick={() => setViewingProject(null)} style={secondaryBtnStyle}>
+                  Close View
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -998,8 +1029,22 @@ const modalContentStyle = {
   borderRadius: '12px',
   width: '100%',
   maxWidth: '550px',
-  padding: '24px',
+  maxHeight: '90vh',
+  overflowY: 'auto',
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+};
+
+const stickyModalHeaderStyle = {
+  position: 'sticky',
+  top: 0,
+  backgroundColor: '#ffffff',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '24px 24px 12px',
+  marginBottom: '16px',
+  borderBottom: '1px solid #e2e8f0',
+  zIndex: 2,
 };
 
 const labelStyle = {

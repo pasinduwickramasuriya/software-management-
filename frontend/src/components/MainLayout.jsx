@@ -320,8 +320,8 @@ export default function MainLayout() {
 
             <div
               style={{
-                fontSize: '1.5rem',
-                color: 'rgb(37, 99, 235)',
+                fontSize: '1.4rem',
+                color: '#2563eb',
                 fontWeight: 700,
               }}
             >
