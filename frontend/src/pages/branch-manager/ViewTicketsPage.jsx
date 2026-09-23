@@ -3,7 +3,7 @@ import API from '../../services/api';
 import { Search, XCircle, FileText, Ticket, ChevronLeft, ChevronRight } from 'lucide-react';
 import RichTextEditor from '../../components/RichTextEditor';
 
-const TABS = ['All', 'Drafts', 'Pending Review', 'Approved', 'Completed', 'Closed'];
+const TABS = ['All', 'Drafts', 'Pending Review', 'Approved', 'Completed', 'Closed/Rejected'];
 
 export default function ViewTicketsPage() {
   const [tickets, setTickets] = useState([]);
@@ -135,14 +135,14 @@ export default function ViewTicketsPage() {
 
   const filteredTickets = tickets.filter(t => {
     const matchesSearch = t.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          `#TK-${t.ticket_id}`.toLowerCase().includes(searchQuery.toLowerCase());
+      `#TK-${t.ticket_id}`.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
     if (activeTab === 'All') return true;
     if (activeTab === 'Drafts') return t.status === 'draft';
     if (activeTab === 'Pending Review') return t.status === 'pending_executive' || t.status === 'pending_director';
     if (activeTab === 'Approved') return t.status === 'approved';
     if (activeTab === 'Completed') return t.status === 'completed';
-    if (activeTab === 'Closed') return t.status.includes('rejected') || t.status === 'closed';
+    if (activeTab === 'Closed/Rejected') return t.status.includes('rejected') || t.status === 'closed';
     return true;
   });
 
@@ -210,7 +210,7 @@ export default function ViewTicketsPage() {
               if (tab === 'Pending Review') count = pendingCount;
               if (tab === 'Approved') count = approvedCount;
               if (tab === 'Completed') count = completedCount;
-              if (tab === 'Closed') count = closedCount;
+              if (tab === 'Closed/Rejected') count = closedCount;
 
               const isActive = activeTab === tab;
 
@@ -277,6 +277,8 @@ export default function ViewTicketsPage() {
                         {(t.status === 'rejected_by_executive' || t.status === 'rejected_by_director') && (
                           <>
                             <button onClick={() => setViewingTicket(t)} style={actionBtnNeutral}>View</button>
+                            <button onClick={() => setEditingTicket(t)} style={actionBtnBlue}>Edit</button>
+                            <button onClick={() => handleSendToExecutive(t.ticket_id)} style={actionBtnOutline}>Resend</button>
                             <button onClick={() => handleCloseTicket(t.ticket_id)} style={actionBtnDangerOutline}>Close</button>
                           </>
                         )}
@@ -447,6 +449,39 @@ export default function ViewTicketsPage() {
                         </button>
                       );
                     })}
+                  </div>
+                </div>
+              )}
+              {viewingTicket.approvals && viewingTicket.approvals.length > 0 && (
+                <div>
+                  <strong>Review Feedback & History:</strong>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+                    {viewingTicket.approvals.map((app, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          padding: '10px 14px',
+                          borderRadius: '8px',
+                          backgroundColor: app.decision === 'rejected' ? '#fff1f2' : '#f0fdf4',
+                          border: `1px solid ${app.decision === 'rejected' ? '#fecdd3' : '#bbf7d0'}`,
+                          fontSize: '0.85rem',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                          <span style={{ fontWeight: 600, color: app.decision === 'rejected' ? '#be123c' : '#166534' }}>
+                            {app.decision_as} ({app.reviewer_name || 'Reviewer'}): {app.decision === 'rejected' ? 'Rejected' : 'Approved'}
+                          </span>
+                          <span style={{ color: '#94a3b8', fontSize: '0.78rem' }}>
+                            {new Date(app.decision_at).toISOString().split('T')[0]}
+                          </span>
+                        </div>
+                        {app.remark && (
+                          <div style={{ color: '#334155', marginTop: '2px' }}>
+                            <strong>Remark:</strong> {app.remark}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}

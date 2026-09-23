@@ -242,7 +242,7 @@ export default function DashboardPage() {
           IT Director Dashboard
         </h1>
         <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-          Authorize, review, and manage branch software request tickets forwarded by Executive Officers.
+          Review Executive-approved requests and greenlight projects for development.
          </p>
         </div>
         </div>
@@ -250,22 +250,22 @@ export default function DashboardPage() {
 
       {/* Summary Cards — read-only stats; the pill tabs below are the only filter control */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #f59e0b' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #f59e0b' }}>
           <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Action Required</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{actionRequiredCount}</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #22c55e' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #22c55e' }}>
           <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Approved / In Dev</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{approvedCount}</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #ef4444' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #ef4444' }}>
           <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 600 }}>Rejected</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626' }}>{rejectedCount}</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #3b82f6' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #3b82f6' }}>
           <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>All Forwarded</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{totalCount}</span>
         </div>

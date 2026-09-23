@@ -207,7 +207,7 @@ export default function ExecutiveOfficerDashboard() {
             Executive Officer Dashboard
             </h1>
             <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-            Review, edit, approve, or reject software request tickets submitted by your Branch Manager.
+            Evaluate, edit, and decide on ticket proposals awaiting your review.
             </p>
             </div>
               </div>
@@ -226,17 +226,16 @@ export default function ExecutiveOfficerDashboard() {
               aria-pressed={isActive}
               style={{
                 ...statCardStyle,
-                borderLeft: `4px solid ${accent}`,
+                border: `1px solid ${accent}`,
                 backgroundColor: isActive ? tint : '#ffffff',
                 boxShadow: isActive ? `0 0 0 2px ${accent}33` : 'none',
                 cursor: 'pointer',
                 textAlign: 'left',
                 font: 'inherit',
-                transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
               }}
             >
-              <span style={{ color: textColor, fontSize: '0.85rem', fontWeight: 600 }}>{label}</span>
-              <span style={{ fontSize: '1.8rem', fontWeight: 700, color: textColor }}>{value}</span>
+              <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 500 }}>{label}</span>
+              <span style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: textColor }}>{value}</span>
             </button>
           );
         })}
@@ -676,12 +675,13 @@ const iconBtnStyle = {
 
 const statCardStyle = {
   backgroundColor: '#ffffff',
-  padding: '16px',
+  padding: '20px',
   borderRadius: '12px',
   border: '1px solid #e2e8f0',
   display: 'flex',
   flexDirection: 'column',
-  gap: '4px',
+  gap: '8px',
+  transition: 'background-color 0.15s ease, box-shadow 0.15s ease'
 };
 
 const badgeStyle = {

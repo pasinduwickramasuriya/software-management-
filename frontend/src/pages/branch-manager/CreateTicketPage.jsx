@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import API from '../../services/api';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud, FilePlus2 } from 'lucide-react';
 import RichTextEditor from "../../components/RichTextEditor"; 
 
 export default function CreateTicketPage({ setActivePage }) {
@@ -71,14 +71,20 @@ export default function CreateTicketPage({ setActivePage }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      {/* Header Banner — matches Dashboard page style */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <FilePlus2 size={24} color="#2563EB" />
+          </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#0f172a' }}>Create New Proposal Ticket</h1>
+            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>Create New Proposal Ticket</h1>
             <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>Fill out project details to initiate executive review workflow</p>
           </div>
         </div>
+      </div>
 
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
             <label style={labelStyle}>Project Name <span style={{ color: '#dc2626' }}>*</span></label>

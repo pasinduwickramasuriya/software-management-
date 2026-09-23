@@ -245,3 +245,60 @@ class TicketWorkflowTests(TestCase):
         # Verify ticket status is completed
         ticket.refresh_from_db()
         self.assertEqual(ticket.status, 'completed')
+
+    def test_branch_manager_edit_and_resend_permissions(self):
+        # 1. Ticket created in Food Branch by eo_food (different user from bm_food)
+        ticket = Ticket.objects.create(
+            branch=self.branch_food,
+            created_by=self.eo_food,
+            project_name='Shared Food Draft',
+            requirements='Original requirements',
+            status='draft'
+        )
+
+        # 2. Branch Manager (bm_food) can edit requirements even though created_by was eo_food
+        self.client.force_authenticate(user=self.bm_food)
+        edit_res = self.client.put(f'/api/tickets/{ticket.ticket_id}/', {
+            'project_name': 'Updated Shared Food Draft',
+            'requirements': 'Updated requirements by Branch Manager',
+        })
+        self.assertEqual(edit_res.status_code, status.HTTP_200_OK)
+        ticket.refresh_from_db()
+        self.assertIn('Updated requirements by Branch Manager', ticket.requirements)
+
+        # 3. Branch Manager can send it
+        send_res = self.client.post(f'/api/tickets/{ticket.ticket_id}/send/')
+        self.assertEqual(send_res.status_code, status.HTTP_200_OK)
+        ticket.refresh_from_db()
+        self.assertEqual(ticket.status, 'pending_executive')
+
+        # 4. Trying to edit while pending_executive returns 403
+        edit_while_pending = self.client.put(f'/api/tickets/{ticket.ticket_id}/', {
+            'project_name': 'Should fail',
+            'requirements': 'Cannot edit pending ticket',
+        })
+        self.assertEqual(edit_while_pending.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('Only Draft or Rejected tickets can be edited', edit_while_pending.data['detail'])
+
+        # 5. Executive rejects ticket
+        self.client.force_authenticate(user=self.eo_food)
+        self.client.post(f'/api/tickets/{ticket.ticket_id}/executive-decision/', {
+            'decision': 'rejected',
+            'remark': 'Please clarify scope',
+        })
+        ticket.refresh_from_db()
+        self.assertEqual(ticket.status, 'rejected_by_executive')
+
+        # 6. Branch Manager can edit rejected ticket and resend it
+        self.client.force_authenticate(user=self.bm_food)
+        edit_rejected = self.client.put(f'/api/tickets/{ticket.ticket_id}/', {
+            'project_name': 'Clarified Food Draft',
+            'requirements': 'Scope clarified after executive rejection',
+        })
+        self.assertEqual(edit_rejected.status_code, status.HTTP_200_OK)
+
+        resend_res = self.client.post(f'/api/tickets/{ticket.ticket_id}/send/')
+        self.assertEqual(resend_res.status_code, status.HTTP_200_OK)
+        ticket.refresh_from_db()
+        self.assertEqual(ticket.status, 'pending_executive')
+

@@ -1,5 +1,5 @@
 import React, { useRef, useLayoutEffect, useEffect, useState } from 'react';
-import { Shield, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ProfileMenu from './ProfileMenu';
 import { useAuth } from '../context/AuthContext';
@@ -302,38 +302,30 @@ export default function MainLayout() {
         >
           <div
             style={{
-              width: '34px',
-              height: '34px',
-              borderRadius: '8px',
-              backgroundColor: '#2563eb',
+              width: '38px',
+              height: '38px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Shield size={18} color="#ffffff" />
+            <img
+              src="/emblem.svg"
+              alt="Sri Lanka Emblem"
+              style={{ width: '130%', height: '130%', objectFit: 'contain' }}
+            />
           </div>
 
           <div style={{ lineHeight: 1.2 }}>
-            <div
-              style={{
-                fontSize: '1rem',
-                fontWeight: 800,
-                color: '#0f172a',
-                letterSpacing: '0.3px',
-              }}
-            >
-              SMS
-            </div>
 
             <div
               style={{
-                fontSize: '0.7rem',
-                color: '#64748b',
-                fontWeight: 500,
+                fontSize: '1.5rem',
+                color: 'rgb(37, 99, 235)',
+                fontWeight: 700,
               }}
             >
-              software management system
+              Software Management System
             </div>
           </div>
         </div>
