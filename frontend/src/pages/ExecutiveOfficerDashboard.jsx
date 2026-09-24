@@ -445,51 +445,53 @@ export default function ExecutiveOfficerDashboard() {
       {decisionTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={stickyModalHeaderStyle}>
               <h3 style={{ margin: 0 }}>Executive Review for Ticket #{decisionTicket.ticket_id}</h3>
               <button onClick={() => setDecisionTicket(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><XCircle size={20} /></button>
             </div>
 
             <form onSubmit={handleDecisionSubmit}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Decision Choice</label>
-                <div style={{ display: 'flex', gap: '16px', marginTop: '6px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600, color: '#16a34a' }}>
-                    <input
-                      type="radio"
-                      name="decision"
-                      value="approved"
-                      checked={decisionType === 'approved'}
-                      onChange={() => setDecisionType('approved')}
-                    />
-                    ✅ Approve Ticket (Send to IT Director)
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600, color: '#dc2626' }}>
-                    <input
-                      type="radio"
-                      name="decision"
-                      value="rejected"
-                      checked={decisionType === 'rejected'}
-                      onChange={() => setDecisionType('rejected')}
-                    />
-                    ❌ Reject Ticket (Send back to Branch Manager)
-                  </label>
+              <div style={modalBodyStyle}>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={labelStyle}>Decision Choice</label>
+                  <div style={{ display: 'flex', gap: '16px', marginTop: '6px', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600, color: '#16a34a' }}>
+                      <input
+                        type="radio"
+                        name="decision"
+                        value="approved"
+                        checked={decisionType === 'approved'}
+                        onChange={() => setDecisionType('approved')}
+                      />
+                      ✅ Approve Ticket (Send to IT Director)
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600, color: '#dc2626' }}>
+                      <input
+                        type="radio"
+                        name="decision"
+                        value="rejected"
+                        checked={decisionType === 'rejected'}
+                        onChange={() => setDecisionType('rejected')}
+                      />
+                      ❌ Reject Ticket (Send back to Branch Manager)
+                    </label>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '4px' }}>
+                  <label style={labelStyle}>Minutes / Review Remarks (Required)</label>
+                  <textarea
+                    placeholder={decisionType === 'approved' ? "Enter approval remarks or notes..." : "Enter reason for rejection so Branch Manager can review or close..."}
+                    value={remark}
+                    onChange={(e) => setRemark(e.target.value)}
+                    required
+                    rows={4}
+                    style={inputStyle}
+                  />
                 </div>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={labelStyle}>Minutes / Review Remarks (Required)</label>
-                <textarea
-                  placeholder={decisionType === 'approved' ? "Enter approval remarks or notes..." : "Enter reason for rejection so Branch Manager can review or close..."}
-                  value={remark}
-                  onChange={(e) => setRemark(e.target.value)}
-                  required
-                  rows={4}
-                  style={inputStyle}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '16px 24px', borderTop: '1px solid #e2e8f0' }}>
                 <button type="button" onClick={() => setDecisionTicket(null)} style={secondaryBtnStyle}>Cancel</button>
                 <button
                   type="submit"
@@ -511,29 +513,31 @@ export default function ExecutiveOfficerDashboard() {
       {editingTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={stickyModalHeaderStyle}>
               <h3 style={{ margin: 0 }}>Edit Ticket #{editingTicket.ticket_id} Requirements</h3>
               <button onClick={() => setEditingTicket(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><XCircle size={20} /></button>
             </div>
             <form onSubmit={handleEditTicket}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Project Name</label>
-                <input
-                  type="text"
-                  value={editingTicket.project_name}
-                  onChange={(e) => setEditingTicket({ ...editingTicket, project_name: e.target.value })}
-                  required
-                  style={inputStyle}
-                />
+              <div style={modalBodyStyle}>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={labelStyle}>Project Name</label>
+                  <input
+                    type="text"
+                    value={editingTicket.project_name}
+                    onChange={(e) => setEditingTicket({ ...editingTicket, project_name: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ marginBottom: '4px' }}>
+                  <label style={labelStyle}>Requirements & Specs</label>
+                  <RichTextEditor
+                    value={editingTicket.requirements}
+                    onChange={(html) => setEditingTicket({ ...editingTicket, requirements: html })}
+                  />
+                </div>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={labelStyle}>Requirements & Specs</label>
-                <RichTextEditor
-                  value={editingTicket.requirements}
-                  onChange={(html) => setEditingTicket({ ...editingTicket, requirements: html })}
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '16px 24px', borderTop: '1px solid #e2e8f0' }}>
                 <button type="button" onClick={() => setEditingTicket(null)} style={secondaryBtnStyle}>Cancel</button>
                 <button type="submit" disabled={submitting || isEditRequirementsEmpty} style={primaryBtnStyle}>
                   {submitting ? 'Saving...' : 'Save Changes'}
@@ -552,79 +556,81 @@ export default function ExecutiveOfficerDashboard() {
               <h3 style={{ margin: 0 }}>Ticket #{viewingTicket.ticket_id} Details</h3>
               <button onClick={() => setViewingTicket(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><XCircle size={20} /></button>
             </div>
-            <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <strong>Project Name:</strong>
-                <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>{viewingTicket.project_name}</p>
-              </div>
-              <div>
-                <strong>Status:</strong>
-                <div style={{ marginTop: '4px' }}>{getStatusBadge(viewingTicket.status)}</div>
-              </div>
-              <div>
-                <strong>Requirements:</strong>
-                <div
-                  style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}
-                  dangerouslySetInnerHTML={{ __html: viewingTicket.requirements }}
-                />
-              </div>
-              {viewingTicket.documents && viewingTicket.documents.length > 0 && (
+            <div style={modalBodyStyle}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <strong>Attached Documents:</strong>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                    {viewingTicket.documents.map((doc, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '8px 12px',
-                          background: '#f1f5f9',
-                          borderRadius: '6px',
-                          fontSize: '0.88rem',
-                          color: '#334155',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <FileText size={16} color="#2563eb" />
-                          <span>{doc.file_name}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleDownloadDocument(doc)}
+                  <strong>Project Name:</strong>
+                  <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>{viewingTicket.project_name}</p>
+                </div>
+                <div>
+                  <strong>Status:</strong>
+                  <div style={{ marginTop: '4px' }}>{getStatusBadge(viewingTicket.status)}</div>
+                </div>
+                <div>
+                  <strong>Requirements:</strong>
+                  <div
+                    style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}
+                    dangerouslySetInnerHTML={{ __html: viewingTicket.requirements }}
+                  />
+                </div>
+                {viewingTicket.documents && viewingTicket.documents.length > 0 && (
+                  <div>
+                    <strong>Attached Documents:</strong>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                      {viewingTicket.documents.map((doc, idx) => (
+                        <div
+                          key={idx}
                           style={{
-                            border: 'none',
-                            background: 'none',
-                            cursor: 'pointer',
-                            color: '#2563eb',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '4px',
-                            fontSize: '0.78rem',
-                            fontWeight: 600,
+                            justifyContent: 'space-between',
+                            padding: '8px 12px',
+                            background: '#f1f5f9',
+                            borderRadius: '6px',
+                            fontSize: '0.88rem',
+                            color: '#334155',
                           }}
                         >
-                          <Download size={14} /> Download
-                        </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FileText size={16} color="#2563eb" />
+                            <span>{doc.file_name}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadDocument(doc)}
+                            style={{
+                              border: 'none',
+                              background: 'none',
+                              cursor: 'pointer',
+                              color: '#2563eb',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Download size={14} /> Download
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {viewingTicket.approvals && viewingTicket.approvals.length > 0 && (
+                  <div>
+                    <strong>Review Minutes & Remarks:</strong>
+                    {viewingTicket.approvals.map((app, idx) => (
+                      <div key={idx} style={{ background: app.decision === 'approved' ? '#f0fdf4' : '#fef2f2', padding: '10px', borderRadius: '6px', marginTop: '6px', border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontWeight: 600, color: app.decision === 'approved' ? '#16a34a' : '#dc2626' }}>
+                          {app.decision_as} ({app.decision})
+                        </span>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.9rem' }}>{app.remark || 'No remark provided'}</p>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-              {viewingTicket.approvals && viewingTicket.approvals.length > 0 && (
-                <div>
-                  <strong>Review Minutes & Remarks:</strong>
-                  {viewingTicket.approvals.map((app, idx) => (
-                    <div key={idx} style={{ background: app.decision === 'approved' ? '#f0fdf4' : '#fef2f2', padding: '10px', borderRadius: '6px', marginTop: '6px', border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontWeight: 600, color: app.decision === 'approved' ? '#16a34a' : '#dc2626' }}>
-                        {app.decision_as} ({app.decision})
-                      </span>
-                      <p style={{ margin: '4px 0 0', fontSize: '0.9rem' }}>{app.remark || 'No remark provided'}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
+                )}
+              </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
                 <button onClick={() => setViewingTicket(null)} style={secondaryBtnStyle}>Close View</button>
               </div>
@@ -724,9 +730,13 @@ const stickyModalHeaderStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  padding: '24px 24px 12px',
-  marginBottom: '16px',
+  padding: '20px 24px',
+  borderBottom: '1px solid #e2e8f0',
   zIndex: 2,
+};
+
+const modalBodyStyle = {
+  padding: '24px',
 };
 
 const labelStyle = {
