@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import API from '../../services/api';
 import { Search, XCircle, FileText, Ticket, ChevronLeft, ChevronRight } from 'lucide-react';
+import RichTextEditor from '../../components/RichTextEditor';
 
-const TABS = ['All', 'Drafts', 'Pending Review', 'Approved', 'Completed', 'Closed'];
+const TABS = ['All', 'Drafts', 'Pending Review', 'Approved', 'Completed', 'Closed/Rejected'];
 
 export default function ViewTicketsPage() {
   const [tickets, setTickets] = useState([]);
@@ -11,6 +12,7 @@ export default function ViewTicketsPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [editingTicket, setEditingTicket] = useState(null);
+  const isEditRequirementsEmpty = !editingTicket?.requirements || editingTicket.requirements.replace(/<[^>]*>/g, '').trim() === '';
   const [viewingTicket, setViewingTicket] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -133,14 +135,14 @@ export default function ViewTicketsPage() {
 
   const filteredTickets = tickets.filter(t => {
     const matchesSearch = t.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          `#TK-${t.ticket_id}`.toLowerCase().includes(searchQuery.toLowerCase());
+      `#TK-${t.ticket_id}`.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
     if (activeTab === 'All') return true;
     if (activeTab === 'Drafts') return t.status === 'draft';
     if (activeTab === 'Pending Review') return t.status === 'pending_executive' || t.status === 'pending_director';
     if (activeTab === 'Approved') return t.status === 'approved';
     if (activeTab === 'Completed') return t.status === 'completed';
-    if (activeTab === 'Closed') return t.status.includes('rejected') || t.status === 'closed';
+    if (activeTab === 'Closed/Rejected') return t.status.includes('rejected') || t.status === 'closed';
     return true;
   });
 
@@ -208,7 +210,7 @@ export default function ViewTicketsPage() {
               if (tab === 'Pending Review') count = pendingCount;
               if (tab === 'Approved') count = approvedCount;
               if (tab === 'Completed') count = completedCount;
-              if (tab === 'Closed') count = closedCount;
+              if (tab === 'Closed/Rejected') count = closedCount;
 
               const isActive = activeTab === tab;
 
@@ -275,6 +277,8 @@ export default function ViewTicketsPage() {
                         {(t.status === 'rejected_by_executive' || t.status === 'rejected_by_director') && (
                           <>
                             <button onClick={() => setViewingTicket(t)} style={actionBtnNeutral}>View</button>
+                            <button onClick={() => setEditingTicket(t)} style={actionBtnBlue}>Edit</button>
+                            <button onClick={() => handleSendToExecutive(t.ticket_id)} style={actionBtnOutline}>Resend</button>
                             <button onClick={() => handleCloseTicket(t.ticket_id)} style={actionBtnDangerOutline}>Close</button>
                           </>
                         )}
@@ -376,22 +380,27 @@ export default function ViewTicketsPage() {
       {editingTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={stickyModalHeaderStyle}>
               <h3 style={{ margin: 0 }}>Edit Ticket #TK-{editingTicket.ticket_id}</h3>
               <button onClick={() => setEditingTicket(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><XCircle size={20} /></button>
             </div>
             <form onSubmit={handleEditTicket}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Project Name</label>
-                <input type="text" value={editingTicket.project_name} onChange={(e) => setEditingTicket({ ...editingTicket, project_name: e.target.value })} required style={inputStyleFull} />
+              <div style={modalBodyStyle}>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={labelStyle}>Project Name</label>
+                  <input type="text" value={editingTicket.project_name} onChange={(e) => setEditingTicket({ ...editingTicket, project_name: e.target.value })} required style={inputStyleFull} />
+                </div>
+                <div style={{ marginBottom: '4px' }}>
+                  <label style={labelStyle}>Requirements</label>
+                  <RichTextEditor
+                    value={editingTicket.requirements}
+                    onChange={(html) => setEditingTicket({ ...editingTicket, requirements: html })}
+                  />
+                </div>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={labelStyle}>Requirements</label>
-                <textarea value={editingTicket.requirements} onChange={(e) => setEditingTicket({ ...editingTicket, requirements: e.target.value })} required rows={5} style={inputStyleFull} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '16px 24px', borderTop: '1px solid #f1f5f9' }}>
                 <button type="button" onClick={() => setEditingTicket(null)} style={actionBtnNeutral}>Cancel</button>
-                <button type="submit" disabled={submitting} style={actionBtnBlue}>
+                <button type="submit" disabled={submitting || isEditRequirementsEmpty} style={actionBtnBlue}>
                   {submitting ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
@@ -404,49 +413,85 @@ export default function ViewTicketsPage() {
       {viewingTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={stickyModalHeaderStyle}>
               <h3 style={{ margin: 0 }}>Ticket #TK-{viewingTicket.ticket_id} Details</h3>
               <button onClick={() => setViewingTicket(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><XCircle size={20} /></button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <strong>Project Name:</strong>
-                <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>{viewingTicket.project_name}</p>
-              </div>
-              <div>
-                <strong>Status:</strong>
-                <div style={{ marginTop: '4px' }}>{getStatusBadge(viewingTicket.status)}</div>
-              </div>
-              <div>
-                <strong>Requirements:</strong>
-                <p style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap', fontSize: '0.9rem' }}>
-                  {viewingTicket.requirements}
-                </p>
-              </div>
-              {viewingTicket.documents && viewingTicket.documents.length > 0 && (
+            <div style={modalBodyStyle}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <strong>Attached Documents:</strong>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                    {viewingTicket.documents.map((doc, idx) => {
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => handleDownloadDocument(doc)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.88rem', color: '#2563eb', textDecoration: 'none', fontWeight: 500 }}
-                        >
-                          <FileText size={16} color="#2563eb" />
-                          <span>{doc.file_name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <strong>Project Name:</strong>
+                  <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>{viewingTicket.project_name}</p>
                 </div>
-              )}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button onClick={() => setViewingTicket(null)} style={actionBtnNeutral}>Close View</button>
+                <div>
+                  <strong>Status:</strong>
+                  <div style={{ marginTop: '4px' }}>{getStatusBadge(viewingTicket.status)}</div>
+                </div>
+                <div>
+                  <strong>Requirements:</strong>
+                  <div
+                    style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.9rem' }}
+                    dangerouslySetInnerHTML={{ __html: viewingTicket.requirements }}
+                  />
+                </div>
+                {viewingTicket.documents && viewingTicket.documents.length > 0 && (
+                  <div>
+                    <strong>Attached Documents:</strong>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                      {viewingTicket.documents.map((doc, idx) => {
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleDownloadDocument(doc)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.88rem', color: '#2563eb', textDecoration: 'none', fontWeight: 500 }}
+                          >
+                            <FileText size={16} color="#2563eb" />
+                            <span>{doc.file_name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {viewingTicket.approvals && viewingTicket.approvals.length > 0 && (
+                  <div>
+                    <strong>Review Feedback & History:</strong>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+                      {viewingTicket.approvals.map((app, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            backgroundColor: app.decision === 'rejected' ? '#fff1f2' : '#f0fdf4',
+                            border: `1px solid ${app.decision === 'rejected' ? '#fecdd3' : '#bbf7d0'}`,
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <span style={{ fontWeight: 600, color: app.decision === 'rejected' ? '#be123c' : '#166534' }}>
+                              {app.decision_as} ({app.reviewer_name || 'Reviewer'}): {app.decision === 'rejected' ? 'Rejected' : 'Approved'}
+                            </span>
+                            <span style={{ color: '#94a3b8', fontSize: '0.78rem' }}>
+                              {new Date(app.decision_at).toISOString().split('T')[0]}
+                            </span>
+                          </div>
+                          {app.remark && (
+                            <div style={{ color: '#334155', marginTop: '2px' }}>
+                              <strong>Remark:</strong> {app.remark}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button onClick={() => setViewingTicket(null)} style={actionBtnNeutral}>Close View</button>
+              </div>
             </div>
           </div>
         </div>
@@ -528,8 +573,21 @@ const actionBtnDangerOutline = { backgroundColor: '#ffffff', color: '#dc2626', b
 const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
 
 const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
-const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '550px', padding: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' };
-
+const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '550px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' };
+const stickyModalHeaderStyle = {
+  position: 'sticky',
+  top: 0,
+  backgroundColor: '#ffffff',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '20px 24px',
+  borderBottom: '1px solid #f1f5f9',
+  zIndex: 2,
+};
+const modalBodyStyle = {
+  padding: '24px',
+};
 const paginationBtnStyle = {
   display: 'inline-flex',
   alignItems: 'center',

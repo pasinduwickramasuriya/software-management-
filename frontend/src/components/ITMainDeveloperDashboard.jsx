@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Download,
 } from 'lucide-react';
 
 const formatProjectRef = (id) => { const year = new Date().getFullYear(); return `PS-${year}-${String(id).padStart(4, '0')}`; };
@@ -140,6 +141,26 @@ export default function ITMainDeveloperDashboard() {
       }
     } catch (err) {
       alert('Failed to delete task: ' + (err.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
+
+    const handleDownloadDocument = async (doc) => {
+    try {
+      const response = await API.get(doc.file_url, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.file_name || 'document';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download document:', error);
+      alert('Failed to download document.');
     }
   };
 
@@ -268,7 +289,7 @@ export default function ITMainDeveloperDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
         <div
           onClick={() => setStatusFilter('All Projects')}
-          style={{ ...statCardStyle, borderLeft: '4px solid #3b82f6', cursor: 'pointer' }}
+          style={{ ...statCardStyle, border: '1px solid #3b82f6', cursor: 'pointer' }}
           title="Click to filter by All Projects"
         >
           <span style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 600 }}>Total Projects</span>
@@ -278,7 +299,7 @@ export default function ITMainDeveloperDashboard() {
 
         <div
           onClick={() => setStatusFilter('Not Started')}
-          style={{ ...statCardStyle, borderLeft: '4px solid #f59e0b', cursor: 'pointer' }}
+          style={{ ...statCardStyle, border: '1px solid #f59e0b', cursor: 'pointer' }}
           title="Click to filter by Not Started"
         >
           <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Not Started</span>
@@ -288,7 +309,7 @@ export default function ITMainDeveloperDashboard() {
 
         <div
           onClick={() => setStatusFilter('In Progress')}
-          style={{ ...statCardStyle, borderLeft: '4px solid #2563eb', cursor: 'pointer' }}
+          style={{ ...statCardStyle, border: '1px solid #2563eb', cursor: 'pointer' }}
           title="Click to filter by In Progress"
         >
           <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</span>
@@ -298,7 +319,7 @@ export default function ITMainDeveloperDashboard() {
 
         <div
           onClick={() => setStatusFilter('Completed')}
-          style={{ ...statCardStyle, borderLeft: '4px solid #16a34a', cursor: 'pointer' }}
+          style={{ ...statCardStyle, border: '1px solid #16a34a', cursor: 'pointer' }}
           title="Click to filter by Completed Projects"
         >
           <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Completed Projects</span>
@@ -306,7 +327,7 @@ export default function ITMainDeveloperDashboard() {
           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Closed & delivered</span>
         </div>
 
-        <div style={{ ...statCardStyle, borderLeft: '4px solid #8b5cf6' }}>
+        <div style={{ ...statCardStyle, border: '1px solid #8b5cf6' }}>
           <span style={{ color: '#6d28d9', fontSize: '0.85rem', fontWeight: 600 }}>Overall Tasks</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6d28d9' }}>
             {completedTasks} / {totalTasks}
@@ -653,16 +674,7 @@ export default function ITMainDeveloperDashboard() {
       {assigningProject && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                borderBottom: '1px solid #e2e8f0',
-                paddingBottom: '12px',
-              }}
-            >
+            <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0, color: '#0f172a' }}>Assign Task to Developer</h3>
                 <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
@@ -678,49 +690,51 @@ export default function ITMainDeveloperDashboard() {
             </div>
 
             <form onSubmit={handleCreateTask}>
-              {/* Select Developer */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Assign To Developer</label>
-                <select
-                  value={assignedTo}
-                  onChange={(e) => setAssignedTo(e.target.value)}
-                  required
-                  style={inputStyle}
-                >
-                  {developers.map((dev) => (
-                    <option key={dev.id} value={dev.id}>
-                      👨‍💻 {dev.username} ({dev.email})
-                    </option>
-                  ))}
-                </select>
+              <div style={modalBodyStyle}>
+                {/* Select Developer */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={labelStyle}>Assign To Developer</label>
+                  <select
+                    value={assignedTo}
+                    onChange={(e) => setAssignedTo(e.target.value)}
+                    required
+                    style={inputStyle}
+                  >
+                    {developers.map((dev) => (
+                      <option key={dev.id} value={dev.id}>
+                        👨‍💻 {dev.username} ({dev.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Task Title */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={labelStyle}>Task Title</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Build REST API for Food Menu"
+                    value={taskTitle}
+                    onChange={(e) => setTaskTitle(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+
+                {/* Task Description */}
+                <div style={{ marginBottom: '4px' }}>
+                  <label style={labelStyle}>Task Instructions & Description</label>
+                  <textarea
+                    placeholder="Provide technical guidance, acceptance criteria, or API design specs..."
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                    rows={4}
+                    style={inputStyle}
+                  />
+                </div>
               </div>
 
-              {/* Task Title */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Task Title</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Build REST API for Food Menu"
-                  value={taskTitle}
-                  onChange={(e) => setTaskTitle(e.target.value)}
-                  required
-                  style={inputStyle}
-                />
-              </div>
-
-              {/* Task Description */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={labelStyle}>Task Instructions & Description</label>
-                <textarea
-                  placeholder="Provide technical guidance, acceptance criteria, or API design specs..."
-                  value={taskDescription}
-                  onChange={(e) => setTaskDescription(e.target.value)}
-                  rows={4}
-                  style={inputStyle}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '16px 24px', borderTop: '1px solid #e2e8f0' }}>
                 <button type="button" onClick={() => setAssigningProject(null)} style={secondaryBtnStyle}>
                   Cancel
                 </button>
@@ -737,16 +751,7 @@ export default function ITMainDeveloperDashboard() {
       {managingProjectTasks && (
         <div style={modalOverlayStyle}>
           <div style={{ ...modalContentStyle, maxWidth: '650px' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                borderBottom: '1px solid #e2e8f0',
-                paddingBottom: '12px',
-              }}
-            >
+            <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0 }}>Project Tasks: {managingProjectTasks.project_name}</h3>
                 <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
@@ -761,63 +766,65 @@ export default function ITMainDeveloperDashboard() {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '60vh', overflowY: 'auto' }}>
-              {managingProjectTasks.tasks && managingProjectTasks.tasks.length > 0 ? (
-                managingProjectTasks.tasks.map((t) => (
-                  <div
-                    key={t.task_id}
-                    style={{
-                      padding: '12px',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      backgroundColor: '#f8fafc',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '12px',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#1e293b' }}>{t.task_title}</div>
-                      <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '2px' }}>
-                        Assigned to: <strong>{t.assigned_to_name}</strong>
+            <div style={modalBodyStyle}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {managingProjectTasks.tasks && managingProjectTasks.tasks.length > 0 ? (
+                  managingProjectTasks.tasks.map((t) => (
+                    <div
+                      key={t.task_id}
+                      style={{
+                        padding: '12px',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        backgroundColor: '#f8fafc',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '12px',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#1e293b' }}>{t.task_title}</div>
+                        <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '2px' }}>
+                          Assigned to: <strong>{t.assigned_to_name}</strong>
+                        </div>
+                        {t.description && (
+                          <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#475569' }}>{t.description}</p>
+                        )}
                       </div>
-                      {t.description && (
-                        <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#475569' }}>{t.description}</p>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {getStatusBadge(t.status)}
+                        <button
+                          onClick={() => handleDeleteTask(t.task_id)}
+                          style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626' }}
+                          title="Delete Task"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {getStatusBadge(t.status)}
-                      <button
-                        onClick={() => handleDeleteTask(t.task_id)}
-                        style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626' }}
-                        title="Delete Task"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+                    No tasks assigned to this project yet.
                   </div>
-                ))
-              ) : (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
-                  No tasks assigned to this project yet.
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
-              <button
-                onClick={() => {
-                  setAssigningProject(managingProjectTasks);
-                  setManagingProjectTasks(null);
-                }}
-                style={{ ...primaryBtnStyle, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-              >
-                <Plus size={16} /> Add Another Task
-              </button>
-              <button onClick={() => setManagingProjectTasks(null)} style={secondaryBtnStyle}>
-                Close
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
+                <button
+                  onClick={() => {
+                    setAssigningProject(managingProjectTasks);
+                    setManagingProjectTasks(null);
+                  }}
+                  style={{ ...primaryBtnStyle, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus size={16} /> Add Another Task
+                </button>
+                <button onClick={() => setManagingProjectTasks(null)} style={secondaryBtnStyle}>
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -827,16 +834,7 @@ export default function ITMainDeveloperDashboard() {
       {viewingProject && (
         <div style={modalOverlayStyle}>
           <div style={{ ...modalContentStyle, maxWidth: '600px' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                borderBottom: '1px solid #e2e8f0',
-                paddingBottom: '12px',
-              }}
-            >
+            <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0 }}>Project #{viewingProject.project_id} Specifications</h3>
                 <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
@@ -851,62 +849,81 @@ export default function ITMainDeveloperDashboard() {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <strong>Project Name:</strong>
-                <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
-                  {viewingProject.project_name}
-                </p>
-              </div>
-
-              <div>
-                <strong>Ticket Requirements:</strong>
-                <p
-                  style={{
-                    margin: '4px 0',
-                    background: '#f8fafc',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    whiteSpace: 'pre-wrap',
-                    fontSize: '0.9rem',
-                  }}
-                >
-                  {viewingProject.ticket_details?.requirements || 'No description provided'}
-                </p>
-              </div>
-
-              {viewingProject.ticket_details?.documents && viewingProject.ticket_details.documents.length > 0 && (
+            <div style={modalBodyStyle}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <strong>Attached Specification Documents:</strong>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                    {viewingProject.ticket_details.documents.map((doc, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '8px 12px',
-                          background: '#f1f5f9',
-                          borderRadius: '6px',
-                          fontSize: '0.88rem',
-                          color: '#334155',
-                        }}
-                      >
-                        <FileText size={16} color="#2563eb" />
-                        <span>{doc.file_name}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <strong>Project Name:</strong>
+                  <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                    {viewingProject.project_name}
+                  </p>
                 </div>
-              )}
-            </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button onClick={() => setViewingProject(null)} style={secondaryBtnStyle}>
-                Close View
-              </button>
+                <div>
+                  <strong>Ticket Requirements:</strong>
+                  <div
+                    style={{
+                      margin: '4px 0',
+                      background: '#f8fafc',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      fontSize: '0.9rem',
+                    }}
+                    dangerouslySetInnerHTML={{ __html: viewingProject.ticket_details?.requirements || 'No description provided' }}
+                  />
+                </div>
+
+                {viewingProject.ticket_details?.documents && viewingProject.ticket_details.documents.length > 0 && (
+                  <div>
+                    <strong>Attached Specification Documents:</strong>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                      {viewingProject.ticket_details.documents.map((doc, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '8px',
+                            padding: '8px 12px',
+                            background: '#f1f5f9',
+                            borderRadius: '6px',
+                            fontSize: '0.88rem',
+                            color: '#334155',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FileText size={16} color="#2563eb" />
+                            <span>{doc.file_name}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadDocument(doc)}
+                            style={{
+                              border: 'none',
+                              background: 'none',
+                              cursor: 'pointer',
+                              color: '#2563eb',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Download size={14} /> Download
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button onClick={() => setViewingProject(null)} style={secondaryBtnStyle}>
+                  Close View
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1000,8 +1017,25 @@ const modalContentStyle = {
   borderRadius: '12px',
   width: '100%',
   maxWidth: '550px',
-  padding: '24px',
+  maxHeight: '90vh',
+  overflowY: 'auto',
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+};
+
+const stickyModalHeaderStyle = {
+  position: 'sticky',
+  top: 0,
+  backgroundColor: '#ffffff',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '20px 24px',
+  borderBottom: '1px solid #e2e8f0',
+  zIndex: 2,
+};
+
+const modalBodyStyle = {
+  padding: '24px',
 };
 
 const labelStyle = {

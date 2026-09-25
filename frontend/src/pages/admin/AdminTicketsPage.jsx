@@ -331,14 +331,14 @@ export default function AdminTicketsPage() {
       {viewingTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={stickyModalHeaderStyle}>
               <h3 style={{ margin: 0 }}>Ticket #TK-{viewingTicket.ticket_id} Audit Details</h3>
               <button onClick={() => setViewingTicket(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <XCircle size={20} />
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '68vh', overflowY: 'auto' }}>
+            <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <strong>Project Name:</strong>
                 <p style={{ margin: '4px 0', fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
@@ -360,9 +360,10 @@ export default function AdminTicketsPage() {
 
               <div>
                 <strong>Requirements:</strong>
-                <p style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap', fontSize: '0.9rem' }}>
-                  {viewingTicket.requirements}
-                </p>
+                <div
+                  style={{ margin: '4px 0', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.9rem' }}
+                  dangerouslySetInnerHTML={{ __html: viewingTicket.requirements }}
+                />
               </div>
 
               {viewingTicket.documents && viewingTicket.documents.length > 0 && (
@@ -426,12 +427,11 @@ export default function AdminTicketsPage() {
                   </div>
                 </div>
               )}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button onClick={() => setViewingTicket(null)} style={actionBtnNeutral}>
-                Close View
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button onClick={() => setViewingTicket(null)} style={actionBtnNeutral}>
+                  Close View
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -529,8 +529,21 @@ const modalContentStyle = {
   borderRadius: '16px',
   width: '100%',
   maxWidth: '580px',
-  padding: '24px',
+  maxHeight: '90vh',
+  overflowY: 'auto',
   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+};
+
+const stickyModalHeaderStyle = {
+  position: 'sticky',
+  top: 0,
+  backgroundColor: '#ffffff',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '24px 24px 12px',
+  marginBottom: '16px',
+  zIndex: 2,
 };
 
 const paginationBtnStyle = {

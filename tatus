@@ -1,0 +1,42 @@
+[33ma646df6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mRachini[m[33m, [m[1;31morigin/Rachini[m[33m)[m Add a rich text editor to Requirements field of create ticket page and ix issues related to it
+[33m1792f62[m Add react-router-dom for routing and enhance AuthContext with navigation on logout
+[33m514b486[m Refactor DeveloperDashboard header layout and add smooth navigation indicator for improved user experience
+[33m95c8e7e[m Hide choose branch for admin,developer,it director and it main developer
+[33m0ef32ac[m Add pagination to Admin's pages
+[33mdd327a2[m Refactor Executive Officer and IT Director dashboards for improved header layout and icon integration
+[33mc1ccdf5[m Enhance Executive Officer and IT Director dashboards with filter-friendly summary cards and improve DashboardPage functionality
+[33m5f2e7ff[m Add paginations to all the tables
+[33mf3e013e[m Refactor ITMainDeveloperDashboard for improved filtering and pagination
+[33mb391bf1[m Remove ITDirectorDashboard component and fix attachment download in executive officer viw button
+[33m82ff09a[m Modify It director and executive officer ui
+[33mb610693[m Merge branch 'Rachini' of https://github.com/pasinduwickramasuriya/software-management- into Rachini
+[33m88a1fbc[m Modified Executive Officer Dashboard
+[33m1a570eb[m Refactor ProfileMenu component by removing settings button and updating props; enhance ViewTicketsPage with sliding tab indicator and completed ticket status
+[33m1c6c3af[m Refactor layout structure by consolidating role-specific components into a unified MainLayout and removing individual layouts
+[33m685976f[m Enhance ticket visibility for Executive officer so that he can see the tickets sent by Branch Manager
+[33mbda3c3a[m Merge branch 'Rachini' of https://github.com/pasinduwickramasuriya/software-management- into Rachini
+[33mb03234b[m Refactor Executive Officer layout and integrate dashboard component
+[33m84e4ba1[m Merge pull request #7 from pasinduwickramasuriya/pasindu
+[33m1440fff[m Merge branch 'Rachini' of https://github.com/pasinduwickramasuriya/software-management- into Rachini
+[33m0d63037[m Add document download functionality to ViewTicketsPage
+[33m0157589[m Merge pull request #6 from pasinduwickramasuriya/pasindu
+[33mc92da0e[m Merge remote-tracking branch 'origin/pasindu' into Rachini
+[33m6dfd246[m Refactor code structure for improved readability and maintainability
+[33mce09f50[m Merge branch 'Rachini' of https://github.com/pasinduwickramasuriya/software-management- into Rachini
+[33m36353a5[m Refactor Executive Officer Dashboard: Move component to pages directory
+[33ma6d67a2[m feat(tickets): order tickets by creation date
+[33m05d1252[m  feat(tickets): support real file uploads on Create Ticket page
+[33m030677f[m Add migration to alter file_path field in TicketDocument model
+[33m7188270[m refactor: Clean up MainLayout component and improve user role handling
+[33m3c25ffb[m Merge branch 'Rachini' of https://github.com/pasinduwickramasuriya/software-management- into Rachini
+[33m5aa4707[m feat: Implement Branch Manager Layout with Dashboard, Create Ticket, and View Tickets pages
+[33m2dfa4d4[m feat(Ticket): enhance ticket creation validation and update status choices
+[33mc1d9269[m feat(LoginPage): enhance UI with password visibility toggle and improved layout
+[33mbd423db[m Refactor code structure for improved readability and maintainability
+[33m449d445[m feat(urls): add hello endpoint to API
+[33m373a4c8[m feat: add management command to seed organizational branches and demo users
+[33m43ec2f0[m Merge branch 'Rachini' of https://github.com/pasinduwickramasuriya/software-management- into Rachini
+[33m108fead[m feat(projects): add project and task models, serializers, views, and admin configuration
+[33m04b003b[m feat(tickets): implement ticket creation, approval workflow, and decision minutes
+[33m59af29a[m feat(accounts): setup custom User model, UserTypes, and auth endpoints
+[33m6391512[m feat: implement initial core architecture and database models for accounts, tickets, and projects modules

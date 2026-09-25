@@ -8,8 +8,10 @@ const API = axios.create({
 });
 
 // Automatically attach Token to every request if available
+// (checks both: "Keep me signed in" ticked -> localStorage, unticked -> sessionStorage)
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token =
+    localStorage.getItem('token') || sessionStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Token ${token}`;
   }

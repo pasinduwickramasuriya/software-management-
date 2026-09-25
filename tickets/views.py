@@ -79,23 +79,35 @@ class TicketViewSet(viewsets.ModelViewSet):
         user = request.user
         role = user.type.user_type if user.type else None
 
-        # Only editable in Draft/Rejected by BM, or in Pending Executive by EO
-        is_bm_editable = (
+        # Check role & branch permissions
+        is_admin = user.is_superuser or role == 'Admin'
+        is_bm = (
             role == 'Branch Manager' and
-            ticket.created_by == user and
-            ticket.status in ['draft', 'rejected_by_executive', 'rejected_by_director']
+            (ticket.created_by == user or (user.branch and ticket.branch == user.branch))
         )
-        is_eo_editable = (
+        is_eo = (
             role in ['Executive Officer', 'Branch Executive Officer'] and
-            ticket.status == 'pending_executive' and
             (not user.branch or ticket.branch == user.branch)
         )
 
-        if not (is_bm_editable or is_eo_editable or user.is_superuser):
+        if not (is_admin or is_bm or is_eo):
             return Response(
-                {'detail': 'You cannot edit this ticket in its current status.'},
+                {'detail': 'You do not have permission to edit this ticket.'},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        # Check ticket status
+        if not is_admin:
+            if is_bm and ticket.status not in ['draft', 'rejected_by_executive', 'rejected_by_director']:
+                return Response(
+                    {'detail': f'You cannot edit this ticket in its current status ("{ticket.get_status_display()}"). Only Draft or Rejected tickets can be edited.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            if is_eo and ticket.status != 'pending_executive':
+                return Response(
+                    {'detail': f'You cannot edit this ticket in its current status ("{ticket.get_status_display()}"). Only tickets pending executive review can be edited.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
         return super().update(request, *args, **kwargs)
 
@@ -104,10 +116,18 @@ class TicketViewSet(viewsets.ModelViewSet):
         """Branch Manager sends Draft or Rejected ticket for Executive review."""
         ticket = self.get_object()
         user = request.user
+        role = user.type.user_type if user.type else None
 
-        if ticket.created_by != user and not user.is_superuser:
+        is_authorized = (
+            ticket.created_by == user or
+            (role == 'Branch Manager' and user.branch and ticket.branch == user.branch) or
+            user.is_superuser or
+            role == 'Admin'
+        )
+
+        if not is_authorized:
             return Response(
-                {'detail': 'Only the creator can send this ticket.'},
+                {'detail': 'Only the branch manager or ticket creator can send this ticket.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -128,10 +148,18 @@ class TicketViewSet(viewsets.ModelViewSet):
         """Branch Manager closes a rejected or draft ticket."""
         ticket = self.get_object()
         user = request.user
+        role = user.type.user_type if user.type else None
 
-        if ticket.created_by != user and not user.is_superuser:
+        is_authorized = (
+            ticket.created_by == user or
+            (role == 'Branch Manager' and user.branch and ticket.branch == user.branch) or
+            user.is_superuser or
+            role == 'Admin'
+        )
+
+        if not is_authorized:
             return Response(
-                {'detail': 'Only the creator can close this ticket.'},
+                {'detail': 'Only the branch manager or ticket creator can close this ticket.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../services/api';
-import { Eye, Edit3, Send, XCircle } from 'lucide-react';
+import { Eye, Edit3, Send, XCircle, LayoutDashboard } from 'lucide-react';
 
 export default function DashboardPage({ setActivePage }) {
   const [tickets, setTickets] = useState([]);
@@ -77,6 +77,22 @@ export default function DashboardPage({ setActivePage }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Header Banner */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LayoutDashboard size={24} color="#2563EB" />
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
+              Branch Manager Dashboard
+            </h1>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+              Create, track, and manage your branch's software request tickets.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Stats — click a card to filter the table below; click again to clear */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
@@ -91,7 +107,7 @@ export default function DashboardPage({ setActivePage }) {
               aria-pressed={isActive}
               style={{
                 ...newStatCardStyle,
-                borderLeft: `4px solid ${accent}`,
+                border: `1px solid ${accent}`,
                 backgroundColor: isActive ? tint : '#ffffff',
                 boxShadow: isActive ? `0 0 0 2px ${accent}33` : 'none',
                 cursor: 'pointer',

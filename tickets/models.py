@@ -1,5 +1,19 @@
 from django.db import models
 from accounts.models import Branch, User
+import bleach
+
+
+ALLOWED_TAGS = [
+    'p', 'br', 'strong', 'em', 'u', 's',
+    'h1', 'h2', 'h3',
+    'ul', 'ol', 'li',
+    'a',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+]
+
+ALLOWED_ATTRS = {
+    'a': ['href', 'target', 'rel'],
+}
 
 
 class Ticket(models.Model):
@@ -22,6 +36,15 @@ class Ticket(models.Model):
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="draft")
     created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.requirements = bleach.clean(
+            self.requirements,
+            tags=ALLOWED_TAGS,
+            attributes=ALLOWED_ATTRS,
+            strip=True,
+        )
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.project_name} ({self.status})"
