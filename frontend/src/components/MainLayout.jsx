@@ -1,5 +1,5 @@
 import React, { useRef, useLayoutEffect, useEffect, useState } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ProfileMenu from './ProfileMenu';
 import { useAuth } from '../context/AuthContext';
@@ -170,7 +170,7 @@ const ROLE_CONFIG = {
 };
 
 export default function MainLayout() {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -187,9 +187,15 @@ export default function MainLayout() {
   });
 
   const [isReady, setIsReady] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navRef = useRef(null);
   const buttonRefs = useRef({});
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   /*
    * Find the current page from the URL.
@@ -279,65 +285,42 @@ export default function MainLayout() {
       }}
     >
       {/* Header */}
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '14px 32px',
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid #e2e8f0',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1000,
-        }}
-      >
+      <header className="app-header">
         {/* Logo / Brand */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
+            cursor: 'pointer',
           }}
+          onClick={() => navigate(`${config.basePath}/${config.default}`)}
         >
           <div
             style={{
-              width: '38px',
-              height: '38px',
+              width: '36px',
+              height: '36px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flexShrink: 0,
             }}
           >
             <img
               src="/emblem.svg"
               alt="Sri Lanka Emblem"
-              style={{ width: '130%', height: '130%', objectFit: 'contain' }}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
           </div>
 
           <div style={{ lineHeight: 1.2 }}>
-
-            <div
-              style={{
-                fontSize: '1.4rem',
-                color: '#2563eb',
-                fontWeight: 700,
-              }}
-            >
-              Software Management System
-            </div>
+            <span className="brand-title">Software Management System</span>
+            <span className="brand-title-short">SMS</span>
           </div>
         </div>
 
         {/* Navigation + Profile */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '20px',
-          }}
-        >
+        <div className="desktop-nav-container">
           <nav ref={navRef} className="nav-pill-group">
             {/* Smooth sliding active indicator */}
             <div
@@ -352,7 +335,6 @@ export default function MainLayout() {
             />
 
             {config.items.map((item) => {
-              // External link - Django Admin
               if (item.external) {
                 return (
                   <a
@@ -393,29 +375,105 @@ export default function MainLayout() {
           </nav>
 
           <ProfileMenu />
+
+          {/* Mobile hamburger menu toggle */}
+          <button
+            type="button"
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </header>
 
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className={`mobile-nav-backdrop ${mobileMenuOpen ? 'open' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
+      {/* Mobile Drawer Menu */}
+      <aside className={`mobile-nav-drawer ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-drawer-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src="/emblem.svg" alt="Emblem" style={{ width: '28px', height: '28px' }} />
+            <span style={{ fontWeight: 700, color: '#2563eb', fontSize: '1.05rem' }}>Navigation</span>
+          </div>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            style={{ background: 'none', border: 'none', padding: '6px', cursor: 'pointer', color: '#64748b' }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav className="mobile-nav-links">
+          {config.items.map((item) => {
+            if (item.external) {
+              return (
+                <a
+                  key={item.key}
+                  href={item.external}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mobile-nav-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span>{item.label}</span>
+                  <ExternalLink size={14} color="#64748b" />
+                </a>
+              );
+            }
+
+            const isActive = activePage === item.key;
+
+            return (
+              <button
+                key={item.key}
+                onClick={() => {
+                  navigate(`${config.basePath}/${item.path}`);
+                  setMobileMenuOpen(false);
+                }}
+                className={`mobile-nav-item ${isActive ? 'active' : ''}`}
+              >
+                <span>{item.label}</span>
+                {isActive && (
+                  <span
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      backgroundColor: '#2563eb',
+                    }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="mobile-drawer-footer">
+          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>Signed in as</div>
+          <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>{user?.username}</div>
+          <div style={{ fontSize: '0.78rem', color: '#2563eb', textTransform: 'capitalize', marginTop: '2px' }}>
+            {role?.replace(/_/g, ' ')}
+          </div>
+        </div>
+      </aside>
+
       {/* Main Content */}
-      <main
-        style={{
-          padding: '32px',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-          }}
-        >
+      <main className="app-main">
+        <div className="app-content-container">
           <ActiveComponent
-            setActivePage={(pageKey) => {
+            setActivePage={(pageKey, filter) => {
               const item = config.items.find(
                 (item) => item.key === pageKey
               );
 
               if (item && !item.external) {
-                navigate(`${config.basePath}/${item.path}`);
+                navigate(`${config.basePath}/${item.path}`, { state: { filter } });
               }
             }}
           />
@@ -424,3 +482,4 @@ export default function MainLayout() {
     </div>
   );
 }
+

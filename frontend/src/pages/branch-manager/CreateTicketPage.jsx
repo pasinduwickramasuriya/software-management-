@@ -72,20 +72,20 @@ export default function CreateTicketPage({ setActivePage }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
       {/* Header Banner — matches Dashboard page style */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <FilePlus2 size={24} color="#2563EB" />
+          <div style={{ width: '48px', height: '48px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <FilePlus2 size={22} color="#2563EB" />
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>Create New Proposal Ticket</h1>
-            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>Fill out project details to initiate executive review workflow</p>
+            <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)', fontWeight: 700, color: '#0f172a' }}>Create New Proposal Ticket</h1>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.88rem' }}>Fill out project details to initiate executive review workflow</p>
           </div>
         </div>
       </div>
 
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: 'clamp(16px, 3.5vw, 32px)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
             <label style={labelStyle}>Project Name <span style={{ color: '#dc2626' }}>*</span></label>
             <input
@@ -115,10 +115,10 @@ export default function CreateTicketPage({ setActivePage }) {
               onDrop={handleDrop}
             >
               <UploadCloud size={24} color="#3b82f6" style={{ marginBottom: '8px' }} />
-              <p style={{ margin: 0, color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem' }}>
+              <p style={{ margin: 0, color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem', textAlign: 'center' }}>
                 Click to upload <span style={{ color: '#64748b', fontWeight: 400 }}>or drag and drop proposal files</span>
               </p>
-              <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '0.75rem' }}>PDF, DOCX, XLSX up to 10MB</p>
+              <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '0.75rem', textAlign: 'center' }}>PDF, DOCX, XLSX up to 10MB</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -133,7 +133,7 @@ export default function CreateTicketPage({ setActivePage }) {
               <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {selectedFiles.map((file, i) => (
                   <div key={i} style={fileRowStyle}>
-                    <span style={{ fontSize: '0.85rem', color: '#334155' }}>{file.name}</span>
+                    <span style={{ fontSize: '0.85rem', color: '#334155', wordBreak: 'break-all' }}>{file.name}</span>
                     <button type="button" onClick={() => removeFile(i)} style={removeFileBtnStyle}>Remove</button>
                   </div>
                 ))}
@@ -141,7 +141,7 @@ export default function CreateTicketPage({ setActivePage }) {
             )}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '16px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: '12px', marginTop: '12px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
             <button type="button" onClick={() => setActivePage('dashboard')} style={actionBtnNeutral}>Cancel</button>
             <button type="button" onClick={() => handleCreateTicket(false)} disabled={submitting || !projectName || isRequirementsEmpty} style={{ ...actionBtnOutline, color: '#2563eb', borderColor: '#2563eb' }}>
               Save as Draft
@@ -158,8 +158,8 @@ export default function CreateTicketPage({ setActivePage }) {
 
 // STYLES
 const labelStyle = { display: 'block', fontSize: '0.9rem', fontWeight: 600, color: '#1e293b', marginBottom: '8px' };
-const inputStyle = { width: '100%', padding: '14px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem', boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a', backgroundColor: '#f8fafc', transition: 'border-color 0.2s', outline: 'none' };
-const dropzoneStyle = { border: '2px dashed #bfdbfe', backgroundColor: '#f0f9ff', borderRadius: '12px', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background-color 0.2s' };
+const inputStyle = { width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem', boxSizing: 'border-box', fontFamily: 'inherit', color: '#0f172a', backgroundColor: '#f8fafc', transition: 'border-color 0.2s', outline: 'none' };
+const dropzoneStyle = { border: '2px dashed #bfdbfe', backgroundColor: '#f0f9ff', borderRadius: '12px', padding: 'clamp(20px, 4vw, 36px) 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background-color 0.2s' };
 
 const actionBtnBlue = { backgroundColor: '#2563eb', color: '#ffffff', border: '1px solid #2563eb', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' };
 const actionBtnOutline = { backgroundColor: '#ffffff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' };

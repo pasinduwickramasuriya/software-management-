@@ -173,16 +173,16 @@ export default function ViewTicketsPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Ticket size={24} color="#2563EB" />
+          <div style={{ width: '48px', height: '48px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Ticket size={22} color="#2563EB" />
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)', fontWeight: 700, color: '#0f172a' }}>
               All Branch Tickets
             </h1>
-            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.88rem' }}>
               View, track, and manage all ticket proposals raised by your branch
             </p>
           </div>
@@ -194,47 +194,49 @@ export default function ViewTicketsPage() {
       <div>
         {/* Tabs & Search */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
-          <div style={pillTabsContainerStyle}>
-            {/* Sliding indicator */}
-            <div
-              style={{
-                ...slidingIndicatorStyle,
-                left: `${indicatorStyle.left}px`,
-                width: `${indicatorStyle.width}px`,
-              }}
-            />
-            {TABS.map(tab => {
-              let count = 0;
-              if (tab === 'All') count = totalCount;
-              if (tab === 'Drafts') count = draftCount;
-              if (tab === 'Pending Review') count = pendingCount;
-              if (tab === 'Approved') count = approvedCount;
-              if (tab === 'Completed') count = completedCount;
-              if (tab === 'Closed/Rejected') count = closedCount;
+          <div className="tabs-scroll-container" style={{ maxWidth: '100%', paddingBottom: '4px' }}>
+            <div style={pillTabsContainerStyle}>
+              {/* Sliding indicator */}
+              <div
+                style={{
+                  ...slidingIndicatorStyle,
+                  left: `${indicatorStyle.left}px`,
+                  width: `${indicatorStyle.width}px`,
+                }}
+              />
+              {TABS.map(tab => {
+                let count = 0;
+                if (tab === 'All') count = totalCount;
+                if (tab === 'Drafts') count = draftCount;
+                if (tab === 'Pending Review') count = pendingCount;
+                if (tab === 'Approved') count = approvedCount;
+                if (tab === 'Completed') count = completedCount;
+                if (tab === 'Closed/Rejected') count = closedCount;
 
-              const isActive = activeTab === tab;
+                const isActive = activeTab === tab;
 
-              return (
-                <button
-                  key={tab}
-                  ref={(el) => (tabRefs.current[tab] = el)}
-                  onClick={() => setActiveTab(tab)}
-                  style={isActive ? pillTabActiveStyle : pillTabStyle}
-                >
-                  {tab}
-                  <span style={isActive ? pillBadgeActiveStyle : pillBadgeStyle}>{count}</span>
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={tab}
+                    ref={(el) => (tabRefs.current[tab] = el)}
+                    onClick={() => setActiveTab(tab)}
+                    style={isActive ? pillTabActiveStyle : pillTabStyle}
+                  >
+                    {tab}
+                    <span style={isActive ? pillBadgeActiveStyle : pillBadgeStyle}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', flex: '1 1 200px', maxWidth: '280px' }}>
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
               placeholder="Search by ID or title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ ...inputStyle, paddingLeft: '36px', width: '250px', borderRadius: '20px', padding: '8px 12px 8px 36px' }}
+              style={{ ...inputStyle, paddingLeft: '36px', width: '100%', borderRadius: '20px', padding: '8px 12px 8px 36px' }}
             />
           </div>
         </div>
@@ -245,8 +247,8 @@ export default function ViewTicketsPage() {
         {loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading tickets...</div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                   <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Ticket ID</th>
@@ -572,8 +574,8 @@ const actionBtnOutline = { backgroundColor: '#ffffff', color: '#3b82f6', border:
 const actionBtnDangerOutline = { backgroundColor: '#ffffff', color: '#dc2626', border: '1px solid #fecaca', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
 const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
 
-const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
-const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '550px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' };
+const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 1000, overflowY: 'auto' };
+const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '560px', maxHeight: 'calc(100vh - 32px)', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', padding: 'clamp(16px, 3vw, 24px)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', boxSizing: 'border-box' };
 const stickyModalHeaderStyle = {
   position: 'sticky',
   top: 0,

@@ -133,8 +133,8 @@ export default function AdminTicketsPage() {
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', flex: '1 1 300px', justifyContent: 'flex-end' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '1 1 200px', minWidth: '180px' }}>
               <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px' }} />
               <input
                 type="text"
@@ -143,7 +143,6 @@ export default function AdminTicketsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   ...inputStyleFull,
-                  width: '240px',
                   paddingLeft: '36px',
                   paddingTop: '8px',
                   paddingBottom: '8px',
@@ -212,8 +211,8 @@ export default function AdminTicketsPage() {
         ) : filteredTickets.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No tickets match the selected filters.</div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                   <th style={thStyle}>Ticket ID</th>
@@ -516,12 +515,15 @@ const modalOverlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(15, 23, 42, 0.4)',
+  backgroundColor: 'rgba(15, 23, 42, 0.45)',
   backdropFilter: 'blur(4px)',
+  WebkitBackdropFilter: 'blur(4px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: '16px',
   zIndex: 1000,
+  overflowY: 'auto',
 };
 
 const modalContentStyle = {
@@ -529,9 +531,12 @@ const modalContentStyle = {
   borderRadius: '16px',
   width: '100%',
   maxWidth: '580px',
-  maxHeight: '90vh',
+  maxHeight: 'calc(100vh - 32px)',
+  maxHeight: 'calc(100dvh - 32px)',
   overflowY: 'auto',
+  padding: 'clamp(16px, 3vw, 24px)',
   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+  boxSizing: 'border-box',
 };
 
 const stickyModalHeaderStyle = {

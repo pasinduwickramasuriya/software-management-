@@ -33,12 +33,12 @@
 .nav-pill-btn {
   position: relative;
   z-index: 2;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border-radius: 16px;
   border: none;
   background: transparent;
   color: #64748b;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -75,11 +75,11 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 16px;
   text-decoration: none;
   color: #64748b;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   white-space: nowrap;
   transition:
@@ -110,4 +110,196 @@
 
 .nav-pill-external:hover .external-icon {
   transform: translate(1px, -1px);
+}
+
+/* Responsive Header Layout */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 28px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: padding 0.2s ease;
+}
+
+.brand-title {
+  font-size: 1.3rem;
+  color: #2563eb;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.brand-title-short {
+  display: none;
+  font-size: 1.25rem;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.desktop-nav-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: #334155;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu-toggle:hover {
+  background-color: #f1f5f9;
+}
+
+/* Mobile Navigation Drawer */
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1200;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.mobile-nav-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-nav-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(85vw, 320px);
+  background-color: #ffffff;
+  z-index: 1201;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+.mobile-nav-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-drawer-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  gap: 4px;
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: #334155;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.18s, color 0.18s;
+  width: 100%;
+}
+
+.mobile-nav-item:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.mobile-nav-item.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.mobile-drawer-footer {
+  margin-top: auto;
+  padding: 20px 16px;
+  border-top: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+/* App Main Container */
+.app-main {
+  padding: 28px 24px;
+  min-height: calc(100vh - 65px);
+  box-sizing: border-box;
+}
+
+.app-content-container {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 960px) {
+  .app-header {
+    padding: 12px 16px;
+  }
+
+  .desktop-nav-container .nav-pill-group {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    padding: 10px 12px;
+  }
+
+  .brand-title {
+    display: none;
+  }
+
+  .brand-title-short {
+    display: block;
+  }
+
+  .app-main {
+    padding: 14px 10px;
+  }
+}
+
+@media (max-width: 520px) {
+  .profile-menu-details {
+    display: none !important;
+  }
 }
