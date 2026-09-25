@@ -269,16 +269,16 @@ export default function ITMainDeveloperDashboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ width: '48px', height: '48px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Layers size={22} color="#2563EB" />
+          <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Layers size={24} color="#2563EB" />
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)', fontWeight: 700, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
               Project & Task Management
             </h1>
-            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.88rem' }}>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
               Assign work, track progress, and ship completed projects.
             </p>
           </div>
@@ -286,7 +286,7 @@ export default function ITMainDeveloperDashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
         <div
           onClick={() => setStatusFilter('All Projects')}
           style={{ ...statCardStyle, border: '1px solid #3b82f6', cursor: 'pointer' }}
@@ -347,19 +347,18 @@ export default function ITMainDeveloperDashboard() {
         }}
       >
         {/* Status Tabs Group */}
-        <div className="tabs-scroll-container" style={{ maxWidth: '100%', paddingBottom: '4px' }}>
-          <div
-            style={{
-              position: 'relative',
-              display: 'inline-flex',
-              alignItems: 'center',
-              backgroundColor: '#eef2f6',
-              border: '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '4px',
-              gap: '4px',
-            }}
-          >
+        <div
+          style={{
+            position: 'relative',
+            display: 'inline-flex',
+            alignItems: 'center',
+            backgroundColor: '#eef2f6',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '4px',
+            gap: '4px',
+          }}
+        >
           {/* Smooth sliding blue background pill */}
           <div
             style={{
@@ -403,10 +402,9 @@ export default function ITMainDeveloperDashboard() {
             );
           })}
         </div>
-      </div>
 
-      {/* Right Controls: Branch Filter & Search */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        {/* Right Controls: Branch Filter & Search */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Branch Filter Box */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <select
@@ -479,8 +477,7 @@ export default function ITMainDeveloperDashboard() {
             No authorized projects found. Projects will appear here once approved by the IT Director.
           </div>
         ) : (
-          <div className="table-responsive-wrapper">
-            <table style={{ width: '100%', minWidth: '850px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8fafc', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>
                 <th style={{ padding: '12px 16px' }}>Project ID</th>
@@ -591,8 +588,7 @@ export default function ITMainDeveloperDashboard() {
               ))}
             </tbody>
           </table>
-        </div>
-      )}
+        )}
 
         {/* Pagination Footer */}
         {!loading && filteredProjects.length > 0 && (
@@ -1009,28 +1005,21 @@ const modalOverlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(15, 23, 42, 0.45)',
-  backdropFilter: 'blur(4px)',
-  WebkitBackdropFilter: 'blur(4px)',
+  backgroundColor: 'rgba(15, 23, 42, 0.5)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '16px',
   zIndex: 1000,
-  overflowY: 'auto',
 };
 
 const modalContentStyle = {
   backgroundColor: '#ffffff',
-  borderRadius: '16px',
+  borderRadius: '12px',
   width: '100%',
-  maxWidth: '560px',
-  maxHeight: 'calc(100vh - 32px)',
-  maxHeight: 'calc(100dvh - 32px)',
+  maxWidth: '550px',
+  maxHeight: '90vh',
   overflowY: 'auto',
-  padding: 'clamp(16px, 3vw, 24px)',
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-  boxSizing: 'border-box',
 };
 
 const stickyModalHeaderStyle = {

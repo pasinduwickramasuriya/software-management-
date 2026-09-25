@@ -284,7 +284,7 @@ export default function AdminUsersPage() {
         {/* Filter Controls Row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '20px' }}>
           {/* Search Box */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '1 1 200px', minWidth: '180px' }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: 1, minWidth: '220px' }}>
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px' }} />
             <input
               type="text"
@@ -301,7 +301,7 @@ export default function AdminUsersPage() {
           </div>
 
           {/* Role Filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '0 1 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Shield size={16} color="#64748b" />
             <select
               value={roleFilter}
@@ -316,7 +316,7 @@ export default function AdminUsersPage() {
           </div>
 
           {/* Branch Filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '0 1 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Building2 size={16} color="#64748b" />
             <select
               value={branchFilter}
@@ -334,7 +334,7 @@ export default function AdminUsersPage() {
 
       {/* Users Table Card */}
       <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>
             User Directory ({filteredUsers.length} accounts)
           </span>
@@ -345,8 +345,8 @@ export default function AdminUsersPage() {
         ) : filteredUsers.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No users match the selected criteria.</div>
         ) : (
-          <div className="table-responsive-wrapper">
-            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                   <th style={thStyle}>ID</th>
@@ -582,7 +582,7 @@ export default function AdminUsersPage() {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: isBranchExemptRole(formData.type_id) ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gridTemplateColumns: isBranchExemptRole(formData.type_id) ? '1fr' : '1fr 1fr',
                     gap: '12px',
                   }}
                 >
@@ -679,7 +679,7 @@ export default function AdminUsersPage() {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: isBranchExemptRole(editUserData.type_id) ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gridTemplateColumns: isBranchExemptRole(editUserData.type_id) ? '1fr' : '1fr 1fr',
                     gap: '12px',
                   }}
                 >
@@ -945,15 +945,12 @@ const modalOverlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(15, 23, 42, 0.45)',
+  backgroundColor: 'rgba(15, 23, 42, 0.4)',
   backdropFilter: 'blur(4px)',
-  WebkitBackdropFilter: 'blur(4px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '16px',
   zIndex: 1000,
-  overflowY: 'auto',
 };
 
 const modalContentStyle = {
@@ -961,12 +958,8 @@ const modalContentStyle = {
   borderRadius: '16px',
   width: '100%',
   maxWidth: '520px',
-  maxHeight: 'calc(100vh - 32px)',
-  maxHeight: 'calc(100dvh - 32px)',
-  overflowY: 'auto',
-  padding: 'clamp(16px, 3vw, 24px)',
+  padding: '24px',
   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-  boxSizing: 'border-box',
 };
 
 const paginationBtnStyle = {

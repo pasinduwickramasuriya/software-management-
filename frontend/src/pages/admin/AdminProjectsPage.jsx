@@ -104,7 +104,7 @@ export default function AdminProjectsPage() {
             </p>
           </div>
 
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '1 1 200px', maxWidth: '320px' }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', minWidth: '240px' }}>
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px' }} />
             <input
               type="text"
@@ -124,7 +124,7 @@ export default function AdminProjectsPage() {
 
       {/* Projects Table Card */}
       <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0' }}>
           <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>
             Active & Completed Projects ({filteredProjects.length})
           </span>
@@ -135,8 +135,8 @@ export default function AdminProjectsPage() {
         ) : filteredProjects.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No projects found.</div>
         ) : (
-          <div className="table-responsive-wrapper">
-            <table style={{ width: '100%', minWidth: '720px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                   <th style={thStyle}>Project ID</th>
