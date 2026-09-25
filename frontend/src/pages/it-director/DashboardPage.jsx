@@ -232,24 +232,24 @@ export default function DashboardPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <ShieldCheck size={24} color="#2563EB" />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '48px', height: '48px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <ShieldCheck size={22} color="#2563EB" />
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)', fontWeight: 700, color: '#0f172a' }}>
+              IT Director Dashboard
+            </h1>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.88rem' }}>
+              Review Executive-approved requests and greenlight projects for development.
+            </p>
+          </div>
         </div>
-        <div>
-        <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
-          IT Director Dashboard
-        </h1>
-        <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-          Review Executive-approved requests and greenlight projects for development.
-         </p>
-        </div>
-        </div>
-        </div>
+      </div>
 
-      {/* Summary Cards — read-only stats; the pill tabs below are the only filter control */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+      {/* Summary Cards — read-only stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
         <div style={{ ...statCardStyle, border: '1px solid #f59e0b' }}>
           <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Action Required</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{actionRequiredCount}</span>
@@ -272,37 +272,39 @@ export default function DashboardPage() {
       </div>
 
       {/* Filters Bar: Sliding Tabs & Search */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '24px' }}>
-        <div style={pillTabsContainerStyle}>
-          {/* Sliding indicator */}
-          <div
-            style={{
-              ...slidingIndicatorStyle,
-              left: `${indicatorStyle.left}px`,
-              width: `${indicatorStyle.width}px`,
-            }}
-          />
-          {TABS.map((tab) => {
-            let count = 0;
-            if (tab === 'All') count = totalCount;
-            if (tab === 'Action Required') count = actionRequiredCount;
-            if (tab === 'Approved / In Dev') count = approvedCount;
-            if (tab === 'Rejected') count = rejectedCount;
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '20px' }}>
+        <div className="tabs-scroll-container" style={{ maxWidth: '100%', paddingBottom: '4px' }}>
+          <div style={pillTabsContainerStyle}>
+            {/* Sliding indicator */}
+            <div
+              style={{
+                ...slidingIndicatorStyle,
+                left: `${indicatorStyle.left}px`,
+                width: `${indicatorStyle.width}px`,
+              }}
+            />
+            {TABS.map((tab) => {
+              let count = 0;
+              if (tab === 'All') count = totalCount;
+              if (tab === 'Action Required') count = actionRequiredCount;
+              if (tab === 'Approved / In Dev') count = approvedCount;
+              if (tab === 'Rejected') count = rejectedCount;
 
-            const isActive = activeTab === tab;
+              const isActive = activeTab === tab;
 
-            return (
-              <button
-                key={tab}
-                ref={(el) => (tabRefs.current[tab] = el)}
-                onClick={() => setActiveTab(tab)}
-                style={isActive ? pillTabActiveStyle : pillTabStyle}
-              >
-                {tab}
-                <span style={isActive ? pillBadgeActiveStyle : pillBadgeStyle}>{count}</span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={tab}
+                  ref={(el) => (tabRefs.current[tab] = el)}
+                  onClick={() => setActiveTab(tab)}
+                  style={isActive ? pillTabActiveStyle : pillTabStyle}
+                >
+                  {tab}
+                  <span style={isActive ? pillBadgeActiveStyle : pillBadgeStyle}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -360,7 +362,8 @@ export default function DashboardPage() {
               : 'No tickets match the selected filter or search.'}
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', minWidth: '850px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8fafc', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>
                 <th style={{ padding: '12px 16px' }}>Ticket ID</th>
@@ -434,7 +437,8 @@ export default function DashboardPage() {
               })}
             </tbody>
           </table>
-        )}
+        </div>
+      )}
 
         {/* Pagination Footer */}
         {!loading && filteredTickets.length > 0 && (
@@ -784,22 +788,28 @@ const modalOverlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(15, 23, 42, 0.5)',
+  backgroundColor: 'rgba(15, 23, 42, 0.45)',
   backdropFilter: 'blur(4px)',
+  WebkitBackdropFilter: 'blur(4px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: '16px',
   zIndex: 1000,
+  overflowY: 'auto',
 };
 
 const modalContentStyle = {
   backgroundColor: '#ffffff',
-  borderRadius: '12px',
+  borderRadius: '16px',
   width: '100%',
-  maxWidth: '550px',
-  maxHeight: '90vh',
+  maxWidth: '560px',
+  maxHeight: 'calc(100vh - 32px)',
+  maxHeight: 'calc(100dvh - 32px)',
   overflowY: 'auto',
+  padding: 'clamp(16px, 3vw, 24px)',
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+  boxSizing: 'border-box',
 };
 
 const stickyModalHeaderStyle = {

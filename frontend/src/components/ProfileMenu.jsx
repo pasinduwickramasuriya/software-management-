@@ -21,7 +21,7 @@ export default function ProfileMenu() {
         <span style={avatarCircleStyle}>
           <User size={16} color="#2563eb" />
         </span>
-        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
+        <span className="profile-menu-details" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>{user?.username}</span>
           <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{branch || role}</span>
         </span>
