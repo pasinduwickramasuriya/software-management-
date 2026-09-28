@@ -730,7 +730,7 @@ const modalContentStyle = {
   maxHeight: 'calc(100vh - 32px)',
   maxHeight: 'calc(100dvh - 32px)',
   overflowY: 'auto',
-  padding: 'clamp(16px, 3vw, 24px)',
+  padding: 0,
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
   boxSizing: 'border-box',
 };
@@ -745,6 +745,8 @@ const stickyModalHeaderStyle = {
   padding: '20px 24px',
   borderBottom: '1px solid #e2e8f0',
   zIndex: 2,
+  borderTopLeftRadius: '16px',
+  borderTopRightRadius: '16px',
 };
 
 const modalBodyStyle = {
