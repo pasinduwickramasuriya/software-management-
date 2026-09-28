@@ -74,7 +74,7 @@ export default function AdminDashboard({ setActivePage }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* 4 Stat Cards in Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '16px' }}>
         <div
           onClick={() => setActivePage('users')}
           style={{ ...newStatCardStyle, cursor: 'pointer' }}
@@ -125,7 +125,7 @@ export default function AdminDashboard({ setActivePage }) {
       </div>
 
       {/* Quick Actions Card */}
-      <div style={{ ...contentCardStyle, padding: '20px 24px' }}>
+      <div style={{ ...contentCardStyle, padding: '20px' }}>
         <h3 style={{ margin: '0 0 16px', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
           Administrator Quick Operations
         </h3>
@@ -173,7 +173,7 @@ export default function AdminDashboard({ setActivePage }) {
       </div>
 
       {/* Dual Section: Recent Tickets & Recent Users */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '20px' }}>
         
         {/* Recent Tickets Table */}
         <div style={contentCardStyle}>
