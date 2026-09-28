@@ -99,7 +99,7 @@ export default function AdminProjectsPage() {
             <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Layers size={24} color="#16a34a" /> Approved Development Projects
             </h2>
-            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.875rem' }}>
               Overview of authorized IT development projects and team progress.
             </p>
           </div>
@@ -136,7 +136,7 @@ export default function AdminProjectsPage() {
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No projects found.</div>
         ) : (
           <div className="table-responsive-wrapper">
-            <table style={{ width: '100%', minWidth: '720px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <table style={{ width: '100%', minWidth: '720px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                   <th style={thStyle}>Project ID</th>
@@ -159,13 +159,13 @@ export default function AdminProjectsPage() {
                       {p.assigned_developers && p.assigned_developers.length > 0 ? (
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                           {p.assigned_developers.map((d, i) => (
-                            <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem' }}>
+                            <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '0.875rem' }}>
                               <User size={10} /> {d.username || d}
                             </span>
                           ))}
                         </div>
                       ) : (
-                        <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Unassigned</span>
+                        <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>Unassigned</span>
                       )}
                     </td>
                     <td style={{ padding: '16px 24px', color: '#64748b' }}>
@@ -192,7 +192,7 @@ export default function AdminProjectsPage() {
                   borderTop: '1px solid #f1f5f9',
                 }}
               >
-                <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                <span style={{ color: '#64748b', fontSize: '0.875rem' }}>
                   Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
                   <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
                   <strong style={{ color: '#0f172a' }}>{filteredProjects.length}</strong> projects
@@ -215,7 +215,7 @@ export default function AdminProjectsPage() {
                     {getPageNumbers().map((page, idx) => {
                       if (page === '...') {
                         return (
-                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.875rem' }}>
                             ...
                           </span>
                         );
@@ -265,7 +265,7 @@ const thStyle = {
   padding: '16px 24px',
   fontWeight: 600,
   textTransform: 'uppercase',
-  fontSize: '0.75rem',
+  fontSize: '0.875rem',
   letterSpacing: '0.05em',
 };
 
@@ -275,7 +275,7 @@ const badgeStyle = {
   gap: '4px',
   padding: '4px 10px',
   borderRadius: '20px',
-  fontSize: '0.75rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   lineHeight: 1.5,
 };
@@ -300,7 +300,7 @@ const paginationBtnStyle = {
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
   color: '#334155',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   transition: 'all 0.15s ease',
 };
@@ -311,7 +311,7 @@ const paginationPageNumStyle = {
   padding: '0 6px',
   borderRadius: '6px',
   border: '1px solid #e2e8f0',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',

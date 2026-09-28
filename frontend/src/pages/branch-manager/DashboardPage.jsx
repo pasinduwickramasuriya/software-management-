@@ -134,14 +134,14 @@ export default function DashboardPage({ setActivePage }) {
             {activeFilter && (
               <button
                 onClick={() => setActiveFilter(null)}
-                style={{ background: 'none', border: 'none', color: '#94a3b8', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem' }}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', fontWeight: 600, cursor: 'pointer', fontSize: '0.875rem' }}
               >
                 Clear filter ✕
               </button>
             )}
             <button
               onClick={goToView}
-              style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}
+              style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '0.875rem' }}
             >
               View All →
             </button>
@@ -152,14 +152,14 @@ export default function DashboardPage({ setActivePage }) {
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading tickets...</div>
         ) : (
           <div className="table-responsive-wrapper">
-            <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Ticket ID</th>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Project Name</th>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Created At</th>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Status</th>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', textAlign: 'right' }}>Actions</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Ticket ID</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Project Name</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Created At</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Status</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -203,7 +203,7 @@ const newStatCardStyle = {
   gap: '8px',
   transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
 };
-const statLabelStyle = { color: '#64748b', fontSize: '0.85rem', fontWeight: 500 };
+const statLabelStyle = { color: '#64748b', fontSize: '0.875rem', fontWeight: 500 };
 const statValueStyle = { fontSize: '2rem', fontWeight: 700, lineHeight: 1 };
-const badgeStyle = { display: 'inline-block', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, lineHeight: 1.5 };
-const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
+const badgeStyle = { display: 'inline-block', padding: '4px 12px', borderRadius: '20px', fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.5 };
+const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.875rem', cursor: 'pointer' };

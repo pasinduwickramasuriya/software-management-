@@ -118,7 +118,7 @@ export default function CreateTicketPage({ setActivePage }) {
               <p style={{ margin: 0, color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem', textAlign: 'center' }}>
                 Click to upload <span style={{ color: '#64748b', fontWeight: 400 }}>or drag and drop proposal files</span>
               </p>
-              <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '0.75rem', textAlign: 'center' }}>PDF, DOCX, XLSX up to 10MB</p>
+              <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '0.875rem', textAlign: 'center' }}>PDF, DOCX, XLSX up to 10MB</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -133,7 +133,7 @@ export default function CreateTicketPage({ setActivePage }) {
               <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {selectedFiles.map((file, i) => (
                   <div key={i} style={fileRowStyle}>
-                    <span style={{ fontSize: '0.85rem', color: '#334155', wordBreak: 'break-all' }}>{file.name}</span>
+                    <span style={{ fontSize: '0.875rem', color: '#334155', wordBreak: 'break-all' }}>{file.name}</span>
                     <button type="button" onClick={() => removeFile(i)} style={removeFileBtnStyle}>Remove</button>
                   </div>
                 ))}
@@ -165,4 +165,4 @@ const actionBtnBlue = { backgroundColor: '#2563eb', color: '#ffffff', border: '1
 const actionBtnOutline = { backgroundColor: '#ffffff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' };
 const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' };
 const fileRowStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px' };
-const removeFileBtnStyle = { background: 'none', border: 'none', color: '#dc2626', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' };
+const removeFileBtnStyle = { background: 'none', border: 'none', color: '#dc2626', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' };

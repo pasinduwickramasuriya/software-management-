@@ -216,7 +216,7 @@ const styles = {
     lineHeight: 1.2,
   },
   brandSubtitle: {
-    fontSize: 'clamp(0.78rem, 1.5vw, 0.875rem)',
+    fontSize: '0.875rem',
     fontWeight: 500,
     color: '#0b57d0',
     letterSpacing: '0.2px',
@@ -225,7 +225,7 @@ const styles = {
     marginTop: 'clamp(24px, 4vw, 48px)',
   },
   headline: {
-    fontSize: 'clamp(1.35rem, 2.8vw, 2.2rem)',
+    fontSize: 'clamp(1.35rem, 2.8vw, 2rem)',
     fontWeight: 500,
     color: '#1f1f1f',
     lineHeight: 1.28,
@@ -233,7 +233,7 @@ const styles = {
     letterSpacing: '-0.4px',
   },
   subheadline: {
-    fontSize: 'clamp(0.85rem, 1.4vw, 1rem)',
+    fontSize: 'clamp(0.875rem, 1.4vw, 1rem)',
     color: '#5f6368',
     lineHeight: 1.6,
     margin: 0,
@@ -272,7 +272,7 @@ const styles = {
     color: '#c5221f',
     padding: '12px 16px',
     borderRadius: '12px',
-    fontSize: '0.85rem',
+    fontSize: '0.875rem',
     marginBottom: '20px',
     border: 'none',
   },
@@ -287,7 +287,7 @@ const styles = {
     gap: '8px',
   },
   label: {
-    fontSize: '0.85rem',
+    fontSize: '0.875rem',
     fontWeight: 500,
     color: '#444746',
     display: 'flex',
@@ -330,7 +330,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    fontSize: '0.85rem',
+    fontSize: '0.875rem',
     color: '#5f6368',
     cursor: 'pointer',
   },
@@ -367,7 +367,7 @@ const styles = {
     justifyContent: 'center',
   },
   footerNote: {
-    fontSize: '0.75rem',
+    fontSize: '0.875rem',
     color: '#8e918f',
     textAlign: 'center',
     margin: '28px 0 0 0',

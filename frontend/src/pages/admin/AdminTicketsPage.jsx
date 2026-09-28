@@ -128,7 +128,7 @@ export default function AdminTicketsPage() {
             <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <FileText size={24} color="#4338ca" /> Complete System Tickets Audit
             </h2>
-            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.875rem' }}>
               Global audit trail of all software request tickets across every department and branch.
             </p>
           </div>
@@ -212,7 +212,7 @@ export default function AdminTicketsPage() {
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No tickets match the selected filters.</div>
         ) : (
           <div className="table-responsive-wrapper">
-            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                   <th style={thStyle}>Ticket ID</th>
@@ -262,7 +262,7 @@ export default function AdminTicketsPage() {
                   borderTop: '1px solid #f1f5f9',
                 }}
               >
-                <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                <span style={{ color: '#64748b', fontSize: '0.875rem' }}>
                   Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
                   <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
                   <strong style={{ color: '#0f172a' }}>{filteredTickets.length}</strong> tickets
@@ -285,7 +285,7 @@ export default function AdminTicketsPage() {
                     {getPageNumbers().map((page, idx) => {
                       if (page === '...') {
                         return (
-                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.875rem' }}>
                             ...
                           </span>
                         );
@@ -411,7 +411,7 @@ export default function AdminTicketsPage() {
                           borderRadius: '6px',
                           border: '1px solid #e2e8f0',
                           backgroundColor: app.decision === 'approved' ? '#f0fdf4' : '#fef2f2',
-                          fontSize: '0.82rem',
+                          fontSize: '0.875rem',
                         }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, color: '#1e293b' }}>
@@ -445,7 +445,7 @@ const thStyle = {
   padding: '16px 24px',
   fontWeight: 600,
   textTransform: 'uppercase',
-  fontSize: '0.75rem',
+  fontSize: '0.875rem',
   letterSpacing: '0.05em',
 };
 
@@ -456,7 +456,7 @@ const branchBadgeStyle = {
   backgroundColor: '#f1f5f9',
   padding: '2px 8px',
   borderRadius: '12px',
-  fontSize: '0.75rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
 };
 
@@ -464,7 +464,7 @@ const badgeStyle = {
   display: 'inline-block',
   padding: '4px 12px',
   borderRadius: '20px',
-  fontSize: '0.75rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   lineHeight: 1.5,
 };
@@ -484,7 +484,7 @@ const actionBtnNeutral = {
   padding: '6px 16px',
   borderRadius: '6px',
   fontWeight: 500,
-  fontSize: '0.8rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };
 
@@ -493,7 +493,7 @@ const selectStyle = {
   borderRadius: '8px',
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   color: '#334155',
   outline: 'none',
 };
@@ -560,7 +560,7 @@ const paginationBtnStyle = {
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
   color: '#334155',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   transition: 'all 0.15s ease',
 };
@@ -571,7 +571,7 @@ const paginationPageNumStyle = {
   padding: '0 6px',
   borderRadius: '6px',
   border: '1px solid #e2e8f0',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',

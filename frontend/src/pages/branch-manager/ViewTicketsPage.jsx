@@ -248,14 +248,14 @@ export default function ViewTicketsPage() {
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading tickets...</div>
         ) : (
           <div className="table-responsive-wrapper">
-            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Ticket ID</th>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Project Name</th>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Created At</th>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>Status</th>
-                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', textAlign: 'center' }}>Actions</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Ticket ID</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Project Name</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Created At</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Status</th>
+                  <th style={{ padding: '16px 24px', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em', textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -314,7 +314,7 @@ export default function ViewTicketsPage() {
                   gap: '12px',
                 }}
               >
-                <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                <span style={{ color: '#64748b', fontSize: '0.875rem' }}>
                   Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
                   <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
                   <strong style={{ color: '#0f172a' }}>{filteredTickets.length}</strong> tickets
@@ -337,7 +337,7 @@ export default function ViewTicketsPage() {
                     {getPageNumbers().map((page, idx) => {
                       if (page === '...') {
                         return (
-                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.875rem' }}>
                             ...
                           </span>
                         );
@@ -469,14 +469,14 @@ export default function ViewTicketsPage() {
                             borderRadius: '8px',
                             backgroundColor: app.decision === 'rejected' ? '#fff1f2' : '#f0fdf4',
                             border: `1px solid ${app.decision === 'rejected' ? '#fecdd3' : '#bbf7d0'}`,
-                            fontSize: '0.85rem',
+                            fontSize: '0.875rem',
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                             <span style={{ fontWeight: 600, color: app.decision === 'rejected' ? '#be123c' : '#166534' }}>
                               {app.decision_as} ({app.reviewer_name || 'Reviewer'}): {app.decision === 'rejected' ? 'Rejected' : 'Approved'}
                             </span>
-                            <span style={{ color: '#94a3b8', fontSize: '0.78rem' }}>
+                            <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
                               {new Date(app.decision_at).toISOString().split('T')[0]}
                             </span>
                           </div>
@@ -533,7 +533,7 @@ const pillTabStyle = {
   border: 'none',
   padding: '8px 16px',
   borderRadius: '16px',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   color: '#64748b',
   cursor: 'pointer',
@@ -550,7 +550,7 @@ const pillTabActiveStyle = {
 const pillBadgeStyle = {
   backgroundColor: '#e2e8f0',
   color: '#475569',
-  fontSize: '0.72rem',
+  fontSize: '0.875rem',
   fontWeight: 700,
   padding: '2px 8px',
   borderRadius: '999px',
@@ -564,15 +564,15 @@ const pillBadgeActiveStyle = {
   color: '#1d4ed8',
 };
 
-const badgeStyle = { display: 'inline-block', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, lineHeight: 1.5 };
+const badgeStyle = { display: 'inline-block', padding: '4px 12px', borderRadius: '20px', fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.5 };
 const inputStyle = { border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box', outline: 'none' };
 const inputStyleFull = { width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' };
-const labelStyle = { display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '6px' };
+const labelStyle = { display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#1e293b', marginBottom: '6px' };
 
-const actionBtnBlue = { backgroundColor: '#2563eb', color: '#ffffff', border: '1px solid #2563eb', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
-const actionBtnOutline = { backgroundColor: '#ffffff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
-const actionBtnDangerOutline = { backgroundColor: '#ffffff', color: '#dc2626', border: '1px solid #fecaca', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
-const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.8rem', cursor: 'pointer' };
+const actionBtnBlue = { backgroundColor: '#2563eb', color: '#ffffff', border: '1px solid #2563eb', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.875rem', cursor: 'pointer' };
+const actionBtnOutline = { backgroundColor: '#ffffff', color: '#3b82f6', border: '1px solid #bfdbfe', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.875rem', cursor: 'pointer' };
+const actionBtnDangerOutline = { backgroundColor: '#ffffff', color: '#dc2626', border: '1px solid #fecaca', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.875rem', cursor: 'pointer' };
+const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.875rem', cursor: 'pointer' };
 
 const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 1000, overflowY: 'auto' };
 const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '560px', maxHeight: 'calc(100vh - 32px)', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', padding: 'clamp(16px, 3vw, 24px)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', boxSizing: 'border-box' };
@@ -599,7 +599,7 @@ const paginationBtnStyle = {
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
   color: '#334155',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   transition: 'all 0.15s ease',
 };
@@ -610,7 +610,7 @@ const paginationPageNumStyle = {
   padding: '0 6px',
   borderRadius: '6px',
   border: '1px solid #e2e8f0',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',

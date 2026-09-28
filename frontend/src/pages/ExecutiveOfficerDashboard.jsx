@@ -234,7 +234,7 @@ export default function ExecutiveOfficerDashboard() {
                 font: 'inherit',
               }}
             >
-              <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 500 }}>{label}</span>
+              <span style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 500 }}>{label}</span>
               <span style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: textColor }}>{value}</span>
             </button>
           );
@@ -289,7 +289,7 @@ export default function ExecutiveOfficerDashboard() {
               padding: '8px 12px 8px 36px',
               borderRadius: '20px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.85rem',
+              fontSize: '0.875rem',
               width: '100%',
               outline: 'none',
               boxSizing: 'border-box',
@@ -383,7 +383,7 @@ export default function ExecutiveOfficerDashboard() {
             }}
           >
             {/* Left Info */}
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
               Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
               <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
               <strong style={{ color: '#0f172a' }}>{filteredTickets.length}</strong> tickets
@@ -407,7 +407,7 @@ export default function ExecutiveOfficerDashboard() {
                 {getPageNumbers().map((page, idx) => {
                   if (page === '...') {
                     return (
-                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.875rem' }}>
                         ...
                       </span>
                     );
@@ -611,7 +611,7 @@ export default function ExecutiveOfficerDashboard() {
                               display: 'flex',
                               alignItems: 'center',
                               gap: '4px',
-                              fontSize: '0.78rem',
+                              fontSize: '0.875rem',
                               fontWeight: 600,
                             }}
                           >
@@ -677,7 +677,7 @@ const iconBtnStyle = {
   padding: '6px 12px',
   borderRadius: '6px',
   fontWeight: 500,
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
   display: 'inline-flex',
   alignItems: 'center',
@@ -701,7 +701,7 @@ const badgeStyle = {
   gap: '4px',
   padding: '4px 10px',
   borderRadius: '12px',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
 };
 
@@ -753,7 +753,7 @@ const modalBodyStyle = {
 
 const labelStyle = {
   display: 'block',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   color: '#334155',
   marginBottom: '6px',
@@ -798,7 +798,7 @@ const pillTabStyle = {
   border: 'none',
   padding: '8px 16px',
   borderRadius: '16px',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   color: '#64748b',
   cursor: 'pointer',
@@ -815,7 +815,7 @@ const pillTabActiveStyle = {
 const pillBadgeStyle = {
   backgroundColor: '#e2e8f0',
   color: '#475569',
-  fontSize: '0.72rem',
+  fontSize: '0.875rem',
   fontWeight: 700,
   padding: '2px 8px',
   borderRadius: '999px',
@@ -838,7 +838,7 @@ const paginationBtnStyle = {
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
   color: '#334155',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   transition: 'all 0.15s ease',
 };
@@ -849,7 +849,7 @@ const paginationPageNumStyle = {
   padding: '0 6px',
   borderRadius: '6px',
   border: '1px solid #e2e8f0',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',

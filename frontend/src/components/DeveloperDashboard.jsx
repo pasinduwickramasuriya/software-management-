@@ -123,27 +123,27 @@ export default function DeveloperDashboard() {
       {/* Summary Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
         <div style={{ ...statCardStyle, border: '1px solid #3b82f6' }}>
-          <span style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 600 }}>Total Assigned Tasks</span>
+          <span style={{ color: '#2563eb', fontSize: '0.875rem', fontWeight: 600 }}>Total Assigned Tasks</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0f172a' }}>{tasks.length}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Assigned to your queue</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Assigned to your queue</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #f59e0b' }}>
-          <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Not Started</span>
+          <span style={{ color: '#b45309', fontSize: '0.875rem', fontWeight: 600 }}>Not Started</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{notStartedCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Ready to be picked up</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Ready to be picked up</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #2563eb' }}>
-          <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</span>
+          <span style={{ color: '#1d4ed8', fontSize: '0.875rem', fontWeight: 600 }}>In Progress</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{inProgressCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Currently working on</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Currently working on</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #16a34a' }}>
-          <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Completed</span>
+          <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: 600 }}>Completed</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{completedCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Delivered & tested</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Delivered & tested</span>
         </div>
       </div>
 
@@ -218,7 +218,7 @@ export default function DeveloperDashboard() {
                 paddingLeft: '32px',
                 paddingTop: '6px',
                 paddingBottom: '6px',
-                fontSize: '0.85rem',
+                fontSize: '0.875rem',
               }}
             />
           </div>
@@ -260,7 +260,7 @@ export default function DeveloperDashboard() {
                         color: '#475569',
                         padding: '2px 8px',
                         borderRadius: '6px',
-                        fontSize: '0.75rem',
+                        fontSize: '0.875rem',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px',
@@ -270,7 +270,7 @@ export default function DeveloperDashboard() {
                     </span>
                   </div>
 
-                  <div style={{ fontSize: '0.85rem', color: '#475569' }}>
+                  <div style={{ fontSize: '0.875rem', color: '#475569' }}>
                     Project: <strong style={{ color: '#1e293b' }}>{t.ticket_name}</strong> (Ticket #{t.ticket})
                   </div>
 
@@ -280,7 +280,7 @@ export default function DeveloperDashboard() {
                     </p>
                   )}
 
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                  <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
                     Assigned Date: {new Date(t.created_at).toLocaleDateString()}
                   </span>
                 </div>
@@ -357,7 +357,7 @@ export default function DeveloperDashboard() {
             <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0 }}>Task #{viewingTask.task_id} Details</h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
                   Project: <strong>{viewingTask.ticket_name}</strong>
                 </span>
               </div>
@@ -459,7 +459,7 @@ const iconBtnStyle = {
   padding: '6px 12px',
   borderRadius: '6px',
   fontWeight: 500,
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
   display: 'inline-flex',
   alignItems: 'center',
@@ -470,7 +470,7 @@ const tabBtnStyle = {
   padding: '6px 14px',
   borderRadius: '8px',
   border: '1px solid #cbd5e1',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   cursor: 'pointer',
   transition: 'all 0.2s',
@@ -492,7 +492,7 @@ const badgeStyle = {
   gap: '4px',
   padding: '4px 10px',
   borderRadius: '12px',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
 };
 
@@ -541,7 +541,7 @@ const stickyModalHeaderStyle = {
 
 const labelStyle = {
   display: 'block',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   color: '#334155',
   marginBottom: '6px',

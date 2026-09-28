@@ -10,7 +10,18 @@
   --heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
+  /* Typography System (Min: 0.875rem, Max: 2rem) */
+  --font-min: 0.875rem;    /* 14px (System minimum) */
+  --font-sm: 0.875rem;     /* 14px */
+  --font-base: 1rem;       /* 16px */
+  --font-md: 1.125rem;     /* 18px */
+  --font-lg: 1.25rem;      /* 20px */
+  --font-xl: 1.5rem;       /* 24px */
+  --font-2xl: 1.75rem;     /* 28px */
+  --font-max: 2rem;        /* 32px (System maximum) */
+
   font: 16px/150% var(--sans);
+  font-size: 16px;
   color-scheme: light;
   color: var(--text);
   background: var(--bg);
@@ -30,6 +41,7 @@ html, body {
   min-height: 100%;
   overflow-x: hidden;
   background-color: var(--bg);
+  font-size: 16px;
 }
 
 #root {
@@ -50,8 +62,38 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.25;
 }
 
+h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+h2 {
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+h4 {
+  font-size: 1.125rem;
+}
+
+h5 {
+  font-size: 1rem;
+}
+
+h6 {
+  font-size: 0.875rem;
+}
+
 p {
   margin: 0;
+  font-size: inherit;
+}
+
+/* System minimum font size protections */
+small, .text-xs, .caption, .badge-text {
+  font-size: 0.875rem;
 }
 
 /* Responsive Table Wrapper */

@@ -251,22 +251,22 @@ export default function DashboardPage() {
       {/* Summary Cards — read-only stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
         <div style={{ ...statCardStyle, border: '1px solid #f59e0b' }}>
-          <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Action Required</span>
+          <span style={{ color: '#b45309', fontSize: '0.875rem', fontWeight: 600 }}>Action Required</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{actionRequiredCount}</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #22c55e' }}>
-          <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Approved / In Dev</span>
+          <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: 600 }}>Approved / In Dev</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{approvedCount}</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #ef4444' }}>
-          <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 600 }}>Rejected</span>
+          <span style={{ color: '#dc2626', fontSize: '0.875rem', fontWeight: 600 }}>Rejected</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626' }}>{rejectedCount}</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #3b82f6' }}>
-          <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>All Forwarded</span>
+          <span style={{ color: '#1d4ed8', fontSize: '0.875rem', fontWeight: 600 }}>All Forwarded</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{totalCount}</span>
         </div>
       </div>
@@ -317,7 +317,7 @@ export default function DashboardPage() {
                 padding: '8px 14px',
                 borderRadius: '20px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.85rem',
+                fontSize: '0.875rem',
                 backgroundColor: '#ffffff',
                 color: '#334155',
                 outline: 'none',
@@ -342,7 +342,7 @@ export default function DashboardPage() {
                 padding: '8px 12px 8px 36px',
                 borderRadius: '20px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.85rem',
+                fontSize: '0.875rem',
                 width: '240px',
                 outline: 'none',
               }}
@@ -392,7 +392,7 @@ export default function DashboardPage() {
                           title={review.remark}
                           style={{
                             color: '#64748b',
-                            fontSize: '0.82rem',
+                            fontSize: '0.875rem',
                             fontStyle: 'italic',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
@@ -454,7 +454,7 @@ export default function DashboardPage() {
               backgroundColor: '#ffffff',
             }}
           >
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
               Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
               <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
               <strong style={{ color: '#0f172a' }}>{filteredTickets.length}</strong> tickets
@@ -477,7 +477,7 @@ export default function DashboardPage() {
                 {getPageNumbers().map((page, idx) => {
                   if (page === '...') {
                     return (
-                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.875rem' }}>
                         ...
                       </span>
                     );
@@ -664,7 +664,7 @@ export default function DashboardPage() {
                               display: 'flex',
                               alignItems: 'center',
                               gap: '4px',
-                              fontSize: '0.78rem',
+                              fontSize: '0.875rem',
                               fontWeight: 600,
                             }}
                           >
@@ -731,7 +731,7 @@ const badgeStyle = {
   gap: '4px',
   padding: '4px 10px',
   borderRadius: '12px',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
 };
 
@@ -741,7 +741,7 @@ const branchPillStyle = {
   borderRadius: '6px',
   backgroundColor: '#f1f5f9',
   color: '#475569',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
 };
 
@@ -754,7 +754,7 @@ const iconBtnStyle = {
   border: '1px solid #e2e8f0',
   backgroundColor: '#ffffff',
   color: '#475569',
-  fontSize: '0.8rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   cursor: 'pointer',
   transition: 'all 0.2s',
@@ -826,7 +826,7 @@ const stickyModalHeaderStyle = {
 
 const labelStyle = {
   display: 'block',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   color: '#334155',
   marginBottom: '6px',
@@ -871,7 +871,7 @@ const pillTabStyle = {
   border: 'none',
   padding: '8px 16px',
   borderRadius: '16px',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   color: '#64748b',
   cursor: 'pointer',
@@ -888,7 +888,7 @@ const pillTabActiveStyle = {
 const pillBadgeStyle = {
   backgroundColor: '#e2e8f0',
   color: '#475569',
-  fontSize: '0.72rem',
+  fontSize: '0.875rem',
   fontWeight: 700,
   padding: '2px 8px',
   borderRadius: '999px',
@@ -911,7 +911,7 @@ const paginationBtnStyle = {
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
   color: '#334155',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   transition: 'all 0.15s ease',
 };
@@ -922,7 +922,7 @@ const paginationPageNumStyle = {
   padding: '0 6px',
   borderRadius: '6px',
   border: '1px solid #e2e8f0',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',

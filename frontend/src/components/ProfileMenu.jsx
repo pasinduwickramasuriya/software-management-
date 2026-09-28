@@ -22,8 +22,8 @@ export default function ProfileMenu() {
           <User size={16} color="#2563eb" />
         </span>
         <span className="profile-menu-details" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>{user?.username}</span>
-          <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{branch || role}</span>
+          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1e293b' }}>{user?.username}</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>{branch || role}</span>
         </span>
         <ChevronDown size={16} color="#64748b" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
@@ -32,7 +32,7 @@ export default function ProfileMenu() {
         <div style={dropdownStyle}>
           <div style={dropdownHeaderStyle}>
             <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>{user?.username}</p>
-            <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>{role}</p>
+            <p style={{ margin: '2px 0 0', fontSize: '0.875rem', color: '#94a3b8' }}>{role}</p>
           </div>
           <button
             style={{ ...dropdownItemStyle, color: '#dc2626' }}
@@ -72,6 +72,6 @@ const dropdownHeaderStyle = {
 const dropdownItemStyle = {
   display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
   padding: '10px 16px', border: 'none', background: 'none',
-  color: '#334155', fontSize: '0.85rem', fontWeight: 500,
+  color: '#334155', fontSize: '0.875rem', fontWeight: 500,
   cursor: 'pointer', textAlign: 'left',
 };

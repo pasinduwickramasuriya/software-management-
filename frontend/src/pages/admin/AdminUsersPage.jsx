@@ -270,7 +270,7 @@ export default function AdminUsersPage() {
             <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Users size={24} color="#2563eb" /> System User Management
             </h2>
-            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.875rem' }}>
               Create, configure, update user profiles, change passwords, and manage role permissions for staff members.
             </p>
           </div>
@@ -346,7 +346,7 @@ export default function AdminUsersPage() {
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No users match the selected criteria.</div>
         ) : (
           <div className="table-responsive-wrapper">
-            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                   <th style={thStyle}>ID</th>
@@ -364,7 +364,7 @@ export default function AdminUsersPage() {
                     <td style={{ padding: '16px 24px', fontWeight: 600, color: '#64748b' }}>#{u.id}</td>
                     <td style={{ padding: '16px 24px' }}>
                       <div style={{ fontWeight: 600, color: '#1e293b' }}>{u.username}</div>
-                      <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{u.email}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#64748b' }}>{u.email}</div>
                     </td>
                     <td style={{ padding: '16px 24px' }}>
                       <span style={{
@@ -373,7 +373,7 @@ export default function AdminUsersPage() {
                         color: '#1d4ed8',
                         padding: '3px 10px',
                         borderRadius: '12px',
-                        fontSize: '0.75rem',
+                        fontSize: '0.875rem',
                         fontWeight: 600,
                       }}>
                         {u.user_type || (u.is_superuser ? 'Superuser' : 'No Role')}
@@ -381,11 +381,11 @@ export default function AdminUsersPage() {
                     </td>
                     <td style={{ padding: '16px 24px', color: '#475569' }}>
                       {u.branch_name ? (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '6px', fontSize: '0.78rem' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '6px', fontSize: '0.875rem' }}>
                           <Building2 size={12} /> {u.branch_name}
                         </span>
                       ) : (
-                        <span style={{ color: '#94a3b8', fontSize: '0.78rem' }}>Global / IT Dept</span>
+                        <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>Global / IT Dept</span>
                       )}
                     </td>
                     <td style={{ padding: '16px 24px' }}>
@@ -400,7 +400,7 @@ export default function AdminUsersPage() {
                           gap: '6px',
                           color: u.is_active ? '#16a34a' : '#dc2626',
                           fontWeight: 600,
-                          fontSize: '0.8rem',
+                          fontSize: '0.875rem',
                         }}
                         title="Click to toggle status"
                       >
@@ -415,7 +415,7 @@ export default function AdminUsersPage() {
                         )}
                       </button>
                     </td>
-                    <td style={{ padding: '16px 24px', color: '#64748b', fontSize: '0.8rem' }}>
+                    <td style={{ padding: '16px 24px', color: '#64748b', fontSize: '0.875rem' }}>
                       {u.date_joined ? new Date(u.date_joined).toISOString().split('T')[0] : '-'}
                     </td>
                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
@@ -466,7 +466,7 @@ export default function AdminUsersPage() {
                   borderTop: '1px solid #f1f5f9',
                 }}
               >
-                <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                <span style={{ color: '#64748b', fontSize: '0.875rem' }}>
                   Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
                   <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
                   <strong style={{ color: '#0f172a' }}>{filteredUsers.length}</strong> accounts
@@ -489,7 +489,7 @@ export default function AdminUsersPage() {
                     {getPageNumbers().map((page, idx) => {
                       if (page === '...') {
                         return (
-                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.875rem' }}>
                             ...
                           </span>
                         );
@@ -723,7 +723,7 @@ export default function AdminUsersPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, color: '#334155' }}>
                     <input
                       type="checkbox"
                       checked={editUserData.is_active}
@@ -761,7 +761,7 @@ export default function AdminUsersPage() {
               </button>
             </div>
 
-            <p style={{ margin: '0 0 16px', color: '#64748b', fontSize: '0.83rem' }}>
+            <p style={{ margin: '0 0 16px', color: '#64748b', fontSize: '0.875rem' }}>
               Enter a new secure password for <strong>{passwordTargetUser.username}</strong> ({passwordTargetUser.email}).
             </p>
 
@@ -815,7 +815,7 @@ const thStyle = {
   padding: '16px 24px',
   fontWeight: 600,
   textTransform: 'uppercase',
-  fontSize: '0.75rem',
+  fontSize: '0.875rem',
   letterSpacing: '0.05em',
 };
 
@@ -828,7 +828,7 @@ const actionBtnBlue = {
   padding: '8px 18px',
   borderRadius: '8px',
   fontWeight: 600,
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };
 
@@ -841,7 +841,7 @@ const actionBtnAmber = {
   padding: '8px 18px',
   borderRadius: '8px',
   fontWeight: 600,
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };
 
@@ -851,7 +851,7 @@ const actionBtnSecondary = {
   border: '1px solid #bfdbfe',
   padding: '6px 12px',
   borderRadius: '6px',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
   display: 'inline-flex',
   alignItems: 'center',
@@ -865,7 +865,7 @@ const actionBtnKey = {
   border: '1px solid #fed7aa',
   padding: '6px 12px',
   borderRadius: '6px',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
   display: 'inline-flex',
   alignItems: 'center',
@@ -879,7 +879,7 @@ const actionBtnDanger = {
   border: '1px solid #fecaca',
   padding: '6px 12px',
   borderRadius: '6px',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
   display: 'inline-flex',
   alignItems: 'center',
@@ -894,7 +894,7 @@ const actionBtnNeutral = {
   padding: '8px 18px',
   borderRadius: '8px',
   fontWeight: 600,
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };
 
@@ -903,7 +903,7 @@ const selectStyle = {
   borderRadius: '8px',
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   color: '#334155',
   outline: 'none',
 };
@@ -933,7 +933,7 @@ const inputStyleFull = {
 
 const labelStyle = {
   display: 'block',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   color: '#1e293b',
   marginBottom: '6px',
@@ -978,7 +978,7 @@ const paginationBtnStyle = {
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
   color: '#334155',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   transition: 'all 0.15s ease',
 };
@@ -989,7 +989,7 @@ const paginationPageNumStyle = {
   padding: '0 6px',
   borderRadius: '6px',
   border: '1px solid #e2e8f0',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',

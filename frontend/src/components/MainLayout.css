@@ -38,7 +38,7 @@
   border: none;
   background: transparent;
   color: #64748b;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -79,7 +79,7 @@
   border-radius: 16px;
   text-decoration: none;
   color: #64748b;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
   transition:

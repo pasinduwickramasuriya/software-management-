@@ -455,9 +455,9 @@ export default function MainLayout() {
         </nav>
 
         <div className="mobile-drawer-footer">
-          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>Signed in as</div>
+          <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>Signed in as</div>
           <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>{user?.username}</div>
-          <div style={{ fontSize: '0.78rem', color: '#2563eb', textTransform: 'capitalize', marginTop: '2px' }}>
+          <div style={{ fontSize: '0.875rem', color: '#2563eb', textTransform: 'capitalize', marginTop: '2px' }}>
             {role?.replace(/_/g, ' ')}
           </div>
         </div>
