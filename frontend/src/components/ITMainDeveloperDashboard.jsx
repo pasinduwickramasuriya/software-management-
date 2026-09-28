@@ -269,16 +269,16 @@ export default function ITMainDeveloperDashboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Layers size={24} color="#2563EB" />
+          <div style={{ width: '48px', height: '48px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Layers size={22} color="#2563EB" />
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)', fontWeight: 700, color: '#0f172a' }}>
               Project & Task Management
             </h1>
-            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.88rem' }}>
               Assign work, track progress, and ship completed projects.
             </p>
           </div>
@@ -286,15 +286,15 @@ export default function ITMainDeveloperDashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
         <div
           onClick={() => setStatusFilter('All Projects')}
           style={{ ...statCardStyle, border: '1px solid #3b82f6', cursor: 'pointer' }}
           title="Click to filter by All Projects"
         >
-          <span style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 600 }}>Total Projects</span>
+          <span style={{ color: '#2563eb', fontSize: '0.875rem', fontWeight: 600 }}>Total Projects</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0f172a' }}>{projects.length}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Authorized by IT Director</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Authorized by IT Director</span>
         </div>
 
         <div
@@ -302,9 +302,9 @@ export default function ITMainDeveloperDashboard() {
           style={{ ...statCardStyle, border: '1px solid #f59e0b', cursor: 'pointer' }}
           title="Click to filter by Not Started"
         >
-          <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Not Started</span>
+          <span style={{ color: '#b45309', fontSize: '0.875rem', fontWeight: 600 }}>Not Started</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{notStartedCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Awaiting task assignments</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Awaiting task assignments</span>
         </div>
 
         <div
@@ -312,9 +312,9 @@ export default function ITMainDeveloperDashboard() {
           style={{ ...statCardStyle, border: '1px solid #2563eb', cursor: 'pointer' }}
           title="Click to filter by In Progress"
         >
-          <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</span>
+          <span style={{ color: '#1d4ed8', fontSize: '0.875rem', fontWeight: 600 }}>In Progress</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{inProgressCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Under active development</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Under active development</span>
         </div>
 
         <div
@@ -322,17 +322,17 @@ export default function ITMainDeveloperDashboard() {
           style={{ ...statCardStyle, border: '1px solid #16a34a', cursor: 'pointer' }}
           title="Click to filter by Completed Projects"
         >
-          <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Completed Projects</span>
+          <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: 600 }}>Completed Projects</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{completedCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Closed & delivered</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Closed & delivered</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #8b5cf6' }}>
-          <span style={{ color: '#6d28d9', fontSize: '0.85rem', fontWeight: 600 }}>Overall Tasks</span>
+          <span style={{ color: '#6d28d9', fontSize: '0.875rem', fontWeight: 600 }}>Overall Tasks</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6d28d9' }}>
             {completedTasks} / {totalTasks}
           </span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Tasks completed by developers</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Tasks completed by developers</span>
         </div>
       </div>
 
@@ -347,18 +347,19 @@ export default function ITMainDeveloperDashboard() {
         }}
       >
         {/* Status Tabs Group */}
-        <div
-          style={{
-            position: 'relative',
-            display: 'inline-flex',
-            alignItems: 'center',
-            backgroundColor: '#eef2f6',
-            border: '1px solid #e2e8f0',
-            borderRadius: '10px',
-            padding: '4px',
-            gap: '4px',
-          }}
-        >
+        <div className="tabs-scroll-container" style={{ maxWidth: '100%', paddingBottom: '4px' }}>
+          <div
+            style={{
+              position: 'relative',
+              display: 'inline-flex',
+              alignItems: 'center',
+              backgroundColor: '#eef2f6',
+              border: '1px solid #e2e8f0',
+              borderRadius: '10px',
+              padding: '4px',
+              gap: '4px',
+            }}
+          >
           {/* Smooth sliding blue background pill */}
           <div
             style={{
@@ -388,7 +389,7 @@ export default function ITMainDeveloperDashboard() {
                   padding: '7px 16px',
                   borderRadius: '7px',
                   border: 'none',
-                  fontSize: '0.85rem',
+                  fontSize: '0.875rem',
                   fontWeight: isActive ? 600 : 500,
                   cursor: 'pointer',
                   backgroundColor: 'transparent',
@@ -402,9 +403,10 @@ export default function ITMainDeveloperDashboard() {
             );
           })}
         </div>
+      </div>
 
-        {/* Right Controls: Branch Filter & Search */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* Right Controls: Branch Filter & Search */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           {/* Branch Filter Box */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <select
@@ -417,7 +419,7 @@ export default function ITMainDeveloperDashboard() {
                 padding: '8px 36px 8px 14px',
                 borderRadius: '8px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.85rem',
+                fontSize: '0.875rem',
                 backgroundColor: '#ffffff',
                 color: '#334155',
                 outline: 'none',
@@ -453,7 +455,7 @@ export default function ITMainDeveloperDashboard() {
                 padding: '8px 12px 8px 34px',
                 borderRadius: '8px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.85rem',
+                fontSize: '0.875rem',
                 width: '240px',
                 outline: 'none',
                 backgroundColor: '#ffffff',
@@ -477,7 +479,8 @@ export default function ITMainDeveloperDashboard() {
             No authorized projects found. Projects will appear here once approved by the IT Director.
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', minWidth: '850px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8fafc', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>
                 <th style={{ padding: '12px 16px' }}>Project ID</th>
@@ -501,7 +504,7 @@ export default function ITMainDeveloperDashboard() {
                         color: '#334155',
                         padding: '3px 8px',
                         borderRadius: '6px',
-                        fontSize: '0.8rem',
+                        fontSize: '0.875rem',
                         fontWeight: 500,
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -514,7 +517,7 @@ export default function ITMainDeveloperDashboard() {
                   <td style={{ padding: '12px 16px', fontWeight: 600, color: '#1e293b' }}>{p.project_name}</td>
                   <td style={{ padding: '12px 16px', width: '220px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                         <span style={{ color: '#475569' }}>
                           {p.completed_tasks} / {p.total_tasks} Tasks Done
                         </span>
@@ -588,7 +591,8 @@ export default function ITMainDeveloperDashboard() {
               ))}
             </tbody>
           </table>
-        )}
+        </div>
+      )}
 
         {/* Pagination Footer */}
         {!loading && filteredProjects.length > 0 && (
@@ -605,7 +609,7 @@ export default function ITMainDeveloperDashboard() {
             }}
           >
             {/* Left Info */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.85rem', color: '#64748b', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.875rem', color: '#64748b', flexWrap: 'wrap' }}>
               <span>
                 Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
                 <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
@@ -631,7 +635,7 @@ export default function ITMainDeveloperDashboard() {
                 {getPageNumbers().map((page, idx) => {
                   if (page === '...') {
                     return (
-                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                      <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.875rem' }}>
                         ...
                       </span>
                     );
@@ -677,7 +681,7 @@ export default function ITMainDeveloperDashboard() {
             <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0, color: '#0f172a' }}>Assign Task to Developer</h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
                   Project: <strong>{assigningProject.project_name}</strong> (#{assigningProject.project_id})
                 </span>
               </div>
@@ -754,7 +758,7 @@ export default function ITMainDeveloperDashboard() {
             <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0 }}>Project Tasks: {managingProjectTasks.project_name}</h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
                   Total Tasks: <strong>{managingProjectTasks.tasks?.length || 0}</strong>
                 </span>
               </div>
@@ -785,11 +789,11 @@ export default function ITMainDeveloperDashboard() {
                     >
                       <div>
                         <div style={{ fontWeight: 600, color: '#1e293b' }}>{t.task_title}</div>
-                        <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '2px' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '2px' }}>
                           Assigned to: <strong>{t.assigned_to_name}</strong>
                         </div>
                         {t.description && (
-                          <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#475569' }}>{t.description}</p>
+                          <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: '#475569' }}>{t.description}</p>
                         )}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -837,7 +841,7 @@ export default function ITMainDeveloperDashboard() {
             <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0 }}>Project #{viewingProject.project_id} Specifications</h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
                   Branch: <strong>{viewingProject.branch_name}</strong>
                 </span>
               </div>
@@ -907,7 +911,7 @@ export default function ITMainDeveloperDashboard() {
                               display: 'flex',
                               alignItems: 'center',
                               gap: '4px',
-                              fontSize: '0.78rem',
+                              fontSize: '0.875rem',
                               fontWeight: 600,
                             }}
                           >
@@ -962,7 +966,7 @@ const iconBtnStyle = {
   padding: '6px 12px',
   borderRadius: '6px',
   fontWeight: 500,
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
   display: 'inline-flex',
   alignItems: 'center',
@@ -973,7 +977,7 @@ const tabBtnStyle = {
   padding: '6px 14px',
   borderRadius: '8px',
   border: '1px solid #cbd5e1',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   cursor: 'pointer',
   transition: 'all 0.2s',
@@ -995,7 +999,7 @@ const badgeStyle = {
   gap: '4px',
   padding: '4px 10px',
   borderRadius: '12px',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
 };
 
@@ -1005,21 +1009,28 @@ const modalOverlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(15, 23, 42, 0.5)',
+  backgroundColor: 'rgba(15, 23, 42, 0.45)',
+  backdropFilter: 'blur(4px)',
+  WebkitBackdropFilter: 'blur(4px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: '16px',
   zIndex: 1000,
+  overflowY: 'auto',
 };
 
 const modalContentStyle = {
   backgroundColor: '#ffffff',
-  borderRadius: '12px',
+  borderRadius: '16px',
   width: '100%',
-  maxWidth: '550px',
-  maxHeight: '90vh',
+  maxWidth: '560px',
+  maxHeight: 'calc(100vh - 32px)',
+  maxHeight: 'calc(100dvh - 32px)',
   overflowY: 'auto',
+  padding: 'clamp(16px, 3vw, 24px)',
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+  boxSizing: 'border-box',
 };
 
 const stickyModalHeaderStyle = {
@@ -1040,7 +1051,7 @@ const modalBodyStyle = {
 
 const labelStyle = {
   display: 'block',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   color: '#334155',
   marginBottom: '6px',
@@ -1064,7 +1075,7 @@ const paginationBtnStyle = {
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
   color: '#334155',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   transition: 'all 0.15s ease',
 };
@@ -1075,7 +1086,7 @@ const paginationPageNumStyle = {
   padding: '0 6px',
   borderRadius: '6px',
   border: '1px solid #e2e8f0',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',

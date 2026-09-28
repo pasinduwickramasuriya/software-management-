@@ -96,7 +96,7 @@ export default function AdminBranchesPage() {
             <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Building2 size={24} color="#0891b2" /> Organizational Branch Management
             </h2>
-            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.875rem' }}>
               Manage banking / corporate branch locations that submit software request tickets.
             </p>
           </div>
@@ -108,7 +108,7 @@ export default function AdminBranchesPage() {
         </div>
 
         {/* Search */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginTop: '20px', maxWidth: '320px' }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginTop: '20px', width: '100%', maxWidth: '320px' }}>
           <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px' }} />
           <input
             type="text"
@@ -138,8 +138,8 @@ export default function AdminBranchesPage() {
         ) : filteredBranches.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No branches match the search query.</div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', minWidth: '550px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                   <th style={thStyle}>Branch ID</th>
@@ -166,7 +166,7 @@ export default function AdminBranchesPage() {
                         color: '#16a34a',
                         padding: '2px 8px',
                         borderRadius: '12px',
-                        fontSize: '0.75rem',
+                        fontSize: '0.875rem',
                         fontWeight: 600,
                       }}>
                         Active
@@ -190,7 +190,7 @@ export default function AdminBranchesPage() {
                   borderTop: '1px solid #f1f5f9',
                 }}
               >
-                <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                <span style={{ color: '#64748b', fontSize: '0.875rem' }}>
                   Showing <strong style={{ color: '#0f172a' }}>{startIndex + 1}</strong> to{' '}
                   <strong style={{ color: '#0f172a' }}>{endIndex}</strong> of{' '}
                   <strong style={{ color: '#0f172a' }}>{filteredBranches.length}</strong> branches
@@ -213,7 +213,7 @@ export default function AdminBranchesPage() {
                     {getPageNumbers().map((page, idx) => {
                       if (page === '...') {
                         return (
-                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                          <span key={`ellipsis-${idx}`} style={{ padding: '0 4px', color: '#94a3b8', fontSize: '0.875rem' }}>
                             ...
                           </span>
                         );
@@ -300,7 +300,7 @@ const thStyle = {
   padding: '16px 24px',
   fontWeight: 600,
   textTransform: 'uppercase',
-  fontSize: '0.75rem',
+  fontSize: '0.875rem',
   letterSpacing: '0.05em',
 };
 
@@ -313,7 +313,7 @@ const actionBtnBlue = {
   padding: '8px 18px',
   borderRadius: '8px',
   fontWeight: 600,
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };
 
@@ -324,7 +324,7 @@ const actionBtnNeutral = {
   padding: '8px 18px',
   borderRadius: '8px',
   fontWeight: 600,
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };
 
@@ -341,7 +341,7 @@ const inputStyleFull = {
 
 const labelStyle = {
   display: 'block',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   color: '#1e293b',
   marginBottom: '6px',
@@ -353,12 +353,15 @@ const modalOverlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(15, 23, 42, 0.4)',
+  backgroundColor: 'rgba(15, 23, 42, 0.45)',
   backdropFilter: 'blur(4px)',
+  WebkitBackdropFilter: 'blur(4px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: '16px',
   zIndex: 1000,
+  overflowY: 'auto',
 };
 
 const modalContentStyle = {
@@ -366,8 +369,12 @@ const modalContentStyle = {
   borderRadius: '16px',
   width: '100%',
   maxWidth: '460px',
-  padding: '24px',
+  maxHeight: 'calc(100vh - 32px)',
+  maxHeight: 'calc(100dvh - 32px)',
+  overflowY: 'auto',
+  padding: 'clamp(16px, 3vw, 24px)',
   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+  boxSizing: 'border-box',
 };
 
 const paginationBtnStyle = {
@@ -379,7 +386,7 @@ const paginationBtnStyle = {
   border: '1px solid #cbd5e1',
   backgroundColor: '#ffffff',
   color: '#334155',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 500,
   transition: 'all 0.15s ease',
 };
@@ -390,7 +397,7 @@ const paginationPageNumStyle = {
   padding: '0 6px',
   borderRadius: '6px',
   border: '1px solid #e2e8f0',
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',

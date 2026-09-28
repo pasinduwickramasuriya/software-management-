@@ -74,7 +74,7 @@ export default function AdminDashboard({ setActivePage }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* 4 Stat Cards in Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '16px' }}>
         <div
           onClick={() => setActivePage('users')}
           style={{ ...newStatCardStyle, cursor: 'pointer' }}
@@ -84,7 +84,7 @@ export default function AdminDashboard({ setActivePage }) {
             <Users size={18} color="#2563eb" />
           </div>
           <span style={{ ...statValueStyle, color: '#0f172a' }}>{users.length}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Across all 6 system roles</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Across all 6 system roles</span>
         </div>
 
         <div
@@ -96,7 +96,7 @@ export default function AdminDashboard({ setActivePage }) {
             <Building2 size={18} color="#0891b2" />
           </div>
           <span style={{ ...statValueStyle, color: '#0891b2' }}>{branches.length}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Organizational branches</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Organizational branches</span>
         </div>
 
         <div
@@ -108,7 +108,7 @@ export default function AdminDashboard({ setActivePage }) {
             <FileText size={18} color="#4338ca" />
           </div>
           <span style={{ ...statValueStyle, color: '#4338ca' }}>{tickets.length}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Software proposal lifecycle</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Software proposal lifecycle</span>
         </div>
 
         <div
@@ -120,12 +120,12 @@ export default function AdminDashboard({ setActivePage }) {
             <Layers size={18} color="#16a34a" />
           </div>
           <span style={{ ...statValueStyle, color: '#16a34a' }}>{projects.length}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Provisioned development</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Provisioned development</span>
         </div>
       </div>
 
       {/* Quick Actions Card */}
-      <div style={{ ...contentCardStyle, padding: '20px 24px' }}>
+      <div style={{ ...contentCardStyle, padding: '20px' }}>
         <h3 style={{ margin: '0 0 16px', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
           Administrator Quick Operations
         </h3>
@@ -173,7 +173,7 @@ export default function AdminDashboard({ setActivePage }) {
       </div>
 
       {/* Dual Section: Recent Tickets & Recent Users */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '20px' }}>
         
         {/* Recent Tickets Table */}
         <div style={contentCardStyle}>
@@ -181,7 +181,7 @@ export default function AdminDashboard({ setActivePage }) {
             <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>Recent Tickets</h2>
             <button
               onClick={() => setActivePage('tickets')}
-              style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem' }}
+              style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '0.875rem' }}
             >
               View All ({tickets.length}) →
             </button>
@@ -192,8 +192,8 @@ export default function AdminDashboard({ setActivePage }) {
           ) : recentTickets.length === 0 ? (
             <div style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No tickets yet.</div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <div className="table-responsive-wrapper">
+              <table style={{ width: '100%', minWidth: '420px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
                 <thead>
                   <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                     <th style={thStyle}>ID</th>
@@ -223,7 +223,7 @@ export default function AdminDashboard({ setActivePage }) {
             <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>System Accounts</h2>
             <button
               onClick={() => setActivePage('users')}
-              style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem' }}
+              style={{ background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontSize: '0.875rem' }}
             >
               Manage Users ({users.length}) →
             </button>
@@ -234,8 +234,8 @@ export default function AdminDashboard({ setActivePage }) {
           ) : recentUsers.length === 0 ? (
             <div style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No users found.</div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <div className="table-responsive-wrapper">
+              <table style={{ width: '100%', minWidth: '420px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
                 <thead>
                   <tr style={{ color: '#94a3b8', borderBottom: '1px solid #f1f5f9' }}>
                     <th style={thStyle}>Username</th>
@@ -259,7 +259,7 @@ export default function AdminDashboard({ setActivePage }) {
                           gap: '4px',
                           color: u.is_active ? '#16a34a' : '#dc2626',
                           fontWeight: 500,
-                          fontSize: '0.78rem',
+                          fontSize: '0.875rem',
                         }}>
                           {u.is_active ? '● Active' : '○ Disabled'}
                         </span>
@@ -291,7 +291,7 @@ const newStatCardStyle = {
 };
 
 const statLabelStyle = {
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   color: '#64748b',
   fontWeight: 500,
   display: 'block',
@@ -321,7 +321,7 @@ const thStyle = {
   padding: '12px 16px',
   fontWeight: 600,
   textTransform: 'uppercase',
-  fontSize: '0.72rem',
+  fontSize: '0.875rem',
   letterSpacing: '0.05em',
 };
 
@@ -331,7 +331,7 @@ const roleBadgeStyle = {
   color: '#1d4ed8',
   padding: '2px 8px',
   borderRadius: '12px',
-  fontSize: '0.75rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
 };
 
@@ -339,7 +339,7 @@ const badgeStyle = {
   display: 'inline-block',
   padding: '3px 10px',
   borderRadius: '20px',
-  fontSize: '0.72rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   lineHeight: 1.5,
 };
@@ -353,7 +353,7 @@ const actionBtnBlue = {
   padding: '8px 18px',
   borderRadius: '8px',
   fontWeight: 600,
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };
 
@@ -366,7 +366,7 @@ const actionBtnOutline = {
   padding: '8px 18px',
   borderRadius: '8px',
   fontWeight: 600,
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };
 
@@ -379,6 +379,6 @@ const actionBtnNeutral = {
   padding: '8px 18px',
   borderRadius: '8px',
   fontWeight: 600,
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
 };

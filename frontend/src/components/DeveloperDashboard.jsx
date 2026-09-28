@@ -104,46 +104,46 @@ export default function DeveloperDashboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <div style={{ width: '56px', height: '56px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Briefcase size={24} color="#2563EB" />
-      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '48px', height: '48px', backgroundColor: '#dbeafe', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Briefcase size={22} color="#2563EB" />
+          </div>
           <div>
-      <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>
-        Developer Workspace
-      </h1>
-      <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-        Track and execute development tasks assigned to you by the IT Main Developer.
-      </p>
-    </div>
-  </div>
-</div>
+            <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)', fontWeight: 700, color: '#0f172a' }}>
+              Developer Workspace
+            </h1>
+            <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.88rem' }}>
+              Track and execute development tasks assigned to you by the IT Main Developer.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Summary Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
         <div style={{ ...statCardStyle, border: '1px solid #3b82f6' }}>
-          <span style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 600 }}>Total Assigned Tasks</span>
+          <span style={{ color: '#2563eb', fontSize: '0.875rem', fontWeight: 600 }}>Total Assigned Tasks</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0f172a' }}>{tasks.length}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Assigned to your queue</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Assigned to your queue</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #f59e0b' }}>
-          <span style={{ color: '#b45309', fontSize: '0.85rem', fontWeight: 600 }}>Not Started</span>
+          <span style={{ color: '#b45309', fontSize: '0.875rem', fontWeight: 600 }}>Not Started</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309' }}>{notStartedCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Ready to be picked up</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Ready to be picked up</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #2563eb' }}>
-          <span style={{ color: '#1d4ed8', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</span>
+          <span style={{ color: '#1d4ed8', fontSize: '0.875rem', fontWeight: 600 }}>In Progress</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8' }}>{inProgressCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Currently working on</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Currently working on</span>
         </div>
 
         <div style={{ ...statCardStyle, border: '1px solid #16a34a' }}>
-          <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>Completed</span>
+          <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: 600 }}>Completed</span>
           <span style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d' }}>{completedCount}</span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Delivered & tested</span>
+          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Delivered & tested</span>
         </div>
       </div>
 
@@ -163,44 +163,49 @@ export default function DeveloperDashboard() {
           }}
         >
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => setFilterTab('active')}
-              style={{
-                ...tabBtnStyle,
-                backgroundColor: filterTab === 'active' ? '#2563eb' : '#ffffff',
-                color: filterTab === 'active' ? '#ffffff' : '#475569',
-                borderColor: filterTab === 'active' ? '#2563eb' : '#cbd5e1',
-              }}
-            >
-              ⚡ Active Tasks ({notStartedCount + inProgressCount})
-            </button>
-            <button
-              onClick={() => setFilterTab('completed')}
-              style={{
-                ...tabBtnStyle,
-                backgroundColor: filterTab === 'completed' ? '#2563eb' : '#ffffff',
-                color: filterTab === 'completed' ? '#ffffff' : '#475569',
-                borderColor: filterTab === 'completed' ? '#2563eb' : '#cbd5e1',
-              }}
-            >
-              ✅ Completed ({completedCount})
-            </button>
-            <button
-              onClick={() => setFilterTab('all')}
-              style={{
-                ...tabBtnStyle,
-                backgroundColor: filterTab === 'all' ? '#2563eb' : '#ffffff',
-                color: filterTab === 'all' ? '#ffffff' : '#475569',
-                borderColor: filterTab === 'all' ? '#2563eb' : '#cbd5e1',
-              }}
-            >
-              📑 All Tasks ({tasks.length})
-            </button>
+          <div className="tabs-scroll-container" style={{ maxWidth: '100%', paddingBottom: '4px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setFilterTab('active')}
+                style={{
+                  ...tabBtnStyle,
+                  backgroundColor: filterTab === 'active' ? '#2563eb' : '#ffffff',
+                  color: filterTab === 'active' ? '#ffffff' : '#475569',
+                  borderColor: filterTab === 'active' ? '#2563eb' : '#cbd5e1',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                ⚡ Active ({notStartedCount + inProgressCount})
+              </button>
+              <button
+                onClick={() => setFilterTab('completed')}
+                style={{
+                  ...tabBtnStyle,
+                  backgroundColor: filterTab === 'completed' ? '#2563eb' : '#ffffff',
+                  color: filterTab === 'completed' ? '#ffffff' : '#475569',
+                  borderColor: filterTab === 'completed' ? '#2563eb' : '#cbd5e1',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                ✅ Completed ({completedCount})
+              </button>
+              <button
+                onClick={() => setFilterTab('all')}
+                style={{
+                  ...tabBtnStyle,
+                  backgroundColor: filterTab === 'all' ? '#2563eb' : '#ffffff',
+                  color: filterTab === 'all' ? '#ffffff' : '#475569',
+                  borderColor: filterTab === 'all' ? '#2563eb' : '#cbd5e1',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                📑 All ({tasks.length})
+              </button>
+            </div>
           </div>
 
           {/* Search Box */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '1 1 200px', maxWidth: '280px' }}>
             <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: '10px' }} />
             <input
               type="text"
@@ -209,11 +214,11 @@ export default function DeveloperDashboard() {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 ...inputStyle,
-                width: '240px',
+                width: '100%',
                 paddingLeft: '32px',
                 paddingTop: '6px',
                 paddingBottom: '6px',
-                fontSize: '0.85rem',
+                fontSize: '0.875rem',
               }}
             />
           </div>
@@ -255,7 +260,7 @@ export default function DeveloperDashboard() {
                         color: '#475569',
                         padding: '2px 8px',
                         borderRadius: '6px',
-                        fontSize: '0.75rem',
+                        fontSize: '0.875rem',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px',
@@ -265,7 +270,7 @@ export default function DeveloperDashboard() {
                     </span>
                   </div>
 
-                  <div style={{ fontSize: '0.85rem', color: '#475569' }}>
+                  <div style={{ fontSize: '0.875rem', color: '#475569' }}>
                     Project: <strong style={{ color: '#1e293b' }}>{t.ticket_name}</strong> (Ticket #{t.ticket})
                   </div>
 
@@ -275,7 +280,7 @@ export default function DeveloperDashboard() {
                     </p>
                   )}
 
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                  <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
                     Assigned Date: {new Date(t.created_at).toLocaleDateString()}
                   </span>
                 </div>
@@ -352,7 +357,7 @@ export default function DeveloperDashboard() {
             <div style={stickyModalHeaderStyle}>
               <div>
                 <h3 style={{ margin: 0 }}>Task #{viewingTask.task_id} Details</h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
                   Project: <strong>{viewingTask.ticket_name}</strong>
                 </span>
               </div>
@@ -454,7 +459,7 @@ const iconBtnStyle = {
   padding: '6px 12px',
   borderRadius: '6px',
   fontWeight: 500,
-  fontSize: '0.82rem',
+  fontSize: '0.875rem',
   cursor: 'pointer',
   display: 'inline-flex',
   alignItems: 'center',
@@ -465,7 +470,7 @@ const tabBtnStyle = {
   padding: '6px 14px',
   borderRadius: '8px',
   border: '1px solid #cbd5e1',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   cursor: 'pointer',
   transition: 'all 0.2s',
@@ -487,7 +492,7 @@ const badgeStyle = {
   gap: '4px',
   padding: '4px 10px',
   borderRadius: '12px',
-  fontSize: '0.78rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
 };
 
@@ -497,21 +502,28 @@ const modalOverlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(15, 23, 42, 0.5)',
+  backgroundColor: 'rgba(15, 23, 42, 0.45)',
+  backdropFilter: 'blur(4px)',
+  WebkitBackdropFilter: 'blur(4px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: '16px',
   zIndex: 1000,
+  overflowY: 'auto',
 };
 
 const modalContentStyle = {
   backgroundColor: '#ffffff',
-  borderRadius: '12px',
+  borderRadius: '16px',
   width: '100%',
-  maxWidth: '550px',
-  maxHeight: '90vh',
+  maxWidth: '560px',
+  maxHeight: 'calc(100vh - 32px)',
+  maxHeight: 'calc(100dvh - 32px)',
   overflowY: 'auto',
+  padding: 'clamp(16px, 3vw, 24px)',
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+  boxSizing: 'border-box',
 };
 
 const stickyModalHeaderStyle = {
@@ -529,7 +541,7 @@ const stickyModalHeaderStyle = {
 
 const labelStyle = {
   display: 'block',
-  fontSize: '0.85rem',
+  fontSize: '0.875rem',
   fontWeight: 600,
   color: '#334155',
   marginBottom: '6px',
