@@ -1,5 +1,5 @@
 import React, { useRef, useLayoutEffect, useEffect, useState } from 'react';
-import { ExternalLink, Menu, X } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ProfileMenu from './ProfileMenu';
 import { useAuth } from '../context/AuthContext';
@@ -170,7 +170,7 @@ const ROLE_CONFIG = {
 };
 
 export default function MainLayout() {
-  const { role, user } = useAuth();
+  const { role } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -187,15 +187,9 @@ export default function MainLayout() {
   });
 
   const [isReady, setIsReady] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navRef = useRef(null);
   const buttonRefs = useRef({});
-
-  // Close mobile drawer on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
 
   /*
    * Find the current page from the URL.
@@ -285,42 +279,65 @@ export default function MainLayout() {
       }}
     >
       {/* Header */}
-      <header className="app-header">
+      <header
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '14px 32px',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+        }}
+      >
         {/* Logo / Brand */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            cursor: 'pointer',
           }}
-          onClick={() => navigate(`${config.basePath}/${config.default}`)}
         >
           <div
             style={{
-              width: '36px',
-              height: '36px',
+              width: '38px',
+              height: '38px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0,
             }}
           >
             <img
               src="/emblem.svg"
               alt="Sri Lanka Emblem"
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ width: '130%', height: '130%', objectFit: 'contain' }}
             />
           </div>
 
           <div style={{ lineHeight: 1.2 }}>
-            <span className="brand-title">Software Management System</span>
-            <span className="brand-title-short">SMS</span>
+
+            <div
+              style={{
+                fontSize: '1.4rem',
+                color: '#2563eb',
+                fontWeight: 700,
+              }}
+            >
+              Software Management System
+            </div>
           </div>
         </div>
 
         {/* Navigation + Profile */}
-        <div className="desktop-nav-container">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '20px',
+          }}
+        >
           <nav ref={navRef} className="nav-pill-group">
             {/* Smooth sliding active indicator */}
             <div
@@ -335,6 +352,7 @@ export default function MainLayout() {
             />
 
             {config.items.map((item) => {
+              // External link - Django Admin
               if (item.external) {
                 return (
                   <a
@@ -375,16 +393,6 @@ export default function MainLayout() {
           </nav>
 
           <ProfileMenu />
-
-          {/* Mobile hamburger menu toggle */}
-          <button
-            type="button"
-            className="mobile-menu-toggle"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
-            aria-label="Toggle navigation menu"
-          >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
       </header>
 
@@ -464,16 +472,25 @@ export default function MainLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="app-main">
-        <div className="app-content-container">
+      <main
+        style={{
+          padding: '32px',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+          }}
+        >
           <ActiveComponent
-            setActivePage={(pageKey, filter) => {
+            setActivePage={(pageKey) => {
               const item = config.items.find(
                 (item) => item.key === pageKey
               );
 
               if (item && !item.external) {
-                navigate(`${config.basePath}/${item.path}`, { state: { filter } });
+                navigate(`${config.basePath}/${item.path}`);
               }
             }}
           />
@@ -482,4 +499,3 @@ export default function MainLayout() {
     </div>
   );
 }
-
