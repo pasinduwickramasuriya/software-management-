@@ -520,7 +520,7 @@ export default function DashboardPage() {
       {decisionTicket && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={stickyModalHeaderStyle}>
               <h3 style={{ margin: 0, color: '#0f172a', fontSize: '1.2rem' }}>
                 Director Authorization for Ticket #TK-{decisionTicket.ticket_id}
               </h3>
@@ -529,7 +529,7 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <form onSubmit={handleDecisionSubmit}>
+            <form onSubmit={handleDecisionSubmit} style={{ padding: '0 24px 24px' }}>
               <div style={{ marginBottom: '16px' }}>
                 <label style={labelStyle}>Decision Choice</label>
                 <div style={{ display: 'flex', gap: '16px', marginTop: '6px' }}>
@@ -807,9 +807,10 @@ const modalContentStyle = {
   maxHeight: 'calc(100vh - 32px)',
   maxHeight: 'calc(100dvh - 32px)',
   overflowY: 'auto',
-  padding: 'clamp(16px, 3vw, 24px)',
+  padding: 0,
   boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
   boxSizing: 'border-box',
+
 };
 
 const stickyModalHeaderStyle = {
@@ -822,6 +823,8 @@ const stickyModalHeaderStyle = {
   padding: '24px 24px 12px',
   marginBottom: '16px',
   zIndex: 2,
+  borderTopLeftRadius: '16px',
+  borderTopRightRadius: '16px',
 };
 
 const labelStyle = {

@@ -112,18 +112,18 @@ export default function ViewTicketsPage() {
   };
 
   const getStatusBadge = (status) => {
-    switch (status) {
-      case 'draft': return <span style={{ ...badgeStyle, bg: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}>Draft</span>;
-      case 'pending_executive': return <span style={{ ...badgeStyle, bg: '#fef3c7', color: '#b45309' }}>Pending Exec</span>;
-      case 'rejected_by_executive': return <span style={{ ...badgeStyle, bg: '#fef2f2', color: '#dc2626' }}>Rejected by Exec</span>;
-      case 'pending_director': return <span style={{ ...badgeStyle, bg: '#e0e7ff', color: '#4338ca' }}>Pending Director</span>;
-      case 'rejected_by_director': return <span style={{ ...badgeStyle, bg: '#fff1f2', color: '#be123c' }}>Rejected by Director</span>;
-      case 'approved': return <span style={{ ...badgeStyle, bg: '#dcfce7', color: '#15803d' }}>Approved / In Dev</span>;
-      case 'completed': return <span style={{ ...badgeStyle, bg: '#f0fdf4', color: '#166534' }}>Completed</span>;
-      case 'closed': return <span style={{ ...badgeStyle, bg: '#f1f5f9', color: '#475569' }}>Closed</span>;
-      default: return <span style={{ ...badgeStyle, bg: '#f1f5f9', color: '#475569' }}>{status}</span>;
-    }
-  };
+  switch (status) {
+    case 'draft': return <span style={{ ...badgeStyle, backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}>Draft</span>;
+    case 'pending_executive': return <span style={{ ...badgeStyle, backgroundColor: '#fef3c7', color: '#b45309' }}>Pending Exec</span>;
+    case 'rejected_by_executive': return <span style={{ ...badgeStyle, backgroundColor: '#fef2f2', color: '#dc2626' }}>Rejected by Exec</span>;
+    case 'pending_director': return <span style={{ ...badgeStyle, backgroundColor: '#e0e7ff', color: '#4338ca' }}>Pending Director</span>;
+    case 'rejected_by_director': return <span style={{ ...badgeStyle, backgroundColor: '#fff1f2', color: '#be123c' }}>Rejected by Director</span>;
+    case 'approved': return <span style={{ ...badgeStyle, backgroundColor: '#dcfce7', color: '#15803d' }}>Approved / In Dev</span>;
+    case 'completed': return <span style={{ ...badgeStyle, backgroundColor: '#f0fdf4', color: '#166534' }}>Completed</span>;
+    case 'closed': return <span style={{ ...badgeStyle, backgroundColor: '#f1f5f9', color: '#475569' }}>Closed</span>;
+    default: return <span style={{ ...badgeStyle, backgroundColor: '#f1f5f9', color: '#475569' }}>{status}</span>;
+  }
+};
 
   // Tabs Logic
   const totalCount = tickets.length;
@@ -575,7 +575,7 @@ const actionBtnDangerOutline = { backgroundColor: '#ffffff', color: '#dc2626', b
 const actionBtnNeutral = { backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '6px', fontWeight: 500, fontSize: '0.875rem', cursor: 'pointer' };
 
 const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 1000, overflowY: 'auto' };
-const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '560px', maxHeight: 'calc(100vh - 32px)', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', padding: 'clamp(16px, 3vw, 24px)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', boxSizing: 'border-box' };
+const modalContentStyle = { backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '560px', maxHeight: 'calc(100vh - 32px)', maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', padding: 0, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', boxSizing: 'border-box' };
 const stickyModalHeaderStyle = {
   position: 'sticky',
   top: 0,
@@ -586,6 +586,9 @@ const stickyModalHeaderStyle = {
   padding: '20px 24px',
   borderBottom: '1px solid #f1f5f9',
   zIndex: 2,
+  borderTopLeftRadius: '16px',
+  borderTopRightRadius: '16px',
+
 };
 const modalBodyStyle = {
   padding: '24px',

@@ -67,6 +67,14 @@ export default function AdminProjectsPage() {
     p.ticket?.project_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getDevelopers = (p) => {
+  if (Array.isArray(p.assigned_developers) && p.assigned_developers.length > 0) {
+    return p.assigned_developers.map((d) => d.username || d);
+  }
+  const names = (p.tasks || []).map((t) => t.assigned_to_name).filter(Boolean);
+  return [...new Set(names)]; // unique names
+};
+
   // Pagination slicing & calculations
   const totalPages = Math.ceil(filteredProjects.length / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -156,11 +164,11 @@ export default function AdminProjectsPage() {
                     </td>
                     <td style={{ padding: '16px 24px', fontWeight: 600, color: '#1e293b' }}>{p.project_name}</td>
                     <td style={{ padding: '16px 24px' }}>
-                      {p.assigned_developers && p.assigned_developers.length > 0 ? (
+                      {getDevelopers(p).length > 0 ? (
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                          {p.assigned_developers.map((d, i) => (
+                          {getDevelopers(p).map((name, i) => (
                             <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '0.875rem' }}>
-                              <User size={10} /> {d.username || d}
+                              <User size={10} /> {name}
                             </span>
                           ))}
                         </div>
